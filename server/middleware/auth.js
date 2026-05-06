@@ -1,6 +1,4 @@
-import { createClerkClient } from '@clerk/clerk-sdk-node';
-
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+import { verifyToken } from '@clerk/backend';
 
 export async function requireAuth(req, res, next) {
   try {
@@ -9,8 +7,10 @@ export async function requireAuth(req, res, next) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const token = authHeader.slice(7);
-    const payload = await clerk.verifyToken(token);
-    req.userId = payload.sub; // Clerk user ID
+    const payload = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
+    req.userId = payload.sub;
     next();
   } catch {
     return res.status(401).json({ error: 'Invalid token' });

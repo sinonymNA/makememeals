@@ -10,9 +10,6 @@ import paymentsRouter from './routes/payments.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Stripe webhook needs raw body — must come before json middleware
-app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
-
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,

@@ -8,12 +8,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.53.0",
-    "@clerk/clerk-sdk-node": "^5.1.6",
-    "@supabase/supabase-js": "^2.49.4",
+    "@clerk/backend": "^3.4.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "resend": "^4.5.1",
-    "stripe": "^17.7.0"
+    "postgres": "^3.4.9"
   }
 }
