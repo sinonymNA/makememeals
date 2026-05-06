@@ -1,0 +1,19 @@
+{
+  "chicken_breast_per_lb": 4.99,
+  "chicken_thighs_per_lb": 3.49,
+  "ground_beef_per_lb": 5.99,
+  "salmon_per_lb": 9.99,
+  "shrimp_per_lb": 8.99,
+  "eggs_per_dozen": 3.49,
+  "milk_per_gallon": 3.99,
+  "butter_per_lb": 4.99,
+  "cheese_per_lb": 5.99,
+  "onion_per_lb": 1.29,
+  "garlic_per_head": 0.79,
+  "tomatoes_per_lb": 1.99,
+  "potatoes_per_lb": 0.99,
+  "rice_per_lb": 1.49,
+  "pasta_per_lb": 1.79,
+  "olive_oil_per_bottle": 8.99,
+  "bread_per_loaf": 3.49
+}
