@@ -3,8 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
+import sql from './db.js';
 import mealsRouter from './routes/meals.js';
 import groceryRouter from './routes/grocery.js';
 import userRouter from './routes/user.js';
@@ -37,6 +38,21 @@ if (existsSync(clientDist)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`MakeMeMeals server running on port ${PORT}`);
-});
+async function migrate() {
+  const schemaPath = join(__dirname, '../db/schema.sql');
+  if (!existsSync(schemaPath)) return;
+  const schema = readFileSync(schemaPath, 'utf8');
+  await sql.unsafe(schema);
+  console.log('Database schema ready');
+}
+
+migrate()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`MakeMeMeals server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Migration failed:', err.message);
+    process.exit(1);
+  });
