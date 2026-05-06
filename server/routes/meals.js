@@ -16,12 +16,7 @@ router.post('/generate', requireAuth, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Paywall: free tier = 1 plan
-    if (user.subscription === 'free' && user.free_weeks >= 1) {
-      return res.status(402).json({ error: 'paywall' });
-    }
-
-    const meals = await generateMeals(days, servings, preferences, previousMeals);
+    const meals = await generateMeals(days, servings, preferences, previousMeals, '');
 
     const [plan] = await sql`
       INSERT INTO meal_plans (user_id, days, week_of)
@@ -43,8 +38,14 @@ router.post('/generate', requireAuth, async (req, res) => {
 // POST /api/meals/generate-more
 router.post('/generate-more', requireAuth, async (req, res) => {
   try {
-    const { preferences, excludeNames = [] } = req.body;
-    const meals = await generateMeals(3, preferences?.servings || 4, preferences, excludeNames);
+    const { preferences, excludeNames = [], prefPrompt = '' } = req.body;
+    const meals = await generateMeals(
+      3,
+      preferences?.servings || 4,
+      preferences,
+      excludeNames,
+      prefPrompt
+    );
     res.json({ meals });
   } catch (err) {
     console.error('Generate-more error:', err);

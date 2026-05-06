@@ -18,7 +18,7 @@ export const generateMeals = (days, servings, preferences, previousMeals = []) =
   api.post('/meals/generate', { days, servings, preferences, previousMeals }).then(r => r.data);
 
 export const generateMore = (preferences, excludeNames) =>
-  api.post('/meals/generate-more', { preferences, excludeNames }).then(r => r.data);
+  api.post('/meals/generate-more', { preferences, excludeNames, prefPrompt: preferences.prefPrompt }).then(r => r.data);
 
 export const saveMeals = (planId, meals) =>
   api.post('/meals/save', { planId, meals }).then(r => r.data);

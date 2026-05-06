@@ -8,6 +8,7 @@ import SwipeCard from '../components/SwipeCard.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import RecipeCard from '../components/RecipeCard.jsx';
 import { setAuthToken, generateMore, saveMeals } from '../lib/api.js';
+import { analyzePreferences, buildPreferencePrompt } from '../lib/preferences.js';
 
 function ProgressDots({ total, confirmed }) {
   return (
@@ -42,7 +43,11 @@ export default function Swipe() {
     const raw = sessionStorage.getItem('swipeData');
     if (!raw) { navigate('/setup'); return; }
     const data = JSON.parse(raw);
-    setSwipeData(data);
+    setSwipeData({
+      ...data,
+      liked: data.liked || [],
+      disliked: data.disliked || [],
+    });
     setQueue(data.meals || []);
     setConfirmed(data.confirmed || []);
     setCurrentDayIndex(data.confirmed?.length || 0);
@@ -59,8 +64,13 @@ export default function Swipe() {
         ...queue.map(m => m.name),
         ...confirmed.map(m => m.name),
       ];
+
+      // Analyze preferences from what they've liked/disliked
+      const prefs = analyzePreferences(swipeData.liked || [], swipeData.disliked || []);
+      const prefPrompt = buildPreferencePrompt(prefs);
+
       const result = await generateMore(
-        { servings: swipeData.servings, ...swipeData.prefs },
+        { servings: swipeData.servings, ...swipeData.prefs, prefPrompt },
         excluded
       );
       setQueue(q => [...q, ...(result.meals || [])]);
@@ -84,6 +94,9 @@ export default function Swipe() {
     const meal = queue[0];
     const newConfirmed = [...confirmed, meal];
     const newQueue = queue.slice(1);
+
+    // Track as liked
+    setSwipeData(d => ({ ...d, liked: [...(d.liked || []), meal] }));
 
     // Small burst confetti on card confirm
     confetti({
@@ -126,7 +139,11 @@ export default function Swipe() {
   function handleSwipeLeft() {
     if (!queue.length) return;
     const meal = queue[0];
-    setSwipeData(d => ({ ...d, excluded: [...(d.excluded || []), meal.name] }));
+    setSwipeData(d => ({
+      ...d,
+      excluded: [...(d.excluded || []), meal.name],
+      disliked: [...(d.disliked || []), meal],
+    }));
     setQueue(q => q.slice(1));
   }
 
@@ -149,7 +166,27 @@ export default function Swipe() {
   const visibleCards = queue.slice(0, 3);
 
   return (
-    <div className="app-shell min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
+    <div
+      className="app-shell min-h-screen flex flex-col relative overflow-hidden"
+      style={{ background: 'var(--bg)' }}
+    >
+      {/* Cartoon mural background */}
+      <svg
+        className="absolute inset-0 w-full h-full opacity-10 pointer-events-none"
+        style={{ mixBlendMode: 'multiply' }}
+        viewBox="0 0 430 800"
+        preserveAspectRatio="none"
+      >
+        {/* Playful kitchen elements */}
+        <circle cx="50" cy="100" r="40" fill="#FF6B47" opacity="0.3" />
+        <circle cx="380" cy="150" r="35" fill="#FFD700" opacity="0.25" />
+        <circle cx="100" cy="650" r="50" fill="#7DB87A" opacity="0.2" />
+        <circle cx="380" cy="700" r="30" fill="#FF6B47" opacity="0.15" />
+        <path d="M 0 200 Q 215 150 430 200 T 430 300 Q 215 350 0 300 Z" fill="#7DB87A" opacity="0.08" />
+        <path d="M 0 500 Q 215 480 430 520 T 430 620 Q 215 650 0 600 Z" fill="#FFD700" opacity="0.1" />
+        <rect x="30" y="350" width="60" height="80" rx="10" fill="#FF6B47" opacity="0.1" transform="rotate(-15 60 390)" />
+        <rect x="340" y="400" width="70" height="60" rx="10" fill="#7DB87A" opacity="0.1" transform="rotate(25 375 430)" />
+      </svg>
       {/* Recipe detail modal */}
       <AnimatePresence>
         {expandedMeal && (
@@ -246,6 +283,7 @@ export default function Swipe() {
                 stackIndex={i}
                 onSwipeLeft={handleSwipeLeft}
                 onSwipeRight={handleSwipeRight}
+                onCardClick={() => queue[0] && setExpandedMeal(queue[0])}
               />
             ))}
           </AnimatePresence>
@@ -255,12 +293,6 @@ export default function Swipe() {
         <p className="text-[12px] font-semibold mt-2 mb-4" style={{ color: 'var(--text-light)' }}>
           Tap card to see full recipe
         </p>
-        <button
-          className="absolute inset-0 opacity-0 z-20 cursor-default"
-          style={{ top: '120px', bottom: '120px', height: 'auto', position: 'absolute' }}
-          onClick={() => queue[0] && setExpandedMeal(queue[0])}
-          tabIndex={-1}
-        />
 
         {/* Action buttons */}
         <div className="flex gap-4 w-full max-w-xs">

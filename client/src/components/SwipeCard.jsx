@@ -5,7 +5,7 @@ import RecipeCard from './RecipeCard.jsx';
 
 const SWIPE_THRESHOLD = 120;
 
-export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, isTop, stackIndex }) {
+export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, onCardClick, isTop, stackIndex }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-300, 0, 300], [-15, 0, 15]);
   const leftOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40, 0], [1, 0.6, 0]);
@@ -25,13 +25,13 @@ export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, isTop, stac
     const offset = info.offset.x;
 
     if (offset < -SWIPE_THRESHOLD) {
-      await animate(x, -600, { duration: 0.3 });
+      await animate(x, -600, { type: 'spring', stiffness: 500, damping: 20 });
       onSwipeLeft();
     } else if (offset > SWIPE_THRESHOLD) {
-      await animate(x, 600, { duration: 0.3 });
+      await animate(x, 600, { type: 'spring', stiffness: 500, damping: 20 });
       onSwipeRight();
     } else {
-      animate(x, 0, { type: 'spring', stiffness: 300, damping: 25 });
+      animate(x, 0, { type: 'spring', stiffness: 400, damping: 18 });
     }
   }
 
@@ -42,7 +42,7 @@ export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, isTop, stac
         initial={false}
         animate={{ scale: stack.scale, y: stack.y }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        style={{ zIndex: stack.zIndex }}
+        style={{ zIndex: stack.zIndex, pointerEvents: 'none' }}
       >
         <RecipeCard meal={meal} />
       </motion.div>
@@ -89,7 +89,9 @@ export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, isTop, stac
         </div>
       </motion.div>
 
-      <RecipeCard meal={meal} />
+      <div onClick={onCardClick} style={{ cursor: 'pointer' }}>
+        <RecipeCard meal={meal} />
+      </div>
     </motion.div>
   );
 }

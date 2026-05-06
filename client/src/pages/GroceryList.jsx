@@ -68,6 +68,39 @@ export default function GroceryList() {
 
   const checkedCount = items.filter(i => i.checked).length;
 
+  if (items.length === 0) {
+    return (
+      <div className="app-shell" style={{ background: 'var(--bg)' }}>
+        <div className="page-pad pt-8 pb-4 flex items-center gap-3">
+          <button
+            className="w-10 h-10 raised-sm flex items-center justify-center"
+            onClick={() => navigate(`/week/${planId}`)}
+            style={{ borderRadius: '12px' }}
+          >
+            <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
+          </button>
+          <div>
+            <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>
+              Grocery List 🛒
+            </h1>
+          </div>
+        </div>
+        <div className="raised p-8 mx-5 text-center mt-8">
+          <div className="text-4xl mb-3">🛒</div>
+          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>
+            No items yet
+          </p>
+          <p className="text-[14px] font-semibold mt-2" style={{ color: 'var(--text-mid)' }}>
+            Complete your meal plan to build a grocery list.
+          </p>
+          <button className="pill-button mt-6" onClick={() => navigate(`/week/${planId}`)}>
+            Back to week view
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
       {/* Header */}

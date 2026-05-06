@@ -29,7 +29,7 @@ function buildRestrictions(prefs) {
   return restrictions.length ? restrictions.join(', ') : 'None';
 }
 
-function buildUserPrompt(count, servings, prefs, exclude) {
+function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   const excludeText = exclude.length ? exclude.join(', ') : 'nothing';
   return `Generate ${count} dinner recipes.
 Servings: ${servings}
@@ -49,10 +49,10 @@ Return a JSON array where each item is:
 }
 
 Categories for ingredients must be exactly one of:
-"Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other"`;
+"Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other"${prefPrompt}`;
 }
 
-export async function generateMeals(days, servings, prefs, excludeNames = []) {
+export async function generateMeals(days, servings, prefs, excludeNames = [], prefPrompt = '') {
   const count = Number(days) + 3;
 
   const message = await client.messages.create({
@@ -60,7 +60,7 @@ export async function generateMeals(days, servings, prefs, excludeNames = []) {
     max_tokens: 8000,
     system: SYSTEM_PROMPT,
     messages: [
-      { role: 'user', content: buildUserPrompt(count, servings, prefs, excludeNames) }
+      { role: 'user', content: buildUserPrompt(count, servings, prefs, excludeNames, prefPrompt) }
     ],
   });
 

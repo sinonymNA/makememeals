@@ -108,6 +108,25 @@ export default function Recipes() {
 
   if (loading) return <LoadingScreen type="meals" />;
 
+  if (meals.length === 0) {
+    return (
+      <div className="app-shell flex items-center justify-center min-h-screen page-pad">
+        <div className="raised p-8 text-center">
+          <div className="text-4xl mb-3">📋</div>
+          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>
+            No recipes yet
+          </p>
+          <p className="text-[14px] font-semibold mt-2" style={{ color: 'var(--text-mid)' }}>
+            Create a meal plan to see recipes.
+          </p>
+          <button className="pill-button mt-6" onClick={() => navigate('/dashboard')}>
+            Back to dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const meal = meals[currentIdx];
   if (!meal) return null;
 
