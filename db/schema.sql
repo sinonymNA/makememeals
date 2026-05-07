@@ -10,6 +10,14 @@ CREATE TABLE IF NOT EXISTS users (
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Guest users (no Clerk account)
+CREATE TABLE IF NOT EXISTS guest_sessions (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_key TEXT UNIQUE NOT NULL,
+  used        BOOLEAN DEFAULT FALSE,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS preferences (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -20,12 +28,17 @@ CREATE TABLE IF NOT EXISTS preferences (
   gluten_free      BOOLEAN DEFAULT FALSE,
   dairy_free       BOOLEAN DEFAULT FALSE,
   thirty_min_max   BOOLEAN DEFAULT FALSE,
+  high_protein     BOOLEAN DEFAULT FALSE,
+  low_waste        BOOLEAN DEFAULT FALSE,
+  budget           INT DEFAULT 100,
+  store            TEXT DEFAULT 'Any',
   UNIQUE (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS meal_plans (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
+  is_guest    BOOLEAN DEFAULT FALSE,
   days        INT NOT NULL,
   week_of     DATE,
   created_at  TIMESTAMPTZ DEFAULT NOW()
@@ -59,3 +72,11 @@ CREATE INDEX IF NOT EXISTS idx_plans_user_id     ON meal_plans(user_id);
 CREATE INDEX IF NOT EXISTS idx_meals_plan_id     ON meals(plan_id);
 CREATE INDEX IF NOT EXISTS idx_grocery_plan_id   ON grocery_lists(plan_id);
 CREATE INDEX IF NOT EXISTS idx_prefs_user_id     ON preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_guest_key         ON guest_sessions(session_key);
+
+-- Add new columns to existing tables (safe to run on existing DBs)
+ALTER TABLE preferences ADD COLUMN IF NOT EXISTS budget       INT     DEFAULT 100;
+ALTER TABLE preferences ADD COLUMN IF NOT EXISTS store        TEXT    DEFAULT 'Any';
+ALTER TABLE preferences ADD COLUMN IF NOT EXISTS high_protein BOOLEAN DEFAULT FALSE;
+ALTER TABLE preferences ADD COLUMN IF NOT EXISTS low_waste    BOOLEAN DEFAULT FALSE;
+ALTER TABLE meal_plans  ADD COLUMN IF NOT EXISTS is_guest     BOOLEAN DEFAULT FALSE;

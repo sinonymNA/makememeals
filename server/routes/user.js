@@ -53,19 +53,31 @@ router.post('/preferences', requireAuth, async (req, res) => {
     const [user] = await sql`SELECT id FROM users WHERE clerk_id = ${req.userId}`;
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const { servings, picky_eaters, keep_mild, meat_free, gluten_free, dairy_free, thirty_min_max } = req.body;
+    const {
+      servings, picky_eaters, keep_mild, meat_free, gluten_free,
+      dairy_free, thirty_min_max, high_protein, low_waste, budget, store,
+    } = req.body;
 
     const [prefs] = await sql`
-      INSERT INTO preferences (user_id, servings, picky_eaters, keep_mild, meat_free, gluten_free, dairy_free, thirty_min_max)
-      VALUES (${user.id}, ${servings}, ${picky_eaters}, ${keep_mild}, ${meat_free}, ${gluten_free}, ${dairy_free}, ${thirty_min_max})
+      INSERT INTO preferences
+        (user_id, servings, picky_eaters, keep_mild, meat_free, gluten_free,
+         dairy_free, thirty_min_max, high_protein, low_waste, budget, store)
+      VALUES
+        (${user.id}, ${servings}, ${picky_eaters}, ${keep_mild}, ${meat_free}, ${gluten_free},
+         ${dairy_free}, ${thirty_min_max}, ${high_protein ?? false}, ${low_waste ?? false},
+         ${budget ?? 100}, ${store ?? 'Any'})
       ON CONFLICT (user_id) DO UPDATE SET
-        servings = EXCLUDED.servings,
-        picky_eaters = EXCLUDED.picky_eaters,
-        keep_mild = EXCLUDED.keep_mild,
-        meat_free = EXCLUDED.meat_free,
-        gluten_free = EXCLUDED.gluten_free,
-        dairy_free = EXCLUDED.dairy_free,
-        thirty_min_max = EXCLUDED.thirty_min_max
+        servings       = EXCLUDED.servings,
+        picky_eaters   = EXCLUDED.picky_eaters,
+        keep_mild      = EXCLUDED.keep_mild,
+        meat_free      = EXCLUDED.meat_free,
+        gluten_free    = EXCLUDED.gluten_free,
+        dairy_free     = EXCLUDED.dairy_free,
+        thirty_min_max = EXCLUDED.thirty_min_max,
+        high_protein   = EXCLUDED.high_protein,
+        low_waste      = EXCLUDED.low_waste,
+        budget         = EXCLUDED.budget,
+        store          = EXCLUDED.store
       RETURNING *
     `;
     res.json(prefs);

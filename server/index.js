@@ -10,6 +10,7 @@ import mealsRouter from './routes/meals.js';
 import groceryRouter from './routes/grocery.js';
 import userRouter from './routes/user.js';
 import paymentsRouter from './routes/payments.js';
+import guestRouter from './routes/guest.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +28,7 @@ app.use('/api/meals', mealsRouter);
 app.use('/api/grocery', groceryRouter);
 app.use('/api/user', userRouter);
 app.use('/api/payments', paymentsRouter);
+app.use('/api/guest', guestRouter);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

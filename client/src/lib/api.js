@@ -43,3 +43,13 @@ export const getPlans = () => api.get('/user/plans').then(r => r.data);
 // Payments
 export const createCheckout = (email) =>
   api.post('/payments/create-checkout', { email }).then(r => r.data);
+
+// Guest (no auth)
+export const guestGenerate = (sessionKey, days, servings, preferences) =>
+  api.post('/guest/generate', { sessionKey, days, servings, preferences }).then(r => r.data);
+export const guestSave = (planId, meals) =>
+  api.post('/guest/save', { planId, meals }).then(r => r.data);
+export const guestGetPlan = (planId) =>
+  api.get(`/guest/plan/${planId}`).then(r => r.data);
+export const guestBuildGrocery = (planId) =>
+  api.post('/guest/grocery', { planId }).then(r => r.data);

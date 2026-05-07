@@ -7,7 +7,7 @@ import confetti from 'canvas-confetti';
 import SwipeCard from '../components/SwipeCard.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import RecipeCard from '../components/RecipeCard.jsx';
-import { setAuthToken, generateMore, saveMeals } from '../lib/api.js';
+import { setAuthToken, generateMore, saveMeals, guestSave } from '../lib/api.js';
 import { analyzePreferences, buildPreferencePrompt } from '../lib/preferences.js';
 
 function ProgressDots({ total, confirmed }) {
@@ -57,8 +57,10 @@ export default function Swipe() {
     if (isFetchingMore || !swipeData) return;
     setIsFetchingMore(true);
     try {
-      const token = await getToken();
-      setAuthToken(token);
+      if (!swipeData.isGuest) {
+        const token = await getToken();
+        setAuthToken(token);
+      }
       const excluded = [
         ...(swipeData.excluded || []),
         ...queue.map(m => m.name),
@@ -128,9 +130,12 @@ export default function Swipe() {
         const token = await getToken();
         setAuthToken(token);
         console.log('Saving meals:', { planId: swipeData.planId, mealCount: newConfirmed.length, meals: newConfirmed });
-        const result = await saveMeals(swipeData.planId, newConfirmed);
+        const result = swipeData.isGuest
+          ? await guestSave(swipeData.planId, newConfirmed)
+          : await saveMeals(swipeData.planId, newConfirmed);
         console.log('Save result:', result);
-        setTimeout(() => navigate(`/week/${swipeData.planId}`), 2500);
+        const dest = swipeData.isGuest ? `/guest/week/${swipeData.planId}` : `/week/${swipeData.planId}`;
+        setTimeout(() => navigate(dest), 2500);
       } catch (err) {
         console.error('Save failed:', err);
         alert(`Failed to save meals: ${err.message}`);
