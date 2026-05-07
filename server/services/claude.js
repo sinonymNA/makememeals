@@ -52,29 +52,51 @@ Categories: "Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Froz
 }
 
 function parseResponse(raw) {
+  if (!raw || !raw.trim()) {
+    throw new Error('Claude returned empty response');
+  }
   const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
   try {
     const parsed = JSON.parse(cleaned);
     return Array.isArray(parsed) ? parsed : [parsed];
-  } catch {
+  } catch (err) {
     const match = cleaned.match(/\[[\s\S]*\]/);
-    if (match) return JSON.parse(match[0]);
-    throw new Error('Claude returned invalid JSON');
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch {
+        throw new Error(`Invalid JSON in response: ${err.message}`);
+      }
+    }
+    throw new Error(`Claude returned invalid JSON: ${err.message}\nRaw: ${cleaned.slice(0, 200)}`);
   }
 }
 
 export async function generateMeals(count, servings, prefs, excludeNames = [], prefPrompt = '') {
-  // Token budget: ~600 tokens per meal (tighter prompt = faster)
   const maxTokens = Math.min(count * 650, 4000);
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: maxTokens,
-    system: SYSTEM_PROMPT,
-    messages: [
-      { role: 'user', content: buildUserPrompt(count, servings, prefs, excludeNames, prefPrompt) }
-    ],
-  });
+  try {
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: maxTokens,
+      system: SYSTEM_PROMPT,
+      messages: [
+        { role: 'user', content: buildUserPrompt(count, servings, prefs, excludeNames, prefPrompt) }
+      ],
+    });
 
-  return parseResponse(message.content[0].text);
+    if (!message.content || !message.content[0]) {
+      throw new Error(`No content in Claude response: ${JSON.stringify(message)}`);
+    }
+
+    const text = message.content[0].text;
+    if (!text) {
+      throw new Error('Claude returned empty text content');
+    }
+
+    return parseResponse(text);
+  } catch (err) {
+    console.error('Claude API error:', err.message);
+    throw err;
+  }
 }
