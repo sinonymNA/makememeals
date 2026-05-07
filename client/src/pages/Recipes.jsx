@@ -96,7 +96,12 @@ export default function Recipes() {
         setAuthToken(token);
         const plan = await getPlan(planId);
         console.log('Loaded plan:', plan);
-        const sorted = (plan.meals || []).sort((a, b) => a.day_number - b.day_number);
+        const meals = (plan.meals || []).map(m => ({
+          ...m,
+          ingredients: typeof m.ingredients === 'string' ? JSON.parse(m.ingredients) : (m.ingredients || []),
+          steps: typeof m.steps === 'string' ? JSON.parse(m.steps) : (m.steps || []),
+        }));
+        const sorted = meals.sort((a, b) => a.day_number - b.day_number);
         console.log('Sorted meals:', sorted);
         setMeals(sorted);
       } catch (err) {

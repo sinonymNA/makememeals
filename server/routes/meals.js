@@ -81,8 +81,8 @@ router.post('/save', requireAuth, async (req, res) => {
       description: m.description,
       prep_minutes: m.prep_minutes,
       difficulty: m.difficulty,
-      ingredients: JSON.stringify(m.ingredients),
-      steps: JSON.stringify(m.steps),
+      ingredients: sql.json(m.ingredients ?? []),
+      steps: sql.json(m.steps ?? []),
       estimated_cost: m.estimated_cost,
       emoji: m.emoji,
     }));

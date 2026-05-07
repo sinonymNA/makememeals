@@ -16,7 +16,14 @@ router.post('/build', requireAuth, async (req, res) => {
 
     if (!meals.length) return res.status(404).json({ error: 'No meals found for this plan' });
 
-    const allIngredients = meals.flatMap(m => m.ingredients || []);
+    const allIngredients = meals.flatMap(m => {
+      const ing = m.ingredients;
+      if (!ing) return [];
+      if (typeof ing === 'string') {
+        try { return JSON.parse(ing); } catch { return []; }
+      }
+      return Array.isArray(ing) ? ing : [];
+    });
     const totalCost = meals.reduce((sum, m) => sum + Number(m.estimated_cost || 0), 0);
     const { items, estimatedTotal } = buildGroceryList(allIngredients, totalCost);
 
