@@ -21,10 +21,12 @@ export default function GroceryList() {
         const token = await getToken();
         setAuthToken(token);
         const data = await buildGroceryList(planId);
+        console.log('Grocery list data:', data);
         setItems(data.items || []);
         setEstimatedTotal(data.estimatedTotal || 0);
       } catch (err) {
-        console.error(err);
+        console.error('Grocery load error:', err);
+        alert(`Error loading grocery list: ${err.message}`);
       } finally {
         setLoading(false);
       }

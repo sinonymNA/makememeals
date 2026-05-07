@@ -127,10 +127,13 @@ export default function Swipe() {
       try {
         const token = await getToken();
         setAuthToken(token);
-        await saveMeals(swipeData.planId, newConfirmed);
+        console.log('Saving meals:', { planId: swipeData.planId, mealCount: newConfirmed.length, meals: newConfirmed });
+        const result = await saveMeals(swipeData.planId, newConfirmed);
+        console.log('Save result:', result);
         setTimeout(() => navigate(`/week/${swipeData.planId}`), 2500);
       } catch (err) {
         console.error('Save failed:', err);
+        alert(`Failed to save meals: ${err.message}`);
         navigate(`/week/${swipeData.planId}`);
       }
       return;

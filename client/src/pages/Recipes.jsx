@@ -95,10 +95,13 @@ export default function Recipes() {
         const token = await getToken();
         setAuthToken(token);
         const plan = await getPlan(planId);
+        console.log('Loaded plan:', plan);
         const sorted = (plan.meals || []).sort((a, b) => a.day_number - b.day_number);
+        console.log('Sorted meals:', sorted);
         setMeals(sorted);
       } catch (err) {
-        console.error(err);
+        console.error('Recipe load error:', err);
+        alert(`Error loading recipes: ${err.message}`);
       } finally {
         setLoading(false);
       }
