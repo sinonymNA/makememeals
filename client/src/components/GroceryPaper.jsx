@@ -1,4 +1,3 @@
-import GroceryItem from './GroceryItem.jsx';
 
 const CATEGORY_EMOJIS = {
   'Meat & Seafood': '🥩',
