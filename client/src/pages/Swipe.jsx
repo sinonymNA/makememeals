@@ -81,9 +81,10 @@ export default function Swipe() {
     }
   }, [isFetchingMore, swipeData, queue, confirmed, getToken]);
 
-  // Fetch more when buffer is low
+  // Pre-fetch immediately on load so the queue is always full,
+  // and again whenever the buffer drops below 3
   useEffect(() => {
-    if (queue.length < 3 && !isFetchingMore && swipeData) {
+    if (!isFetchingMore && swipeData && queue.length < 5) {
       fetchMore();
     }
   }, [queue.length, isFetchingMore, swipeData, fetchMore]);

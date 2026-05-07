@@ -16,7 +16,8 @@ router.post('/generate', requireAuth, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const meals = await generateMeals(days, servings, preferences, previousMeals, '');
+    // Only generate 3 meals upfront — swipe screen fetches more as needed
+    const meals = await generateMeals(3, servings, preferences, previousMeals, '');
 
     const [plan] = await sql`
       INSERT INTO meal_plans (user_id, days, week_of)
@@ -39,13 +40,7 @@ router.post('/generate', requireAuth, async (req, res) => {
 router.post('/generate-more', requireAuth, async (req, res) => {
   try {
     const { preferences, excludeNames = [], prefPrompt = '' } = req.body;
-    const meals = await generateMeals(
-      3,
-      preferences?.servings || 4,
-      preferences,
-      excludeNames,
-      prefPrompt
-    );
+    const meals = await generateMeals(3, preferences?.servings || 4, preferences, excludeNames, prefPrompt);
     res.json({ meals });
   } catch (err) {
     console.error('Generate-more error:', err);

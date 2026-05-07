@@ -31,56 +31,50 @@ function buildRestrictions(prefs) {
 
 function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   const excludeText = exclude.length ? exclude.join(', ') : 'nothing';
-  return `Generate ${count} dinner recipes.
+  return `Generate exactly ${count} dinner recipes. Be concise.
 Servings: ${servings}
 Restrictions: ${buildRestrictions(prefs)}
-Do NOT include any of these: ${excludeText}
+Do NOT include: ${excludeText}
 
-Return a JSON array where each item is:
+Return a JSON array. Each item:
 {
-  "name": "string (max 5 words, appetizing)",
-  "description": "string (one punchy sentence, make it sound delicious)",
-  "emoji": "string (one food emoji that represents the dish)",
+  "name": "string (max 5 words)",
+  "description": "string (one punchy sentence)",
+  "emoji": "string (one emoji)",
   "prep_minutes": number,
-  "difficulty": "Easy" or "Medium" or "Confident Cook",
-  "estimated_cost": number (USD, for ${servings} servings),
-  "ingredients": [{ "name": "string", "quantity": "string", "unit": "string", "category": "string" }],
-  "steps": ["string"] (clear, max 8 steps)
+  "difficulty": "Easy" | "Medium" | "Confident Cook",
+  "estimated_cost": number,
+  "ingredients": [{"name":"string","quantity":"string","unit":"string","category":"string"}],
+  "steps": ["string"] (max 6 steps)
 }
 
-Categories for ingredients must be exactly one of:
-"Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other"${prefPrompt}`;
+Categories: "Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other"${prefPrompt}`;
 }
 
-export async function generateMeals(days, servings, prefs, excludeNames = [], prefPrompt = '') {
-  const count = Number(days) + 3;
+function parseResponse(raw) {
+  const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  try {
+    const parsed = JSON.parse(cleaned);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    const match = cleaned.match(/\[[\s\S]*\]/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('Claude returned invalid JSON');
+  }
+}
+
+export async function generateMeals(count, servings, prefs, excludeNames = [], prefPrompt = '') {
+  // Token budget: ~600 tokens per meal (tighter prompt = faster)
+  const maxTokens = Math.min(count * 650, 4000);
 
   const message = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 8000,
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: maxTokens,
     system: SYSTEM_PROMPT,
     messages: [
       { role: 'user', content: buildUserPrompt(count, servings, prefs, excludeNames, prefPrompt) }
     ],
   });
 
-  const raw = message.content[0].text.trim();
-
-  // Strip any accidental markdown code fences
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
-
-  let meals;
-  try {
-    meals = JSON.parse(cleaned);
-  } catch {
-    // Try extracting JSON array from response
-    const match = cleaned.match(/\[[\s\S]*\]/);
-    if (match) {
-      meals = JSON.parse(match[0]);
-    } else {
-      throw new Error('Claude returned invalid JSON');
-    }
-  }
-
-  return Array.isArray(meals) ? meals : [meals];
+  return parseResponse(message.content[0].text);
 }
