@@ -3,7 +3,7 @@ export function analyzePreferences(likedMeals, dislikedMeals) {
   const prefs = {
     preferredDifficulty: null,
     preferredPrepTime: null,
-    avoiddDifficulty: null,
+    avoidDifficulty: null,
     avoidedPrepTime: null,
     commonIngredients: {},
     avoidedIngredients: {},
@@ -38,7 +38,7 @@ export function analyzePreferences(likedMeals, dislikedMeals) {
 
     const diffCount = {};
     difficulties.forEach(d => { diffCount[d] = (diffCount[d] || 0) + 1; });
-    prefs.avoiddDifficulty = Object.entries(diffCount).sort((a, b) => b[1] - a[1])[0]?.[0];
+    prefs.avoidDifficulty = Object.entries(diffCount).sort((a, b) => b[1] - a[1])[0]?.[0];
     prefs.avoidedPrepTime = avgPrepTime;
 
     // Ingredients they're avoiding

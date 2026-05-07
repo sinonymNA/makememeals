@@ -93,7 +93,20 @@ router.get('/plans', requireAuth, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const plans = await sql`
-      SELECT * FROM meal_plans WHERE user_id = ${user.id} ORDER BY created_at DESC
+      SELECT
+        mp.*,
+        COALESCE(
+          (SELECT json_agg(m.emoji ORDER BY m.day_number)
+           FROM meals m WHERE m.plan_id = mp.id AND m.emoji IS NOT NULL),
+          '[]'::json
+        ) AS meal_emojis,
+        COALESCE(
+          (SELECT SUM(m.estimated_cost) FROM meals m WHERE m.plan_id = mp.id),
+          0
+        ) AS estimated_total
+      FROM meal_plans mp
+      WHERE mp.user_id = ${user.id}
+      ORDER BY mp.created_at DESC
     `;
     res.json(plans);
   } catch (err) {

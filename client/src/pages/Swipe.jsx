@@ -2,11 +2,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Heart } from 'lucide-react';
+import { X, Heart, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import toast from 'react-hot-toast';
 import SwipeCard from '../components/SwipeCard.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
-import RecipeCard from '../components/RecipeCard.jsx';
 import { setAuthToken, generateMore, saveMeals, guestSave } from '../lib/api.js';
 import { analyzePreferences, buildPreferencePrompt } from '../lib/preferences.js';
 
@@ -38,6 +38,9 @@ export default function Swipe() {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [expandedMeal, setExpandedMeal] = useState(null);
+  const [lastDiscarded, setLastDiscarded] = useState(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimerRef = useRef(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem('swipeData');
@@ -53,6 +56,9 @@ export default function Swipe() {
     setCurrentDayIndex(data.confirmed?.length || 0);
   }, [navigate]);
 
+  // Cleanup undo timer on unmount
+  useEffect(() => () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current); }, []);
+
   const fetchMore = useCallback(async () => {
     if (isFetchingMore || !swipeData) return;
     setIsFetchingMore(true);
@@ -67,7 +73,6 @@ export default function Swipe() {
         ...confirmed.map(m => m.name),
       ];
 
-      // Analyze preferences from what they've liked/disliked
       const prefs = analyzePreferences(swipeData.liked || [], swipeData.disliked || []);
       const prefPrompt = buildPreferencePrompt(prefs);
 
@@ -83,8 +88,6 @@ export default function Swipe() {
     }
   }, [isFetchingMore, swipeData, queue, confirmed, getToken]);
 
-  // Pre-fetch immediately on load so the queue is always full,
-  // and again whenever the buffer drops below 3
   useEffect(() => {
     if (!isFetchingMore && swipeData && queue.length < 5) {
       fetchMore();
@@ -94,14 +97,17 @@ export default function Swipe() {
   async function handleSwipeRight() {
     if (!queue.length) return;
 
+    // Clear any pending undo when user swipes right
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    setShowUndo(false);
+    setLastDiscarded(null);
+
     const meal = queue[0];
     const newConfirmed = [...confirmed, meal];
     const newQueue = queue.slice(1);
 
-    // Track as liked
     setSwipeData(d => ({ ...d, liked: [...(d.liked || []), meal] }));
 
-    // Small burst confetti on card confirm
     confetti({
       particleCount: 40,
       spread: 60,
@@ -113,9 +119,7 @@ export default function Swipe() {
     setQueue(newQueue);
     setCurrentDayIndex(newConfirmed.length);
 
-    // All days filled!
     if (newConfirmed.length >= swipeData.days) {
-      // Big confetti
       confetti({
         particleCount: 200,
         spread: 160,
@@ -124,21 +128,18 @@ export default function Swipe() {
       });
       setTimeout(() => confetti({ particleCount: 150, spread: 180, origin: { y: 0.5 }, colors: ['#FF6B47', '#7DB87A', '#FAF7F2'] }), 600);
 
-      // Save meals and navigate
       setIsSaving(true);
       try {
         const token = await getToken();
         setAuthToken(token);
-        console.log('Saving meals:', { planId: swipeData.planId, mealCount: newConfirmed.length, meals: newConfirmed });
         const result = swipeData.isGuest
           ? await guestSave(swipeData.planId, newConfirmed)
           : await saveMeals(swipeData.planId, newConfirmed);
-        console.log('Save result:', result);
         const dest = swipeData.isGuest ? `/guest/week/${swipeData.planId}` : `/week/${swipeData.planId}`;
         setTimeout(() => navigate(dest), 2500);
       } catch (err) {
         console.error('Save failed:', err);
-        alert(`Failed to save meals: ${err.message}`);
+        toast.error(`Failed to save meals: ${err.message}`);
         navigate(`/week/${swipeData.planId}`);
       }
       return;
@@ -148,12 +149,37 @@ export default function Swipe() {
   function handleSwipeLeft() {
     if (!queue.length) return;
     const meal = queue[0];
+
+    // Save for undo
+    setLastDiscarded(meal);
+    setShowUndo(true);
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = setTimeout(() => {
+      setShowUndo(false);
+      setLastDiscarded(null);
+    }, 3000);
+
     setSwipeData(d => ({
       ...d,
       excluded: [...(d.excluded || []), meal.name],
       disliked: [...(d.disliked || []), meal],
     }));
     setQueue(q => q.slice(1));
+  }
+
+  function handleUndo() {
+    if (!lastDiscarded) return;
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    setShowUndo(false);
+
+    // Restore the meal to the front of the queue and remove it from excluded/disliked
+    setQueue(q => [lastDiscarded, ...q]);
+    setSwipeData(d => ({
+      ...d,
+      excluded: (d.excluded || []).filter(n => n !== lastDiscarded.name),
+      disliked: (d.disliked || []).filter(m => m.name !== lastDiscarded.name),
+    }));
+    setLastDiscarded(null);
   }
 
   if (!swipeData) return <LoadingScreen type="meals" />;
@@ -186,7 +212,6 @@ export default function Swipe() {
         viewBox="0 0 430 800"
         preserveAspectRatio="none"
       >
-        {/* Playful kitchen elements */}
         <circle cx="50" cy="100" r="40" fill="#FF6B47" opacity="0.3" />
         <circle cx="380" cy="150" r="35" fill="#FFD700" opacity="0.25" />
         <circle cx="100" cy="650" r="50" fill="#7DB87A" opacity="0.2" />
@@ -196,6 +221,7 @@ export default function Swipe() {
         <rect x="30" y="350" width="60" height="80" rx="10" fill="#FF6B47" opacity="0.1" transform="rotate(-15 60 390)" />
         <rect x="340" y="400" width="70" height="60" rx="10" fill="#7DB87A" opacity="0.1" transform="rotate(25 375 430)" />
       </svg>
+
       {/* Recipe detail modal */}
       <AnimatePresence>
         {expandedMeal && (
@@ -209,7 +235,7 @@ export default function Swipe() {
           >
             <motion.div
               className="w-full max-w-[430px] raised overflow-y-auto"
-              style={{ maxHeight: '85vh', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderRadius: '24px 24px 0 0' }}
+              style={{ maxHeight: '85vh', borderRadius: '24px 24px 0 0' }}
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -217,7 +243,6 @@ export default function Swipe() {
             >
               <div className="p-6">
                 <div className="w-12 h-1.5 rounded-full mx-auto mb-6" style={{ background: 'var(--border)' }} />
-
                 <div className="text-[64px] text-center mb-3">{expandedMeal.emoji}</div>
                 <h2 className="text-[22px] font-black text-center mb-1" style={{ color: 'var(--text)' }}>
                   {expandedMeal.name}
@@ -225,7 +250,6 @@ export default function Swipe() {
                 <p className="text-center italic mb-4 text-[14px]" style={{ color: 'var(--text-mid)' }}>
                   {expandedMeal.description}
                 </p>
-
                 <div className="section-label">Ingredients</div>
                 <div className="flex flex-col gap-1 mb-5">
                   {(expandedMeal.ingredients || []).map((ing, i) => (
@@ -235,7 +259,6 @@ export default function Swipe() {
                     </div>
                   ))}
                 </div>
-
                 <div className="section-label">Steps</div>
                 <div className="flex flex-col gap-3 mb-6">
                   {(expandedMeal.steps || []).map((step, i) => (
@@ -250,17 +273,10 @@ export default function Swipe() {
                     </div>
                   ))}
                 </div>
-
-                <button
-                  className="pill-button w-full justify-center mb-2"
-                  onClick={() => { setExpandedMeal(null); handleSwipeRight(); }}
-                >
+                <button className="pill-button w-full justify-center mb-2" onClick={() => { setExpandedMeal(null); handleSwipeRight(); }}>
                   💚 Love It!
                 </button>
-                <button
-                  className="pill-button red w-full justify-center"
-                  onClick={() => { setExpandedMeal(null); handleSwipeLeft(); }}
-                >
+                <button className="pill-button red w-full justify-center" onClick={() => { setExpandedMeal(null); handleSwipeLeft(); }}>
                   ❌ Not this one
                 </button>
               </div>
@@ -272,10 +288,7 @@ export default function Swipe() {
       {/* Header */}
       <div className="page-pad pb-0 pt-8">
         <ProgressDots total={swipeData.days} confirmed={currentDayIndex} />
-        <p
-          className="text-center text-[14px] font-bold mt-3"
-          style={{ color: 'var(--text-mid)' }}
-        >
+        <p className="text-center text-[14px] font-bold mt-3" style={{ color: 'var(--text-mid)' }}>
           Day {Math.min(currentDayIndex + 1, swipeData.days)} of {swipeData.days} — pick your dinner
         </p>
       </div>
@@ -298,26 +311,36 @@ export default function Swipe() {
           </AnimatePresence>
         </div>
 
-        {/* Tap hint */}
         <p className="text-[12px] font-semibold mt-2 mb-4" style={{ color: 'var(--text-light)' }}>
           Tap card to see full recipe
         </p>
 
         {/* Action buttons */}
         <div className="flex gap-4 w-full max-w-xs">
-          <button
-            className="pill-button red flex-1 justify-center"
-            onClick={handleSwipeLeft}
-          >
+          <button className="pill-button red flex-1 justify-center" onClick={handleSwipeLeft}>
             <X size={18} /> NOPE
           </button>
-          <button
-            className="pill-button green flex-1 justify-center"
-            onClick={handleSwipeRight}
-          >
+          <button className="pill-button green flex-1 justify-center" onClick={handleSwipeRight}>
             <Heart size={18} fill="white" /> LOVE IT
           </button>
         </div>
+
+        {/* Undo button */}
+        <AnimatePresence>
+          {showUndo && (
+            <motion.button
+              className="pill-button ghost mt-3"
+              style={{ fontSize: '14px', paddingTop: '10px', paddingBottom: '10px' }}
+              onClick={handleUndo}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <RotateCcw size={15} /> Undo
+            </motion.button>
+          )}
+        </AnimatePresence>
 
         {isFetchingMore && (
           <p className="text-[12px] font-semibold mt-3" style={{ color: 'var(--text-light)' }}>

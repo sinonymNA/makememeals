@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { ChevronLeft, ChevronRight, Download, Image } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { setAuthToken, getPlan } from '../lib/api.js';
 import { exportAsImage, exportAsPDF } from '../lib/export.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
@@ -86,35 +87,52 @@ export default function Recipes() {
   const { getToken } = useAuth();
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [exporting, setExporting] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const token = await getToken();
-        setAuthToken(token);
-        const plan = await getPlan(planId);
-        console.log('Loaded plan:', plan);
-        const meals = (plan.meals || []).map(m => ({
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = await getToken();
+      setAuthToken(token);
+      const plan = await getPlan(planId);
+      const sorted = (plan.meals || [])
+        .map(m => ({
           ...m,
           ingredients: typeof m.ingredients === 'string' ? JSON.parse(m.ingredients) : (m.ingredients || []),
           steps: typeof m.steps === 'string' ? JSON.parse(m.steps) : (m.steps || []),
-        }));
-        const sorted = meals.sort((a, b) => a.day_number - b.day_number);
-        console.log('Sorted meals:', sorted);
-        setMeals(sorted);
-      } catch (err) {
-        console.error('Recipe load error:', err);
-        alert(`Error loading recipes: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
+        }))
+        .sort((a, b) => a.day_number - b.day_number);
+      setMeals(sorted);
+    } catch (err) {
+      console.error('Recipe load error:', err);
+      setError(err.message || 'Failed to load recipes');
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [planId, getToken]);
 
+  useEffect(() => { load(); }, [load]);
+
   if (loading) return <LoadingScreen type="meals" />;
+
+  if (error) {
+    return (
+      <div className="app-shell flex items-center justify-center min-h-screen page-pad">
+        <div className="raised p-8 text-center">
+          <div className="text-4xl mb-3">😕</div>
+          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>Couldn't load recipes</p>
+          <p className="text-[13px] font-semibold mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button className="pill-button ghost text-[14px]" onClick={() => navigate(`/week/${planId}`)}>Back</button>
+            <button className="pill-button text-[14px]" onClick={load}>Try again</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (meals.length === 0) {
     return (
@@ -142,13 +160,19 @@ export default function Recipes() {
 
   async function handleSaveImage() {
     setExporting(true);
-    await exportAsImage(cardId, meal.name.replace(/\s+/g, '-').toLowerCase());
+    try {
+      await exportAsImage(cardId, meal.name.replace(/\s+/g, '-').toLowerCase());
+      toast.success('Image saved!');
+    } catch { toast.error('Export failed'); }
     setExporting(false);
   }
 
   async function handleSavePDF() {
     setExporting(true);
-    await exportAsPDF(meal);
+    try {
+      await exportAsPDF(meal);
+      toast.success('PDF saved!');
+    } catch { toast.error('Export failed'); }
     setExporting(false);
   }
 

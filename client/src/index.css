@@ -18,6 +18,23 @@
   --shadow-dark:  rgba(180, 160, 140, 0.4);
 }
 
+/* ── Dark mode ── */
+[data-theme="dark"] {
+  --bg:           #1C1410;
+  --card:         #261C17;
+  --card-hover:   #2E231D;
+  --accent:       #FF6B47;
+  --accent-light: #2D1A14;
+  --green:        #5A9957;
+  --red:          #C04040;
+  --text:         #F5F0E8;
+  --text-mid:     #B8A898;
+  --text-light:   #7A6558;
+  --border:       #3D2E27;
+  --shadow-light: rgba(50, 30, 20, 0.25);
+  --shadow-dark:  rgba(0, 0, 0, 0.55);
+}
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -244,7 +261,7 @@ html, body {
 
 /* ── Grocery paper ── */
 .grocery-paper {
-  background: #FEFEFE;
+  background: var(--card);
   border-radius: 4px 4px 8px 8px;
   box-shadow:
     0 4px 24px rgba(44, 24, 16, 0.15),
@@ -254,8 +271,8 @@ html, body {
   background-image: repeating-linear-gradient(
     transparent,
     transparent 31px,
-    #E8F0FE 31px,
-    #E8F0FE 32px
+    var(--border) 31px,
+    var(--border) 32px
   );
   background-size: 100% 32px;
   line-height: 32px;
@@ -303,7 +320,7 @@ html, body {
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.15s ease;
-  background: white;
+  background: var(--card);
 }
 
 .grocery-checkbox.checked {

@@ -2,9 +2,25 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Share2, Printer } from 'lucide-react';
 import { SignUpButton } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
 import { guestBuildGrocery } from '../lib/api.js';
 import GroceryPaper from '../components/GroceryPaper.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
+
+function checkedKey(planId) { return `grocery-checked-${planId}`; }
+
+function restoreChecked(items, planId) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(checkedKey(planId)) || '[]');
+    const set = new Set(saved);
+    return items.map(i => ({ ...i, checked: set.has(i.name) }));
+  } catch { return items; }
+}
+
+function persistChecked(items, planId) {
+  const checked = items.filter(i => i.checked).map(i => i.name);
+  localStorage.setItem(checkedKey(planId), JSON.stringify(checked));
+}
 
 export default function GuestGroceryList() {
   const { planId } = useParams();
@@ -15,16 +31,30 @@ export default function GuestGroceryList() {
 
   useEffect(() => {
     guestBuildGrocery(planId)
-      .then(data => { setItems(data.items || []); setEstimatedTotal(data.estimatedTotal || 0); })
+      .then(data => {
+        const withChecked = restoreChecked(data.items || [], planId);
+        setItems(withChecked);
+        setEstimatedTotal(data.estimatedTotal || 0);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [planId]);
 
   function handleToggle(item) {
-    setItems(prev => prev.map(i => i.name === item.name && i.category === item.category ? { ...i, checked: !i.checked } : i));
+    setItems(prev => {
+      const next = prev.map(i =>
+        i.name === item.name && i.category === item.category
+          ? { ...i, checked: !i.checked }
+          : i
+      );
+      persistChecked(next, planId);
+      return next;
+    });
   }
 
   if (loading) return <LoadingScreen type="grocery" />;
+
+  const checkedCount = items.filter(i => i.checked).length;
 
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
@@ -41,11 +71,32 @@ export default function GuestGroceryList() {
         <button className="w-10 h-10 raised-sm flex items-center justify-center" onClick={() => navigate(`/guest/week/${planId}`)} style={{ borderRadius: '12px' }}>
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
-        <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
+        <div>
+          <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
+          {checkedCount > 0 && (
+            <p className="text-[13px] font-semibold" style={{ color: 'var(--text-mid)' }}>
+              {checkedCount} of {items.length} checked off
+            </p>
+          )}
+        </div>
       </div>
 
+      {items.length > 0 && (
+        <div className="px-5 mb-4 no-print">
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ background: 'var(--green)', width: `${(checkedCount / items.length) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       {items.length === 0 ? (
-        <div className="raised p-8 mx-5 text-center"><div className="text-4xl mb-3">🛒</div><p className="font-bold">No items yet</p></div>
+        <div className="raised p-8 mx-5 text-center">
+          <div className="text-4xl mb-3">🛒</div>
+          <p className="font-bold">No items yet</p>
+        </div>
       ) : (
         <GroceryPaper items={items} estimatedTotal={estimatedTotal} onToggle={handleToggle} />
       )}
@@ -57,7 +108,7 @@ export default function GuestGroceryList() {
         <button className="pill-button flex-1 justify-center text-[14px]" onClick={async () => {
           const text = items.filter(i => !i.checked).map(i => `• ${i.quantity} ${i.unit} ${i.name}`.trim()).join('\n');
           if (navigator.share) await navigator.share({ title: 'Grocery List', text });
-          else { await navigator.clipboard.writeText(text); alert('Copied!'); }
+          else { await navigator.clipboard.writeText(text); toast.success('Copied!'); }
         }}>
           <Share2 size={15} /> Share
         </button>

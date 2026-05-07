@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Clock, ShoppingCart, BookOpen, ChevronLeft, RefreshCw } from 'lucide-react';
+import { Clock, ShoppingCart, BookOpen, ChevronLeft } from 'lucide-react';
 import { guestGetPlan } from '../lib/api.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import { SignUpButton } from '@clerk/clerk-react';
-
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+import { DAYS } from '../lib/constants.js';
 
 export default function GuestWeekView() {
   const { planId } = useParams();

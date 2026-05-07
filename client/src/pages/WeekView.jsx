@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { Clock, RefreshCw, ShoppingCart, BookOpen, ChevronLeft } from 'lucide-react';
 import { setAuthToken, getPlan } from '../lib/api.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
-
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+import { DAYS } from '../lib/constants.js';
 
 export default function WeekView() {
   const { planId } = useParams();
@@ -13,24 +12,43 @@ export default function WeekView() {
   const { getToken } = useAuth();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const token = await getToken();
-        setAuthToken(token);
-        const data = await getPlan(planId);
-        setPlan(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = await getToken();
+      setAuthToken(token);
+      const data = await getPlan(planId);
+      setPlan(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to load plan');
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [planId, getToken]);
 
+  useEffect(() => { load(); }, [load]);
+
   if (loading) return <LoadingScreen type="meals" />;
+
+  if (error) {
+    return (
+      <div className="app-shell flex items-center justify-center min-h-screen page-pad">
+        <div className="raised p-8 text-center">
+          <div className="text-4xl mb-3">😕</div>
+          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>Couldn't load this plan</p>
+          <p className="text-[13px] font-semibold mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button className="pill-button ghost text-[14px]" onClick={() => navigate('/dashboard')}>Go home</button>
+            <button className="pill-button text-[14px]" onClick={load}>Try again</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!plan) {
     return (
@@ -66,10 +84,7 @@ export default function WeekView() {
           </h1>
         </div>
         {totalCost > 0 && (
-          <div
-            className="flex-shrink-0 text-center px-3 py-2 rounded-2xl"
-            style={{ background: 'var(--accent-light)' }}
-          >
+          <div className="flex-shrink-0 text-center px-3 py-2 rounded-2xl" style={{ background: 'var(--accent-light)' }}>
             <div className="text-[11px] font-bold" style={{ color: 'var(--accent)' }}>Est. total</div>
             <div className="text-[16px] font-black" style={{ color: 'var(--accent)' }}>~${totalCost.toFixed(0)}</div>
           </div>
@@ -95,10 +110,7 @@ export default function WeekView() {
                   {meal.name}
                 </div>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                    style={{ background: 'var(--bg)', color: 'var(--text-mid)' }}
-                  >
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--bg)', color: 'var(--text-mid)' }}>
                     {meal.difficulty}
                   </span>
                   <span className="flex items-center gap-0.5 text-[12px] font-bold" style={{ color: 'var(--text-light)' }}>
@@ -132,16 +144,10 @@ export default function WeekView() {
 
       {/* Action buttons */}
       <div className="page-pad flex gap-3 mt-6 pb-10">
-        <button
-          className="pill-button ghost flex-1 justify-center text-[14px]"
-          onClick={() => navigate(`/recipes/${planId}`)}
-        >
+        <button className="pill-button ghost flex-1 justify-center text-[14px]" onClick={() => navigate(`/recipes/${planId}`)}>
           <BookOpen size={16} /> Recipes
         </button>
-        <button
-          className="pill-button flex-1 justify-center text-[14px]"
-          onClick={() => navigate(`/grocery/${planId}`)}
-        >
+        <button className="pill-button flex-1 justify-center text-[14px]" onClick={() => navigate(`/grocery/${planId}`)}>
           <ShoppingCart size={16} /> Grocery List
         </button>
       </div>

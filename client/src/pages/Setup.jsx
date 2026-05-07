@@ -4,7 +4,8 @@ import { useAuth } from '@clerk/clerk-react';
 import PillSelector from '../components/PillSelector.jsx';
 import ToggleCard from '../components/ToggleCard.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
-import { setAuthToken, generateMeals, getPreferences } from '../lib/api.js';
+import toast from 'react-hot-toast';
+import { setAuthToken, generateMeals, getPreferences, savePreferences } from '../lib/api.js';
 import { ChevronLeft } from 'lucide-react';
 
 const DAY_OPTIONS = ['3', '4', '5', '6', '7'];
@@ -139,6 +140,8 @@ export default function Setup({ isGuest = false }) {
       } else {
         const token = await getToken();
         setAuthToken(token);
+        // Save preferences silently so they reload next time
+        savePreferences(fullPrefs).catch(() => {});
         const result = await generateMeals(numDays, servings, fullPrefs, []);
         planId = result.planId;
         meals  = result.meals;
@@ -153,11 +156,11 @@ export default function Setup({ isGuest = false }) {
       navigate('/swipe');
     } catch (err) {
       if (err?.response?.status === 402) {
-        alert("You've already used your free guest plan! Sign up to continue.");
+        toast.error("You've already used your free guest plan! Sign up to continue.");
         navigate('/');
       } else {
         console.error(err);
-        alert('Something went wrong. Please try again.');
+        toast.error('Something went wrong. Please try again.');
       }
       setLoading(false);
     }
