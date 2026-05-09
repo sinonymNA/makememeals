@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
+import { motion } from 'framer-motion';
 import { Clock, RefreshCw, ShoppingCart, BookOpen, ChevronLeft } from 'lucide-react';
 import { setAuthToken, getPlan } from '../lib/api.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import { DAYS } from '../lib/constants.js';
+import { attachImageUrls, getMealImageUrl } from '../lib/imageUrl.js';
 
 export default function WeekView() {
   const { planId } = useParams();
@@ -21,6 +23,7 @@ export default function WeekView() {
       const token = await getToken();
       setAuthToken(token);
       const data = await getPlan(planId);
+      data.meals = attachImageUrls(data.meals || []);
       setPlan(data);
     } catch (err) {
       console.error(err);
@@ -37,10 +40,10 @@ export default function WeekView() {
   if (error) {
     return (
       <div className="app-shell flex items-center justify-center min-h-screen page-pad">
-        <div className="raised p-8 text-center">
+        <div className="card p-8 text-center">
           <div className="text-4xl mb-3">😕</div>
-          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>Couldn't load this plan</p>
-          <p className="text-[13px] font-semibold mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
+          <p className="font-semibold text-[16px]" style={{ color: 'var(--text)' }}>Couldn't load this plan</p>
+          <p className="text-[13px] mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
           <div className="flex gap-3 justify-center">
             <button className="pill-button ghost text-[14px]" onClick={() => navigate('/dashboard')}>Go home</button>
             <button className="pill-button text-[14px]" onClick={load}>Try again</button>
@@ -53,8 +56,8 @@ export default function WeekView() {
   if (!plan) {
     return (
       <div className="app-shell flex items-center justify-center min-h-screen page-pad">
-        <div className="raised p-8 text-center">
-          <p className="font-bold text-[17px]" style={{ color: 'var(--text)' }}>Plan not found.</p>
+        <div className="card p-8 text-center">
+          <p className="font-semibold text-[17px]" style={{ color: 'var(--text)' }}>Plan not found.</p>
           <button className="pill-button mt-4" onClick={() => navigate('/dashboard')}>Go home</button>
         </div>
       </div>
@@ -67,63 +70,76 @@ export default function WeekView() {
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
       {/* Header */}
-      <div className="page-pad pt-8 pb-5 flex items-center gap-3">
+      <div className="page-pad pt-10 pb-5 flex items-center gap-3">
         <button
-          className="w-10 h-10 raised-sm flex items-center justify-center flex-shrink-0"
+          className="w-10 h-10 flex items-center justify-center flex-shrink-0"
           onClick={() => navigate('/dashboard')}
-          style={{ borderRadius: '12px' }}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}
         >
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
         <div className="flex-1">
-          <div className="text-[12px] font-extrabold uppercase tracking-widest" style={{ color: 'var(--accent)' }}>
-            🍽️ Make Me Meals
-          </div>
-          <h1 className="text-[24px] font-black leading-tight" style={{ color: 'var(--text)' }}>
-            This week's lineup
+          <h1
+            className="text-[26px] leading-tight"
+            style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+          >
+            This week 🍽️
           </h1>
         </div>
         {totalCost > 0 && (
-          <div className="flex-shrink-0 text-center px-3 py-2 rounded-2xl" style={{ background: 'var(--accent-light)' }}>
-            <div className="text-[11px] font-bold" style={{ color: 'var(--accent)' }}>Est. total</div>
-            <div className="text-[16px] font-black" style={{ color: 'var(--accent)' }}>~${totalCost.toFixed(0)}</div>
+          <div
+            className="flex-shrink-0 text-center px-3 py-2 rounded-2xl"
+            style={{ background: 'var(--bg-warm)', border: '1px solid var(--border)' }}
+          >
+            <div className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--accent)' }}>Est.</div>
+            <div className="text-[16px] font-semibold" style={{ color: 'var(--accent)' }}>~${totalCost.toFixed(0)}</div>
           </div>
         )}
       </div>
 
       {/* Meal cards */}
       <div className="px-5 flex flex-col gap-3">
-        {meals.map((meal) => (
-          <div key={meal.id} className="raised p-4">
+        {meals.map((meal, i) => (
+          <motion.div
+            key={meal.id}
+            className="card p-4"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06, duration: 0.3 }}
+          >
             <div className="flex items-center gap-3">
+              {/* Food thumbnail */}
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-[28px] flex-shrink-0"
-                style={{ background: 'var(--accent-light)' }}
+                className="flex-shrink-0"
+                style={{ width: 60, height: 60, borderRadius: 12, overflow: 'hidden', background: 'var(--bg-soft)' }}
               >
-                {meal.emoji || '🍽️'}
+                <img
+                  src={meal.imageUrl || getMealImageUrl(meal.name)}
+                  alt={meal.name}
+                  crossOrigin="anonymous"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-extrabold uppercase tracking-wide" style={{ color: 'var(--text-light)' }}>
+                <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-light)' }}>
                   {DAYS[meal.day_number - 1] || `Day ${meal.day_number}`}
                 </div>
-                <div className="text-[15px] font-extrabold leading-tight" style={{ color: 'var(--text)' }}>
+                <div className="text-[15px] font-semibold leading-tight" style={{ color: 'var(--text)' }}>
                   {meal.name}
                 </div>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--bg)', color: 'var(--text-mid)' }}>
-                    {meal.difficulty}
-                  </span>
-                  <span className="flex items-center gap-0.5 text-[12px] font-bold" style={{ color: 'var(--text-light)' }}>
+                  <span className="flex items-center gap-0.5 text-[12px]" style={{ color: 'var(--text-light)' }}>
                     <Clock size={11} /> {meal.prep_minutes}m
                   </span>
-                  <span className="text-[12px] font-bold" style={{ color: 'var(--text-light)' }}>
+                  <span className="text-[12px]" style={{ color: 'var(--text-light)' }}>
                     ~${meal.estimated_cost}
                   </span>
                 </div>
               </div>
               <button
                 className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'var(--accent-light)' }}
+                style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)' }}
                 onClick={() => {
                   const swipeData = JSON.parse(sessionStorage.getItem('swipeData') || '{}');
                   sessionStorage.setItem('swipeData', JSON.stringify({
@@ -138,13 +154,13 @@ export default function WeekView() {
                 <RefreshCw size={14} style={{ color: 'var(--accent)' }} />
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Action buttons */}
       <div className="page-pad flex gap-3 mt-6 pb-10">
-        <button className="pill-button ghost flex-1 justify-center text-[14px]" onClick={() => navigate(`/recipes/${planId}`)}>
+        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={() => navigate(`/recipes/${planId}`)}>
           <BookOpen size={16} /> Recipes
         </button>
         <button className="pill-button flex-1 justify-center text-[14px]" onClick={() => navigate(`/grocery/${planId}`)}>

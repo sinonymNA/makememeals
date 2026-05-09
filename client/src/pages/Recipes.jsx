@@ -6,77 +6,106 @@ import toast from 'react-hot-toast';
 import { setAuthToken, getPlan } from '../lib/api.js';
 import { exportAsImage, exportAsPDF } from '../lib/export.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
+import { getMealImageUrl } from '../lib/imageUrl.js';
 
-function PrintableRecipeCard({ meal, id }) {
+function RecipeDetail({ meal, id }) {
+  const imageUrl = meal.imageUrl || getMealImageUrl(meal.name);
+
   return (
-    <div
-      id={id}
-      className="recipe-card-print mx-5"
-      style={{
-        padding: '24px',
-        background: '#FEFEF6',
-        fontFamily: "'Nunito', sans-serif",
-      }}
-    >
-      {/* Header bar */}
-      <div
-        className="flex items-center gap-2 pb-3 mb-3"
-        style={{ borderBottom: '2px solid var(--border)' }}
-      >
-        <span className="text-[13px] font-extrabold" style={{ color: 'var(--accent)' }}>
-          🍽️ MAKE ME MEALS
-        </span>
+    <div id={id} className="recipe-card-print mx-5" style={{ background: '#FEFEF6' }}>
+      {/* Image with gradient overlay */}
+      <div style={{ position: 'relative', height: '240px', overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
+        <img
+          src={imageUrl}
+          alt={meal.name}
+          crossOrigin="anonymous"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={e => { e.target.style.display = 'none'; }}
+        />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to top, rgba(255,254,246,1) 0%, rgba(255,254,246,0.2) 50%, transparent 100%)',
+        }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 20px' }}>
+          <h2
+            className="text-[24px] leading-tight"
+            style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+          >
+            {meal.name}
+          </h2>
+        </div>
+        {/* Brand badge */}
+        <div style={{ position: 'absolute', top: 12, left: 12 }}>
+          <span
+            className="text-[10px] font-semibold px-2 py-1 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--accent)' }}
+          >
+            🍽️ MAKE ME MEALS
+          </span>
+        </div>
       </div>
 
-      {/* Title + emoji */}
-      <div className="text-[40px] text-center mb-2">{meal.emoji}</div>
-      <h2 className="text-[22px] font-black text-center leading-tight mb-1" style={{ color: 'var(--text)' }}>
-        {meal.name}
-      </h2>
-      <p className="text-center text-[13px] font-semibold mb-3" style={{ color: 'var(--text-mid)' }}>
-        Serves {meal.servings || 4} &nbsp;•&nbsp; {meal.prep_minutes} min &nbsp;•&nbsp; {meal.difficulty}
-      </p>
+      <div style={{ padding: '20px 24px 24px' }}>
+        {/* Meta chips */}
+        <div className="flex gap-2 flex-wrap mb-4">
+          <span className="text-[12px] px-3 py-1 rounded-full font-medium" style={{ background: 'var(--bg-soft)', color: 'var(--text-mid)' }}>
+            {meal.prep_minutes} min
+          </span>
+          <span className="text-[12px] px-3 py-1 rounded-full font-medium" style={{ background: 'var(--bg-soft)', color: 'var(--text-mid)' }}>
+            Serves {meal.servings || 4}
+          </span>
+          <span className="text-[12px] px-3 py-1 rounded-full font-medium" style={{ background: 'var(--bg-soft)', color: 'var(--text-mid)' }}>
+            {meal.difficulty}
+          </span>
+        </div>
 
-      <div style={{ borderBottom: '1.5px solid var(--border)', marginBottom: '14px' }} />
+        <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
 
-      {/* Ingredients */}
-      <div className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>
-        WHAT YOU NEED
+        {/* Ingredients */}
+        <div className="section-label">What you need</div>
+        <div className="flex flex-col gap-1.5 mb-5">
+          {(meal.ingredients || []).map((ing, i) => (
+            <div key={i} className="flex gap-2 text-[13px]" style={{ color: 'var(--text)' }}>
+              <span style={{ color: 'var(--accent)', flexShrink: 0 }}>•</span>
+              <span>
+                <span className="font-semibold">{ing.quantity} {ing.unit}</span> {ing.name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
+
+        {/* Steps */}
+        <div className="section-label">How to make it</div>
+        <div className="flex flex-col gap-3 mb-5">
+          {(meal.steps || []).map((step, i) => (
+            <div key={i} className="flex gap-3 text-[13px]" style={{ color: 'var(--text)' }}>
+              <span
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-semibold flex-shrink-0 mt-0.5"
+                style={{ background: 'var(--accent)', color: 'white' }}
+              >
+                {i + 1}
+              </span>
+              <span className="leading-relaxed">{step}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Cost callout */}
+        <div
+          style={{
+            background: 'var(--bg-warm)',
+            borderLeft: '3px solid var(--accent)',
+            padding: '12px 16px',
+            borderRadius: '0 8px 8px 0',
+          }}
+        >
+          <p className="text-[12px] italic" style={{ color: 'var(--text-mid)' }}>
+            Est. ~${meal.estimated_cost} for {meal.servings || 4} people · May be cheaper with store sales 🎉
+          </p>
+        </div>
       </div>
-      <div className="flex flex-col gap-0.5 mb-4">
-        {(meal.ingredients || []).map((ing, i) => (
-          <div key={i} className="flex gap-2 text-[13px]" style={{ color: 'var(--text)' }}>
-            <span style={{ color: 'var(--accent)' }}>•</span>
-            <span>{ing.quantity} {ing.unit} {ing.name}</span>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ borderBottom: '1.5px solid var(--border)', marginBottom: '14px' }} />
-
-      {/* Steps */}
-      <div className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>
-        HOW TO MAKE IT
-      </div>
-      <div className="flex flex-col gap-2 mb-4">
-        {(meal.steps || []).map((step, i) => (
-          <div key={i} className="flex gap-2 text-[13px]" style={{ color: 'var(--text)' }}>
-            <span
-              className="font-black flex-shrink-0"
-              style={{ color: 'var(--accent)', minWidth: '16px' }}
-            >
-              {i + 1}.
-            </span>
-            <span className="leading-snug">{step}</span>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ borderBottom: '1.5px solid var(--border)', marginBottom: '10px' }} />
-
-      <p className="text-[11px] italic text-center" style={{ color: 'var(--text-light)' }}>
-        Est. ~${meal.estimated_cost} &nbsp;•&nbsp; May be cheaper with store sales 🎉
-      </p>
     </div>
   );
 }
@@ -121,10 +150,10 @@ export default function Recipes() {
   if (error) {
     return (
       <div className="app-shell flex items-center justify-center min-h-screen page-pad">
-        <div className="raised p-8 text-center">
+        <div className="card p-8 text-center">
           <div className="text-4xl mb-3">😕</div>
-          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>Couldn't load recipes</p>
-          <p className="text-[13px] font-semibold mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
+          <p className="font-semibold text-[16px]" style={{ color: 'var(--text)' }}>Couldn't load recipes</p>
+          <p className="text-[13px] mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
           <div className="flex gap-3 justify-center">
             <button className="pill-button ghost text-[14px]" onClick={() => navigate(`/week/${planId}`)}>Back</button>
             <button className="pill-button text-[14px]" onClick={load}>Try again</button>
@@ -137,17 +166,11 @@ export default function Recipes() {
   if (meals.length === 0) {
     return (
       <div className="app-shell flex items-center justify-center min-h-screen page-pad">
-        <div className="raised p-8 text-center">
+        <div className="card p-8 text-center">
           <div className="text-4xl mb-3">📋</div>
-          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>
-            No recipes yet
-          </p>
-          <p className="text-[14px] font-semibold mt-2" style={{ color: 'var(--text-mid)' }}>
-            Create a meal plan to see recipes.
-          </p>
-          <button className="pill-button mt-6" onClick={() => navigate('/dashboard')}>
-            Back to dashboard
-          </button>
+          <p className="font-semibold text-[16px]" style={{ color: 'var(--text)' }}>No recipes yet</p>
+          <p className="text-[14px] mt-2" style={{ color: 'var(--text-mid)' }}>Create a meal plan to see recipes.</p>
+          <button className="pill-button mt-6" onClick={() => navigate('/dashboard')}>Back to dashboard</button>
         </div>
       </div>
     );
@@ -155,7 +178,6 @@ export default function Recipes() {
 
   const meal = meals[currentIdx];
   if (!meal) return null;
-
   const cardId = `recipe-card-${currentIdx}`;
 
   async function handleSaveImage() {
@@ -179,52 +201,45 @@ export default function Recipes() {
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
       {/* Header */}
-      <div className="page-pad pt-8 pb-4 flex items-center gap-3">
+      <div className="page-pad pt-10 pb-4 flex items-center gap-3">
         <button
-          className="w-10 h-10 raised-sm flex items-center justify-center"
+          className="w-10 h-10 flex items-center justify-center"
           onClick={() => navigate(`/week/${planId}`)}
-          style={{ borderRadius: '12px' }}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}
         >
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
         <div>
-          <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Recipe Cards</h1>
-          <p className="text-[13px] font-semibold" style={{ color: 'var(--text-mid)' }}>
-            {currentIdx + 1} of {meals.length}
-          </p>
+          <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Recipe Cards</h1>
+          <p className="text-[13px]" style={{ color: 'var(--text-mid)' }}>{currentIdx + 1} of {meals.length}</p>
         </div>
       </div>
 
-      {/* Nav arrows */}
+      {/* Nav */}
       <div className="flex items-center justify-between px-5 mb-3">
         <button
-          className="w-10 h-10 raised-sm flex items-center justify-center"
+          className="w-10 h-10 flex items-center justify-center"
           onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
           disabled={currentIdx === 0}
-          style={{ borderRadius: '12px', opacity: currentIdx === 0 ? 0.3 : 1 }}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', opacity: currentIdx === 0 ? 0.3 : 1 }}
         >
           <ChevronLeft size={18} style={{ color: 'var(--text-mid)' }} />
         </button>
-
         <div className="flex gap-1.5">
           {meals.map((_, i) => (
             <button
               key={i}
               className="w-2 h-2 rounded-full transition-all"
-              style={{
-                background: i === currentIdx ? 'var(--accent)' : 'var(--border)',
-                transform: i === currentIdx ? 'scale(1.3)' : 'scale(1)',
-              }}
+              style={{ background: i === currentIdx ? 'var(--accent)' : 'var(--border-mid)', transform: i === currentIdx ? 'scale(1.3)' : 'scale(1)' }}
               onClick={() => setCurrentIdx(i)}
             />
           ))}
         </div>
-
         <button
-          className="w-10 h-10 raised-sm flex items-center justify-center"
+          className="w-10 h-10 flex items-center justify-center"
           onClick={() => setCurrentIdx(i => Math.min(meals.length - 1, i + 1))}
           disabled={currentIdx === meals.length - 1}
-          style={{ borderRadius: '12px', opacity: currentIdx === meals.length - 1 ? 0.3 : 1 }}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', opacity: currentIdx === meals.length - 1 ? 0.3 : 1 }}
         >
           <ChevronRight size={18} style={{ color: 'var(--text-mid)' }} />
         </button>
@@ -232,23 +247,15 @@ export default function Recipes() {
 
       {/* Recipe card */}
       <div className="overflow-y-auto">
-        <PrintableRecipeCard meal={meal} id={cardId} />
+        <RecipeDetail meal={meal} id={cardId} />
       </div>
 
-      {/* Export buttons */}
+      {/* Export */}
       <div className="page-pad flex gap-3 mt-5 pb-10">
-        <button
-          className="pill-button ghost flex-1 justify-center text-[14px]"
-          onClick={handleSaveImage}
-          disabled={exporting}
-        >
+        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={handleSaveImage} disabled={exporting}>
           <Image size={15} /> Save Image
         </button>
-        <button
-          className="pill-button flex-1 justify-center text-[14px]"
-          onClick={handleSavePDF}
-          disabled={exporting}
-        >
+        <button className="pill-button flex-1 justify-center text-[14px]" onClick={handleSavePDF} disabled={exporting}>
           <Download size={15} /> Save PDF
         </button>
       </div>

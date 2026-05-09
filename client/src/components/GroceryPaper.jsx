@@ -169,7 +169,7 @@ function ReceiptItem({ item, onToggle }) {
         style={{
           color: 'var(--text)',
           textDecoration: item.checked ? 'line-through' : 'none',
-          fontFamily: "'Nunito', monospace",
+          fontFamily: "'Caveat', cursive",
         }}
       >
         {label}

@@ -4,19 +4,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        nunito: ['Nunito', 'sans-serif'],
+        jakarta: ["'Plus Jakarta Sans'", 'sans-serif'],
+        playfair: ["'Playfair Display'", 'serif'],
+        caveat: ["'Caveat'", 'cursive'],
       },
       colors: {
-        bg: '#F5F0E8',
-        card: '#FAF7F2',
+        bg: '#FFFFFF',
+        'bg-soft': '#F8F9FA',
+        'bg-warm': '#FFF8F5',
+        card: '#FFFFFF',
         accent: '#FF6B47',
-        'accent-light': '#FFF3EE',
-        green: '#7DB87A',
-        red: '#E05A5A',
-        text: '#2C1810',
-        'text-mid': '#7A6558',
-        'text-light': '#B8A898',
-        border: '#E8DDD0',
+        'accent-green': '#2ECC71',
+        'accent-gold': '#FFB830',
+        text: '#1A1A1A',
+        'text-mid': '#6B6B6B',
+        'text-light': '#ABABAB',
+        border: '#F0F0F0',
+        'border-mid': '#E0E0E0',
       },
       borderRadius: {
         '2xl': '16px',

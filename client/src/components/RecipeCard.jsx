@@ -1,82 +1,79 @@
-import { Clock, ChefHat, DollarSign } from 'lucide-react';
-
-const DIFFICULTY_STARS = { Easy: 1, Medium: 2, 'Confident Cook': 3 };
-
-function DifficultyDots({ level }) {
-  const count = DIFFICULTY_STARS[level] || 1;
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3].map(i => (
-        <div
-          key={i}
-          className="w-2 h-2 rounded-full"
-          style={{ background: i <= count ? 'var(--accent)' : 'var(--border)' }}
-        />
-      ))}
-      <span className="ml-1 text-[13px]" style={{ color: 'var(--text-mid)' }}>{level}</span>
-    </div>
-  );
-}
+import { Clock, Users, DollarSign } from 'lucide-react';
 
 export default function RecipeCard({ meal, onClick, style }) {
-  const topIngredients = (meal.ingredients || []).slice(0, 3);
+  const topIngredients = (meal.ingredients || []).slice(0, 4);
 
   return (
     <div
-      className="raised p-6 cursor-pointer select-none"
+      className="card overflow-hidden cursor-pointer select-none"
       style={{ background: 'var(--card)', ...style }}
       onClick={onClick}
     >
-      {/* Emoji */}
-      <div className="text-[80px] text-center leading-none mb-4">{meal.emoji || '🍽️'}</div>
-
-      {/* Name */}
-      <h2
-        className="text-[22px] font-extrabold text-center leading-tight mb-3"
-        style={{ color: 'var(--text)' }}
-      >
-        {meal.name}
-      </h2>
-
-      {/* Meta row */}
-      <div className="flex items-center justify-center gap-3 mb-3 flex-wrap">
-        <DifficultyDots level={meal.difficulty} />
-        <span style={{ color: 'var(--border)' }}>•</span>
-        <div className="flex items-center gap-1" style={{ color: 'var(--text-mid)' }}>
-          <Clock size={13} />
-          <span className="text-[13px] font-bold">{meal.prep_minutes} min</span>
-        </div>
+      {/* Food image */}
+      <div style={{ height: '200px', overflow: 'hidden', background: 'var(--bg-soft)' }}>
+        <img
+          src={meal.imageUrl || `https://source.unsplash.com/800x600/?food,${encodeURIComponent(meal.name || 'dinner')}`}
+          alt={meal.name}
+          crossOrigin="anonymous"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={e => { e.target.style.display = 'none'; }}
+        />
       </div>
 
-      {/* Description */}
-      <p
-        className="text-center text-[15px] italic leading-snug mb-4"
-        style={{ color: 'var(--text-mid)' }}
-      >
-        "{meal.description}"
-      </p>
+      {/* Card body */}
+      <div style={{ padding: '20px' }}>
+        {/* Meal name */}
+        <h2
+          className="text-[20px] leading-tight mb-2 text-center"
+          style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+        >
+          {meal.name}
+        </h2>
 
-      {/* Top ingredients */}
-      {topIngredients.length > 0 && (
-        <div className="flex justify-center gap-3 flex-wrap mb-4">
-          {topIngredients.map((ing, i) => (
+        {/* Description */}
+        {meal.description && (
+          <p
+            className="text-[13px] italic text-center leading-snug mb-4"
+            style={{ color: 'var(--text-mid)' }}
+          >
+            {meal.description}
+          </p>
+        )}
+
+        {/* Meta chips */}
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
+          {meal.prep_minutes && (
             <span
-              key={i}
-              className="text-[13px] font-bold px-3 py-1 rounded-full"
-              style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}
+              className="flex items-center gap-1 text-[12px] font-semibold px-3 py-1 rounded-full"
+              style={{ background: 'var(--bg-soft)', color: 'var(--text-mid)' }}
             >
-              {ing.name}
+              <Clock size={11} /> {meal.prep_minutes} min
             </span>
-          ))}
+          )}
+          {meal.servings && (
+            <span
+              className="flex items-center gap-1 text-[12px] font-semibold px-3 py-1 rounded-full"
+              style={{ background: 'var(--bg-soft)', color: 'var(--text-mid)' }}
+            >
+              <Users size={11} /> {meal.servings}
+            </span>
+          )}
+          {meal.estimated_cost && (
+            <span
+              className="flex items-center gap-1 text-[12px] font-semibold px-3 py-1 rounded-full"
+              style={{ background: 'var(--bg-soft)', color: 'var(--text-mid)' }}
+            >
+              <DollarSign size={11} /> ~${meal.estimated_cost}
+            </span>
+          )}
         </div>
-      )}
 
-      {/* Cost */}
-      <div
-        className="text-center text-[14px] font-bold"
-        style={{ color: 'var(--text-light)' }}
-      >
-        ~ ${meal.estimated_cost} for {meal.servings || 4} people
+        {/* Top ingredients */}
+        {topIngredients.length > 0 && (
+          <p className="text-center text-[12px]" style={{ color: 'var(--text-light)' }}>
+            Contains: {topIngredients.map(i => i.name).join(' · ')}
+          </p>
+        )}
       </div>
     </div>
   );

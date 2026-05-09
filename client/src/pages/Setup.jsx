@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import PillSelector from '../components/PillSelector.jsx';
 import ToggleCard from '../components/ToggleCard.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
@@ -13,26 +14,44 @@ const PEOPLE_OPTIONS = ['1', '2', '3', '4', '5', '6+'];
 const STORES = ['Any', 'Walmart', 'Aldi', 'Kroger', 'Target', 'Costco', "Trader Joe's", 'Whole Foods'];
 
 const TOGGLES = [
-  { key: 'picky_eaters',  emoji: '🥦', label: 'Picky eaters?',        description: 'Hides adventurous ingredients' },
-  { key: 'keep_mild',     emoji: '🌶️', label: 'Keep it mild?',         description: 'No spicy dishes' },
-  { key: 'meat_free',     emoji: '🥩', label: 'Meat-free meals?',      description: 'Vegetarian only' },
-  { key: 'gluten_free',   emoji: '🌾', label: 'Gluten-free?',          description: 'No gluten ingredients' },
-  { key: 'dairy_free',    emoji: '🥛', label: 'Dairy-free?',           description: 'No dairy ingredients' },
-  { key: 'thirty_min_max',emoji: '⏱️', label: '30 minutes or less?',   description: 'Quick weeknight meals' },
-  { key: 'high_protein',  emoji: '💪', label: 'High protein?',         description: 'Lean meats, legumes, eggs' },
-  { key: 'low_waste',     emoji: '♻️', label: 'Low waste?',            description: 'Minimal ingredients, less waste' },
+  { key: 'picky_eaters',   emoji: '🥦', label: 'Picky eaters?',       description: 'Hides adventurous ingredients' },
+  { key: 'keep_mild',      emoji: '🌶️', label: 'Keep it mild?',        description: 'No spicy dishes' },
+  { key: 'meat_free',      emoji: '🥩', label: 'Meat-free meals?',     description: 'Vegetarian only' },
+  { key: 'gluten_free',    emoji: '🌾', label: 'Gluten-free?',         description: 'No gluten ingredients' },
+  { key: 'dairy_free',     emoji: '🥛', label: 'Dairy-free?',          description: 'No dairy ingredients' },
+  { key: 'thirty_min_max', emoji: '⏱️', label: '30 minutes or less?',  description: 'Quick weeknight meals' },
+  { key: 'high_protein',   emoji: '💪', label: 'High protein?',        description: 'Lean meats, legumes, eggs' },
+  { key: 'low_waste',      emoji: '♻️', label: 'Low waste?',           description: 'Minimal ingredients, less waste' },
 ];
+
+function ProgressDots({ step, total }) {
+  return (
+    <div className="flex items-center justify-center gap-2 mb-8">
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-full transition-all duration-300"
+          style={{
+            width: i < step ? '24px' : '8px',
+            height: '8px',
+            background: i < step ? 'var(--accent)' : 'var(--border-mid)',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function BudgetSlider({ value, onChange }) {
   return (
-    <div className="raised-sm p-4">
-      <div className="flex justify-between items-center mb-3">
-        <span className="font-bold text-[15px]" style={{ color: 'var(--text)' }}>
+    <div>
+      <div className="flex justify-between items-center mb-2">
+        <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>
           💰 Weekly budget
-        </span>
+        </div>
         <span
-          className="font-black text-[18px] px-3 py-1 rounded-full"
-          style={{ background: 'var(--accent)', color: 'white' }}
+          className="font-semibold text-[16px] px-3 py-1 rounded-full"
+          style={{ background: 'var(--bg-warm)', color: 'var(--accent)' }}
         >
           ${value}
         </span>
@@ -47,8 +66,8 @@ function BudgetSlider({ value, onChange }) {
         style={{ width: '100%', accentColor: 'var(--accent)' }}
       />
       <div className="flex justify-between mt-1">
-        <span className="text-[12px] font-semibold" style={{ color: 'var(--text-light)' }}>$30</span>
-        <span className="text-[12px] font-semibold" style={{ color: 'var(--text-light)' }}>$250</span>
+        <span className="text-[12px]" style={{ color: 'var(--text-light)' }}>$30</span>
+        <span className="text-[12px]" style={{ color: 'var(--text-light)' }}>$250</span>
       </div>
     </div>
   );
@@ -56,8 +75,8 @@ function BudgetSlider({ value, onChange }) {
 
 function StorePicker({ value, onChange }) {
   return (
-    <div className="raised-sm p-4">
-      <div className="font-bold text-[15px] mb-3" style={{ color: 'var(--text)' }}>
+    <div>
+      <div className="font-semibold text-[15px] mb-3" style={{ color: 'var(--text)' }}>
         🛒 Where do you shop?
       </div>
       <div className="flex flex-wrap gap-2">
@@ -65,8 +84,8 @@ function StorePicker({ value, onChange }) {
           <button
             key={s}
             type="button"
-            className={`pill-option text-[13px] ${value === s ? 'selected' : ''}`}
-            style={{ padding: '8px 14px' }}
+            className={`pill-option ${value === s ? 'selected' : ''}`}
+            style={{ padding: '8px 16px', fontSize: '13px' }}
             onClick={() => onChange(s)}
           >
             {s}
@@ -81,6 +100,7 @@ export default function Setup({ isGuest = false }) {
   const navigate = useNavigate();
   const { getToken } = useAuth();
 
+  const [step, setStep] = useState(1);
   const [days, setDays] = useState('5');
   const [people, setPeople] = useState('4');
   const [budget, setBudget] = useState(100);
@@ -123,7 +143,7 @@ export default function Setup({ isGuest = false }) {
     setLoading(true);
     try {
       const servings  = people === '6+' ? 6 : parseInt(people);
-      const numDays   = parseInt(days);
+      const numDays   = parseInt(isGuest ? '3' : days);
       const fullPrefs = { ...prefs, budget, store, servings };
 
       let planId, meals;
@@ -132,7 +152,6 @@ export default function Setup({ isGuest = false }) {
         const sessionKey = localStorage.getItem('guestSessionKey') ||
           (() => { const k = crypto.randomUUID(); localStorage.setItem('guestSessionKey', k); return k; })();
 
-        const { default: api } = await import('../lib/api.js');
         const result = await import('../lib/api.js').then(m => m.guestGenerate(sessionKey, numDays, servings, fullPrefs));
         planId = result.planId;
         meals  = result.meals;
@@ -140,7 +159,6 @@ export default function Setup({ isGuest = false }) {
       } else {
         const token = await getToken();
         setAuthToken(token);
-        // Save preferences silently so they reload next time
         savePreferences(fullPrefs).catch(() => {});
         const result = await generateMeals(numDays, servings, fullPrefs, []);
         planId = result.planId;
@@ -168,72 +186,147 @@ export default function Setup({ isGuest = false }) {
 
   if (loading) return <LoadingScreen type="meals" />;
 
+  const TOTAL_STEPS = isGuest ? 2 : 3;
+
   return (
-    <div className="app-shell" style={{ background: 'var(--bg)' }}>
+    <div className="app-shell min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
       {/* Header */}
-      <div className="page-pad pb-0 flex items-center gap-3 pt-6">
+      <div className="page-pad pt-8 pb-0 flex items-center gap-3">
         <button
-          className="w-10 h-10 raised-sm flex items-center justify-center"
-          onClick={() => navigate(isGuest ? '/' : '/dashboard')}
-          style={{ borderRadius: '12px' }}
+          className="w-10 h-10 flex items-center justify-center"
+          onClick={() => {
+            if (step > 1) setStep(s => s - 1);
+            else navigate(isGuest ? '/' : '/dashboard');
+          }}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}
         >
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
         <div>
-          <h1 className="text-[26px] font-black" style={{ color: 'var(--text)' }}>
-            Let's plan your week
-          </h1>
-          <p className="text-[14px] font-semibold" style={{ color: 'var(--text-mid)' }}>
+          <p className="text-[13px]" style={{ color: 'var(--text-light)' }}>
             {isGuest ? '🎉 One free plan — no sign up needed!' : 'Takes 30 seconds.'}
           </p>
         </div>
       </div>
 
-      <div className="page-pad flex flex-col gap-6">
-        {/* Days */}
-        <div>
-          <div className="section-label">How many days?</div>
-          <PillSelector options={isGuest ? ['3'] : DAY_OPTIONS} value={isGuest ? '3' : days} onChange={setDays} />
-        </div>
+      <div className="page-pad pt-6">
+        <ProgressDots step={step} total={TOTAL_STEPS} />
 
-        {/* People */}
-        <div>
-          <div className="section-label">How many people?</div>
-          <PillSelector options={PEOPLE_OPTIONS} value={people} onChange={setPeople} />
-        </div>
+        <AnimatePresence mode="wait">
+          {/* Step 1 — People */}
+          {step === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.22 }}
+            >
+              <div className="text-[40px] text-center mb-3">👥</div>
+              <h1
+                className="text-[28px] text-center leading-tight mb-8"
+                style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+              >
+                How many people?
+              </h1>
+              <div className="pill-selector justify-center">
+                <PillSelector options={PEOPLE_OPTIONS} value={people} onChange={setPeople} />
+              </div>
+            </motion.div>
+          )}
 
-        {/* Budget */}
-        <BudgetSlider value={budget} onChange={setBudget} />
+          {/* Step 2 — Days (auth only) or go straight to step 2 = days for guest */}
+          {step === 2 && !isGuest && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.22 }}
+            >
+              <div className="text-[40px] text-center mb-3">📅</div>
+              <h1
+                className="text-[28px] text-center leading-tight mb-8"
+                style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+              >
+                How many nights?
+              </h1>
+              <div className="pill-selector justify-center">
+                <PillSelector options={DAY_OPTIONS} value={days} onChange={setDays} />
+              </div>
+            </motion.div>
+          )}
 
-        {/* Store */}
-        <StorePicker value={store} onChange={setStore} />
+          {/* Step 2 (guest) / Step 3 (auth) — Preferences */}
+          {((step === 2 && isGuest) || (step === 3 && !isGuest)) && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.22 }}
+            >
+              <div className="text-[40px] text-center mb-3">⚙️</div>
+              <h1
+                className="text-[28px] text-center leading-tight mb-8"
+                style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+              >
+                Your preferences
+              </h1>
 
-        {/* Dietary preferences */}
-        <div>
-          <div className="section-label">Dietary preferences 👇</div>
-          <div className="flex flex-col gap-3">
-            {TOGGLES.map(t => (
-              <ToggleCard
-                key={t.key}
-                emoji={t.emoji}
-                label={t.label}
-                description={t.description}
-                value={prefs[t.key]}
-                onChange={val => setPrefs(p => ({ ...p, [t.key]: val }))}
-              />
-            ))}
-          </div>
-        </div>
+              <div className="flex flex-col gap-6">
+                <BudgetSlider value={budget} onChange={setBudget} />
+                <StorePicker value={store} onChange={setStore} />
 
-        <button
-          className="pill-button w-full justify-center text-[17px]"
-          onClick={handleGenerate}
-          style={{ paddingTop: '16px', paddingBottom: '16px' }}
-        >
-          Generate My Meals ✨
-        </button>
+                <div>
+                  <div className="section-label">Dietary needs</div>
+                  {TOGGLES.map(t => (
+                    <ToggleCard
+                      key={t.key}
+                      emoji={t.emoji}
+                      label={t.label}
+                      description={t.description}
+                      value={prefs[t.key]}
+                      onChange={val => setPrefs(p => ({ ...p, [t.key]: val }))}
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-        <div className="pb-8" />
+      {/* Fixed bottom CTA */}
+      <div
+        className="fixed bottom-0 left-1/2"
+        style={{
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '430px',
+          padding: '16px 24px 32px',
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
+        {step < TOTAL_STEPS ? (
+          <button
+            className="pill-button w-full justify-center text-[16px]"
+            onClick={() => setStep(s => s + 1)}
+            style={{ paddingTop: '16px', paddingBottom: '16px' }}
+          >
+            Continue →
+          </button>
+        ) : (
+          <button
+            className="pill-button w-full justify-center text-[16px]"
+            onClick={handleGenerate}
+            style={{ paddingTop: '16px', paddingBottom: '16px' }}
+          >
+            Generate My Meals ✨
+          </button>
+        )}
       </div>
     </div>
   );

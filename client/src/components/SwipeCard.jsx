@@ -8,14 +8,14 @@ const SWIPE_THRESHOLD = 120;
 export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, onCardClick, isTop, stackIndex }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-300, 0, 300], [-15, 0, 15]);
-  const leftOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40, 0], [1, 0.6, 0]);
-  const rightOpacity = useTransform(x, [0, 40, SWIPE_THRESHOLD], [0, 0.6, 1]);
+  const leftOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40, 0], [1, 0.5, 0]);
+  const rightOpacity = useTransform(x, [0, 40, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const [isDragging, setIsDragging] = useState(false);
 
   const stackStyles = {
     0: { scale: 1, y: 0, zIndex: 10 },
-    1: { scale: 0.95, y: 12, zIndex: 9 },
-    2: { scale: 0.90, y: 24, zIndex: 8 },
+    1: { scale: 0.96, y: 16, zIndex: 9 },
+    2: { scale: 0.92, y: 32, zIndex: 8 },
   };
 
   const stack = stackStyles[stackIndex] || stackStyles[2];
@@ -23,7 +23,6 @@ export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, onCardClick
   async function handleDragEnd(_, info) {
     setIsDragging(false);
     const offset = info.offset.x;
-
     if (offset < -SWIPE_THRESHOLD) {
       await animate(x, -600, { type: 'spring', stiffness: 500, damping: 20 });
       onSwipeLeft();
@@ -59,32 +58,40 @@ export default function SwipeCard({ meal, onSwipeLeft, onSwipeRight, onCardClick
       onDragStart={() => setIsDragging(true)}
       onDragEnd={handleDragEnd}
     >
-      {/* Left swipe overlay */}
+      {/* Skip overlay (left) */}
       <motion.div
-        className="swipe-overlay-left"
-        style={{ opacity: leftOpacity }}
+        className="absolute inset-0 rounded-[20px] pointer-events-none"
+        style={{
+          opacity: leftOpacity,
+          background: 'rgba(224,90,90,0.15)',
+          zIndex: 20,
+        }}
       >
-        <div className="absolute top-6 right-6">
+        <div className="absolute top-5 right-5">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: 'var(--red)' }}
+            style={{ background: '#E05A5A' }}
           >
-            <X size={24} color="white" strokeWidth={3} />
+            <X size={22} color="white" strokeWidth={3} />
           </div>
         </div>
       </motion.div>
 
-      {/* Right swipe overlay */}
+      {/* Love overlay (right) */}
       <motion.div
-        className="swipe-overlay-right"
-        style={{ opacity: rightOpacity }}
+        className="absolute inset-0 rounded-[20px] pointer-events-none"
+        style={{
+          opacity: rightOpacity,
+          background: 'rgba(46,204,113,0.15)',
+          zIndex: 20,
+        }}
       >
-        <div className="absolute top-6 left-6">
+        <div className="absolute top-5 left-5">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: 'var(--green)' }}
+            style={{ background: 'var(--accent-green)' }}
           >
-            <Heart size={24} color="white" fill="white" />
+            <Heart size={22} color="white" fill="white" />
           </div>
         </div>
       </motion.div>

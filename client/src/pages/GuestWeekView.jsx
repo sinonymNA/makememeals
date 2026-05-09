@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Clock, ShoppingCart, BookOpen, ChevronLeft } from 'lucide-react';
 import { guestGetPlan } from '../lib/api.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import { SignUpButton } from '@clerk/clerk-react';
 import { DAYS } from '../lib/constants.js';
+import { attachImageUrls, getMealImageUrl } from '../lib/imageUrl.js';
 
 export default function GuestWeekView() {
   const { planId } = useParams();
@@ -13,7 +15,10 @@ export default function GuestWeekView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    guestGetPlan(planId).then(setPlan).catch(console.error).finally(() => setLoading(false));
+    guestGetPlan(planId)
+      .then(data => { data.meals = attachImageUrls(data.meals || []); setPlan(data); })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [planId]);
 
   if (loading) return <LoadingScreen type="meals" />;
@@ -25,10 +30,10 @@ export default function GuestWeekView() {
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
       {/* Sign up banner */}
       <div style={{ background: 'var(--accent)', padding: '12px 20px' }} className="text-center">
-        <p className="text-white font-bold text-[14px] mb-2">Love it? Get unlimited plans for $10/month 🍽️</p>
+        <p className="text-white font-semibold text-[14px] mb-2">Love it? Get unlimited plans for $10/month 🍽️</p>
         <SignUpButton mode="modal">
           <button
-            className="font-black text-[13px] px-4 py-1.5 rounded-full"
+            className="font-semibold text-[13px] px-4 py-1.5 rounded-full"
             style={{ background: 'white', color: 'var(--accent)' }}
           >
             Sign up free →
@@ -36,64 +41,70 @@ export default function GuestWeekView() {
         </SignUpButton>
       </div>
 
-      <div className="page-pad pt-6 pb-2 flex items-center gap-3">
+      {/* Header */}
+      <div className="page-pad pt-6 pb-4 flex items-center gap-3">
         <button
-          className="w-10 h-10 raised-sm flex items-center justify-center flex-shrink-0"
+          className="w-10 h-10 flex items-center justify-center flex-shrink-0"
           onClick={() => navigate('/')}
-          style={{ borderRadius: '12px' }}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}
         >
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
-        <div>
-          <div className="text-[13px] font-extrabold uppercase tracking-widest mb-0.5" style={{ color: 'var(--accent)' }}>
-            🍽️ Your guest plan
-          </div>
-          <h1 className="text-[24px] font-black leading-tight" style={{ color: 'var(--text)' }}>This week's lineup</h1>
-        </div>
+        <h1
+          className="text-[24px] leading-tight"
+          style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+        >
+          This week 🍽️
+        </h1>
       </div>
 
+      {/* Meal cards */}
       <div className="px-5 flex flex-col gap-3">
-        {meals.map(meal => (
-          <div key={meal.id} className="raised p-4">
+        {meals.map((meal, i) => (
+          <motion.div
+            key={meal.id}
+            className="card p-4"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06, duration: 0.3 }}
+          >
             <div className="flex items-center gap-3">
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-[28px] flex-shrink-0"
-                style={{ background: 'var(--accent-light)' }}
+                className="flex-shrink-0"
+                style={{ width: 60, height: 60, borderRadius: 12, overflow: 'hidden', background: 'var(--bg-soft)' }}
               >
-                {meal.emoji || '🍽️'}
+                <img
+                  src={meal.imageUrl || getMealImageUrl(meal.name)}
+                  alt={meal.name}
+                  crossOrigin="anonymous"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-extrabold uppercase tracking-wide" style={{ color: 'var(--text-light)' }}>
+                <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-light)' }}>
                   {DAYS[meal.day_number - 1] || `Day ${meal.day_number}`}
                 </div>
-                <div className="text-[15px] font-extrabold leading-tight" style={{ color: 'var(--text)' }}>
+                <div className="text-[15px] font-semibold leading-tight" style={{ color: 'var(--text)' }}>
                   {meal.name}
                 </div>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  {meal.difficulty && (
-                    <span
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                      style={{ background: 'var(--bg)', color: 'var(--text-mid)' }}
-                    >
-                      {meal.difficulty}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-0.5 text-[12px] font-bold" style={{ color: 'var(--text-light)' }}>
+                  <span className="flex items-center gap-0.5 text-[12px]" style={{ color: 'var(--text-light)' }}>
                     <Clock size={11} /> {meal.prep_minutes}m
                   </span>
-                  <span className="text-[12px] font-bold" style={{ color: 'var(--text-light)' }}>
+                  <span className="text-[12px]" style={{ color: 'var(--text-light)' }}>
                     ~${meal.estimated_cost}
                   </span>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       <div className="page-pad flex gap-3 mt-6 pb-10">
         <button
-          className="pill-button ghost flex-1 justify-center text-[14px]"
+          className="pill-button outline flex-1 justify-center text-[14px]"
           onClick={() => navigate(`/guest/recipes/${planId}`)}
         >
           <BookOpen size={16} /> Recipes

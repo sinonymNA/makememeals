@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 
 const MESSAGES = {
   meals: [
-    'Cooking up your meals... 👨‍🍳',
-    'Finding some delicious options... 🤤',
-    'Almost ready! ✨',
-    'Adding secret ingredients... 🌿',
+    'Cooking up your meals...',
+    'Finding delicious options...',
+    'Almost ready!',
+    'Adding the finishing touches...',
   ],
   grocery: [
-    'Building your shopping list... 🛒',
-    'Checking the pantry... 🫙',
-    'Almost done! ✨',
+    'Building your shopping list...',
+    'Organizing by aisle...',
+    'Almost done!',
   ],
   more: [
-    'Finding more options... 🔍',
-    'Checking the recipe book... 📖',
+    'Finding more options...',
+    'Checking the recipe book...',
   ],
 };
 
@@ -23,20 +23,14 @@ export default function LoadingScreen({ type = 'meals', overlay = false }) {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setIdx(i => (i + 1) % msgs.length), 900);
+    const id = setInterval(() => setIdx(i => (i + 1) % msgs.length), 1100);
     return () => clearInterval(id);
   }, [msgs.length]);
 
   const content = (
-    <div className="flex flex-col items-center justify-center gap-6 p-8">
-      <div className="text-5xl space-x-2">
-        <span className="float-emoji">🍕</span>
-        <span className="float-emoji">🍜</span>
-        <span className="float-emoji">🥗</span>
-        <span className="float-emoji">🍲</span>
-        <span className="float-emoji">🥩</span>
-      </div>
-      <p className="text-lg font-bold text-center" style={{ color: 'var(--text)' }}>
+    <div className="flex flex-col items-center justify-center gap-5 p-8">
+      <div className="loading-ring" />
+      <p className="text-[15px] font-500 text-center" style={{ color: 'var(--text-mid)', fontWeight: 500 }}>
         {msgs[idx]}
       </p>
     </div>
@@ -46,15 +40,15 @@ export default function LoadingScreen({ type = 'meals', overlay = false }) {
     return (
       <div
         className="fixed inset-0 z-50 flex items-center justify-center"
-        style={{ background: 'rgba(245, 240, 232, 0.92)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)' }}
       >
-        <div className="raised p-8 mx-6">{content}</div>
+        {content}
       </div>
     );
   }
 
   return (
-    <div className="app-shell flex items-center justify-center min-h-screen">
+    <div className="app-shell flex items-center justify-center min-h-screen" style={{ background: 'var(--bg)' }}>
       {content}
     </div>
   );

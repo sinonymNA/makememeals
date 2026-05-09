@@ -58,51 +58,58 @@ export default function GuestGroceryList() {
 
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
+      {/* Sign up banner */}
       <div style={{ background: 'var(--accent)', padding: '12px 20px' }} className="text-center">
-        <p className="text-white font-bold text-[13px] mb-1">Want more plans? Sign up for $10/month 🍽️</p>
+        <p className="text-white font-semibold text-[13px] mb-1">Want more plans? Sign up for $10/month 🍽️</p>
         <SignUpButton mode="modal">
-          <button className="font-black text-[12px] px-3 py-1 rounded-full" style={{ background: 'white', color: 'var(--accent)' }}>
+          <button className="font-semibold text-[12px] px-3 py-1 rounded-full" style={{ background: 'white', color: 'var(--accent)' }}>
             Sign up →
           </button>
         </SignUpButton>
       </div>
 
+      {/* Header */}
       <div className="page-pad pt-6 pb-4 flex items-center gap-3 no-print">
-        <button className="w-10 h-10 raised-sm flex items-center justify-center" onClick={() => navigate(`/guest/week/${planId}`)} style={{ borderRadius: '12px' }}>
+        <button
+          className="w-10 h-10 flex items-center justify-center"
+          onClick={() => navigate(`/guest/week/${planId}`)}
+          style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}
+        >
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
         <div>
-          <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
+          <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
           {checkedCount > 0 && (
-            <p className="text-[13px] font-semibold" style={{ color: 'var(--text-mid)' }}>
+            <p className="text-[13px]" style={{ color: 'var(--text-mid)' }}>
               {checkedCount} of {items.length} checked off
             </p>
           )}
         </div>
       </div>
 
+      {/* Progress bar */}
       {items.length > 0 && (
         <div className="px-5 mb-4 no-print">
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{ background: 'var(--green)', width: `${(checkedCount / items.length) * 100}%` }}
+              style={{ background: 'var(--accent)', width: `${(checkedCount / items.length) * 100}%` }}
             />
           </div>
         </div>
       )}
 
       {items.length === 0 ? (
-        <div className="raised p-8 mx-5 text-center">
+        <div className="card p-8 mx-5 text-center">
           <div className="text-4xl mb-3">🛒</div>
-          <p className="font-bold">No items yet</p>
+          <p className="font-semibold" style={{ color: 'var(--text)' }}>No items yet</p>
         </div>
       ) : (
         <GroceryPaper items={items} estimatedTotal={estimatedTotal} onToggle={handleToggle} />
       )}
 
       <div className="page-pad flex gap-3 mt-6 pb-10 no-print">
-        <button className="pill-button ghost flex-1 justify-center text-[14px]" onClick={() => window.print()}>
+        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={() => window.print()}>
           <Printer size={15} /> Print
         </button>
         <button className="pill-button flex-1 justify-center text-[14px]" onClick={async () => {

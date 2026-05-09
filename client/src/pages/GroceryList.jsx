@@ -87,12 +87,12 @@ export default function GroceryList() {
     return (
       <div className="app-shell" style={{ background: 'var(--bg)' }}>
         <div className="page-pad pt-8 pb-4 flex items-center gap-3">
-          <button className="w-10 h-10 raised-sm flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px' }}>
+          <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
             <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
           </button>
-          <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
+          <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
         </div>
-        <div className="raised p-6 mx-5 text-center">
+        <div className="card p-6 mx-5 text-center">
           <div className="text-4xl mb-3">😕</div>
           <p className="font-bold text-[15px]" style={{ color: 'var(--text)' }}>Couldn't load grocery list</p>
           <p className="text-[13px] font-semibold mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
@@ -108,14 +108,14 @@ export default function GroceryList() {
     return (
       <div className="app-shell" style={{ background: 'var(--bg)' }}>
         <div className="page-pad pt-8 pb-4 flex items-center gap-3">
-          <button className="w-10 h-10 raised-sm flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px' }}>
+          <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
             <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
           </button>
           <div>
-            <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
+            <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
           </div>
         </div>
-        <div className="raised p-8 mx-5 text-center mt-8">
+        <div className="card p-8 mx-5 text-center mt-8">
           <div className="text-4xl mb-3">🛒</div>
           <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>No items yet</p>
           <p className="text-[14px] font-semibold mt-2" style={{ color: 'var(--text-mid)' }}>Complete your meal plan to build a grocery list.</p>
@@ -129,11 +129,11 @@ export default function GroceryList() {
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <div className="page-pad pt-8 pb-4 flex items-center gap-3 no-print">
-        <button className="w-10 h-10 raised-sm flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px' }}>
+        <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
         <div>
-          <h1 className="text-[22px] font-black" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
+          <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
           {checkedCount > 0 && (
             <p className="text-[13px] font-semibold" style={{ color: 'var(--text-mid)' }}>
               {checkedCount} of {items.length} checked off
@@ -147,7 +147,7 @@ export default function GroceryList() {
         <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ background: 'var(--green)', width: `${(checkedCount / items.length) * 100}%` }}
+            style={{ background: 'var(--accent-green)', width: `${(checkedCount / items.length) * 100}%` }}
           />
         </div>
       </div>
