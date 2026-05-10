@@ -111,6 +111,8 @@ export default function Setup({ isGuest = false }) {
     high_protein: false, low_waste: false,
   });
   const [loading, setLoading] = useState(false);
+  const [inspiration, setInspiration] = useState('');
+  const [showInspiration, setShowInspiration] = useState(false);
 
   useEffect(() => {
     if (isGuest) return;
@@ -144,7 +146,7 @@ export default function Setup({ isGuest = false }) {
     try {
       const servings  = people === '6+' ? 6 : parseInt(people);
       const numDays   = parseInt(isGuest ? '3' : days);
-      const fullPrefs = { ...prefs, budget, store, servings };
+      const fullPrefs = { ...prefs, budget, store, servings, inspirationPrompt: inspiration };
 
       let planId, meals;
 
@@ -188,8 +190,38 @@ export default function Setup({ isGuest = false }) {
 
   const TOTAL_STEPS = isGuest ? 2 : 3;
 
+  function handleFinalGenerate() {
+    setShowInspiration(false);
+    handleGenerate();
+  }
+
   return (
     <div className="app-shell min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
+      {/* Recipe inspiration modal */}
+      {showInspiration && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }} onClick={e => e.target === e.currentTarget && setShowInspiration(false)}>
+          <div className="w-full max-w-[430px] overflow-y-auto" style={{ maxHeight: '90vh', borderRadius: '24px 24px 0 0', background: 'var(--card)' }}>
+            <div className="p-6">
+              <div className="w-12 h-1.5 rounded-full mx-auto mb-5" style={{ background: 'var(--border-mid)' }} />
+              <h2 className="text-[20px] font-semibold mb-2" style={{ color: 'var(--text)' }}>Inspired by a recipe? 🍳</h2>
+              <p className="text-[13px] mb-4" style={{ color: 'var(--text-mid)' }}>Describe a dish you saw on TikTok, Instagram, or a blog and we'll create something similar.</p>
+              <textarea
+                placeholder="e.g., 'Crispy Korean fried chicken with honey butter' or 'creamy tuscan salmon pasta'"
+                value={inspiration}
+                onChange={(e) => setInspiration(e.target.value)}
+                className="w-full p-3 rounded-xl text-[14px] mb-4"
+                style={{ border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', minHeight: '100px', resize: 'none' }}
+              />
+              <p className="text-[12px] mb-4" style={{ color: 'var(--text-light)' }}>Skip this if you want surprise meals →</p>
+              <div className="flex gap-3">
+                <button className="pill-button outline flex-1 justify-center text-[13px]" onClick={() => { setShowInspiration(false); handleGenerate(); }}>Skip</button>
+                <button className="pill-button flex-1 justify-center text-[13px]" onClick={handleFinalGenerate}>Let's cook it →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="page-pad pt-8 pb-0 flex items-center gap-3">
         <button
@@ -321,7 +353,7 @@ export default function Setup({ isGuest = false }) {
         ) : (
           <button
             className="pill-button w-full justify-center text-[16px]"
-            onClick={handleGenerate}
+            onClick={() => !isGuest ? setShowInspiration(true) : handleGenerate()}
             style={{ paddingTop: '16px', paddingBottom: '16px' }}
           >
             Generate My Meals ✨

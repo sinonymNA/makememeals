@@ -61,8 +61,9 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
 
   const excludeText = exclude.length ? `NEVER suggest: ${exclude.join(', ')}` : 'None (no restrictions)';
 
-  // Rotate cuisine focus for variety across generations
-  const cuisineFocus = CUISINE_ROTATIONS[Math.floor(Math.random() * CUISINE_ROTATIONS.length)];
+  // Rotate cuisine focus for variety across generations (unless inspiration provided)
+  const cuisineFocus = prefs?.inspirationPrompt ? 'inspired by user request' : CUISINE_ROTATIONS[Math.floor(Math.random() * CUISINE_ROTATIONS.length)];
+  const inspirationLine = prefs?.inspirationPrompt ? `User inspiration: Create a meal inspired by: "${prefs.inspirationPrompt}". Capture similar flavors, techniques, and spirit.` : '';
 
   return `Generate exactly ${count} dinner recipes. Be concise.
 Servings: ${servings}
@@ -70,6 +71,7 @@ Store: ${store} (${storeDesc})
 Weekly budget: $${budget} total (roughly $${perMealBudget} per meal)
 Dietary restrictions: ${buildRestrictions(prefs)}
 ${excludeText}
+${inspirationLine}
 Cuisine direction this week: lean toward ${cuisineFocus} — mix in 1-2 other styles for variety. Each meal must be distinct.
 CRITICAL: The excluded meals above have been made recently. Do NOT generate any of them again, even with slight variations.
 
