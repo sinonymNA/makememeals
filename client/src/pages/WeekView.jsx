@@ -116,9 +116,8 @@ export default function WeekView() {
                 <img
                   src={meal.imageUrl || getMealImageUrl(meal.name)}
                   alt={meal.name}
-                  crossOrigin="anonymous"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={e => { e.target.style.display = 'none'; }}
+                  onError={e => { e.target.style.display = 'none'; e.target.parentElement.style.background = 'var(--bg-warm)'; e.target.parentElement.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">${meal.emoji||'🍽️'}</div>`; }}
                 />
               </div>
               <div className="flex-1 min-w-0">

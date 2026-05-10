@@ -1,7 +1,9 @@
 import { Clock, Users, DollarSign } from 'lucide-react';
+import { getMealImageUrl } from '../lib/imageUrl.js';
 
 export default function RecipeCard({ meal, onClick, style }) {
   const topIngredients = (meal.ingredients || []).slice(0, 4);
+  const imgSrc = meal.imageUrl || getMealImageUrl(meal.name);
 
   return (
     <div
@@ -10,13 +12,15 @@ export default function RecipeCard({ meal, onClick, style }) {
       onClick={onClick}
     >
       {/* Food image */}
-      <div style={{ height: '200px', overflow: 'hidden', background: 'var(--bg-soft)' }}>
+      <div style={{ height: '200px', overflow: 'hidden', background: 'var(--bg-warm)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img
-          src={meal.imageUrl || `https://source.unsplash.com/800x600/?food,${encodeURIComponent(meal.name || 'dinner')}`}
+          src={imgSrc}
           alt={meal.name}
-          crossOrigin="anonymous"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={e => { e.target.style.display = 'none'; }}
+          onError={e => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<div style="font-size:64px;opacity:0.5">${meal.emoji || '🍽️'}</div>`;
+          }}
         />
       </div>
 

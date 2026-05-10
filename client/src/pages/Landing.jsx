@@ -36,34 +36,40 @@ export default function Landing() {
     <div className="app-shell flex flex-col min-h-screen" style={{ background: 'var(--bg)' }}>
 
       {/* Hero image with gradient overlay */}
-      <div style={{ position: 'relative', height: '360px', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: '380px', overflow: 'hidden' }}>
         <img
           src={HERO_URL}
-          alt="Delicious meal"
-          crossOrigin="anonymous"
+          alt="Delicious home-cooked meal"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={e => { e.target.style.display = 'none'; e.target.parentElement.style.background = 'linear-gradient(135deg, #ff6b35 0%, #f7c948 100%)'; }}
         />
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, #FFFFFF 0%, rgba(255,255,255,0.3) 55%, transparent 100%)',
+            background: 'linear-gradient(to top, #FFFFFF 0%, rgba(255,255,255,0.15) 50%, rgba(0,0,0,0.2) 100%)',
           }}
         />
-        {/* Text overlay at bottom of image */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 24px' }}>
+        {/* Brand name at top */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '20px 24px' }}>
           <div
-            className="text-[11px] font-bold uppercase tracking-widest mb-2"
-            style={{ color: 'var(--accent)' }}
+            className="text-[13px] font-bold tracking-widest"
+            style={{ color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
           >
-            MEAL PLANNING, REIMAGINED
+            🍽️ MAKE ME MEALS
           </div>
+        </div>
+        {/* Headline at bottom of image */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 28px' }}>
           <h1
-            className="text-[42px] leading-tight"
+            className="text-[40px] leading-tight"
             style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
           >
-            What's for dinner?
+            Make Me Meals
           </h1>
+          <p className="text-[16px] mt-1" style={{ color: 'var(--text-mid)' }}>
+            AI meal plans. Real groceries. Save hundreds.
+          </p>
         </div>
       </div>
 
