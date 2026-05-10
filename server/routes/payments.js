@@ -10,6 +10,29 @@ function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
 }
 
+// POST /api/payments/validate-promo
+// Check if promo code is valid and activate subscription if it is
+router.post('/validate-promo', requireAuth, async (req, res) => {
+  try {
+    const { promoCode } = req.body;
+    const [user] = await sql`SELECT id FROM users WHERE clerk_id = ${req.userId}`;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (promoCode === 'AZALEA') {
+      await sql`
+        UPDATE users
+        SET subscription = 'active', promo_code = ${promoCode}, promo_redeemed_at = NOW()
+        WHERE clerk_id = ${req.userId}
+      `;
+      return res.json({ valid: true, message: 'Promo code applied! Full access unlocked.' });
+    }
+    res.json({ valid: false, message: 'Invalid promo code' });
+  } catch (err) {
+    console.error('Promo validation error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/payments/create-checkout
 // Creates a Stripe Checkout Session for the $10/month subscription
 router.post('/create-checkout', requireAuth, async (req, res) => {

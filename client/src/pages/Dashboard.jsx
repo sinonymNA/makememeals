@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useUser, UserButton } from '@clerk/clerk-react';
-import { Plus, ChevronRight, ExternalLink } from 'lucide-react';
-import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus } from '../lib/api.js';
+import { Plus, ChevronRight, ExternalLink, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan } from '../lib/api.js';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -19,6 +20,11 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [swipeStart, setSwipeStart] = useState({});
+  const touchRef = useRef({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -62,6 +68,53 @@ export default function Dashboard() {
     }
   }
 
+  async function handlePromoCode() {
+    if (!promoCode.trim()) {
+      toast.error('Enter a promo code');
+      return;
+    }
+    setPromoLoading(true);
+    try {
+      const result = await validatePromo(promoCode);
+      if (result.valid) {
+        toast.success(result.message);
+        setPromoCode('');
+        setSubscription('active');
+      } else {
+        toast.error(result.message);
+      }
+    } catch (err) {
+      toast.error('Promo code validation failed');
+      console.error(err);
+    } finally {
+      setPromoLoading(false);
+    }
+  }
+
+  async function handleDeletePlan(planId) {
+    try {
+      await deletePlan(planId);
+      setPlans(plans.filter(p => p.id !== planId));
+      setDeleteModal(null);
+      toast.success('Meal plan deleted');
+    } catch (err) {
+      toast.error('Failed to delete plan');
+      console.error(err);
+    }
+  }
+
+  function handleTouchStart(planId, e) {
+    touchRef.current[planId] = e.touches[0].clientX;
+    setSwipeStart({ [planId]: e.touches[0].clientX });
+  }
+
+  function handleTouchEnd(planId, e) {
+    const start = touchRef.current[planId];
+    const end = e.changedTouches[0].clientX;
+    if (start - end > 80) setDeleteModal(planId);
+    touchRef.current[planId] = null;
+  }
+
   const subscribed = searchParams.get('subscribed');
   const isActive = subscription === 'active';
 
@@ -93,7 +146,7 @@ export default function Dashboard() {
 
       {/* Upgrade CTA for non-subscribers */}
       {!loading && subscription === 'free' && (
-        <div className="px-5 mb-5">
+        <div className="px-5 mb-5 flex flex-col gap-3">
           <div
             className="rounded-3xl p-5"
             style={{ background: 'var(--bg-warm)', border: '1.5px solid var(--accent)' }}
@@ -111,6 +164,27 @@ export default function Dashboard() {
             >
               {checkoutLoading ? 'Redirecting…' : 'Upgrade — $10/month'}
             </button>
+          </div>
+          <div className="px-0">
+            <p className="text-[12px] text-center mb-2" style={{ color: 'var(--text-light)' }}>Have a promo code?</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter code"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                onKeyPress={(e) => e.key === 'Enter' && handlePromoCode()}
+                className="flex-1 px-3 py-2 rounded-full text-[13px]"
+                style={{ border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text)' }}
+              />
+              <button
+                className="pill-button outline text-[13px]"
+                onClick={handlePromoCode}
+                disabled={promoLoading}
+              >
+                {promoLoading ? '...' : 'Apply'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -165,39 +239,69 @@ export default function Dashboard() {
               const emojis = plan.meal_emojis || [];
               const total = Number(plan.estimated_total || 0);
               return (
-                <button
+                <div
                   key={plan.id}
-                  className="card p-4 flex items-center justify-between w-full text-left"
-                  onClick={() => navigate(`/week/${plan.id}`)}
+                  className="card relative overflow-hidden"
+                  onTouchStart={(e) => handleTouchStart(plan.id, e)}
+                  onTouchEnd={(e) => handleTouchEnd(plan.id, e)}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
-                      style={{ background: 'var(--bg-warm)' }}
-                    >
-                      🗓️
-                    </div>
-                    <div>
-                      <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>
-                        {plan.days}-day plan
+                  <button
+                    className="p-4 flex items-center justify-between w-full text-left"
+                    onClick={() => navigate(`/week/${plan.id}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
+                        style={{ background: 'var(--bg-warm)' }}
+                      >
+                        🗓️
                       </div>
-                      <div className="text-[12px]" style={{ color: 'var(--text-light)' }}>
-                        {formatDate(plan.created_at)}
-                        {total > 0 && ` · ~$${total.toFixed(0)}`}
-                      </div>
-                      {emojis.length > 0 && (
-                        <div className="flex gap-0.5 mt-1 text-[15px]">
-                          {emojis.slice(0, 5).map((emoji, i) => <span key={i}>{emoji}</span>)}
+                      <div>
+                        <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>
+                          {plan.days}-day plan
                         </div>
-                      )}
+                        <div className="text-[12px]" style={{ color: 'var(--text-light)' }}>
+                          {formatDate(plan.created_at)}
+                          {total > 0 && ` · ~$${total.toFixed(0)}`}
+                        </div>
+                        {emojis.length > 0 && (
+                          <div className="flex gap-0.5 mt-1 text-[15px]">
+                            {emojis.slice(0, 5).map((emoji, i) => <span key={i}>{emoji}</span>)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight size={16} style={{ color: 'var(--text-light)' }} />
-                </button>
+                    <ChevronRight size={16} style={{ color: 'var(--text-light)' }} />
+                  </button>
+                  <button
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors hover:bg-red-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteModal(plan.id);
+                    }}
+                    title="Delete plan"
+                  >
+                    <Trash2 size={16} style={{ color: 'var(--text-light)' }} />
+                  </button>
+                </div>
               );
             })}
           </div>
         )}
+
+      {/* Delete confirmation modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="card p-6 mx-5 max-w-sm text-center">
+            <p className="font-semibold text-[16px] mb-2" style={{ color: 'var(--text)' }}>Delete meal plan?</p>
+            <p className="text-[13px] mb-6" style={{ color: 'var(--text-mid)' }}>This will remove all meals and recipes. This cannot be undone.</p>
+            <div className="flex gap-3">
+              <button className="pill-button outline flex-1" onClick={() => setDeleteModal(null)}>Cancel</button>
+              <button className="pill-button flex-1" style={{ background: '#ff6b6b', color: 'white' }} onClick={() => handleDeletePlan(deleteModal)}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
 
       {/* Manage billing link */}

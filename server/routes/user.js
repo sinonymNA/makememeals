@@ -114,4 +114,21 @@ router.get('/plans', requireAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/user/plans/:planId
+router.delete('/plans/:planId', requireAuth, async (req, res) => {
+  try {
+    const [user] = await sql`SELECT id FROM users WHERE clerk_id = ${req.userId}`;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const [plan] = await sql`SELECT id FROM meal_plans WHERE id = ${req.params.planId} AND user_id = ${user.id}`;
+    if (!plan) return res.status(404).json({ error: 'Plan not found' });
+
+    await sql`DELETE FROM meals WHERE plan_id = ${req.params.planId}`;
+    await sql`DELETE FROM meal_plans WHERE id = ${req.params.planId}`;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

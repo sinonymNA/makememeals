@@ -27,7 +27,7 @@ router.post('/generate', requireAuth, async (req, res) => {
       JOIN meal_plans mp ON mp.id = m.plan_id
       WHERE mp.user_id = ${user.id}
       ORDER BY mp.created_at DESC
-      LIMIT 20
+      LIMIT 75
     `;
     const excludeAll = [...new Set([
       ...previousMeals,

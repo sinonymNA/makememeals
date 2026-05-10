@@ -2,17 +2,19 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth, SignInButton, SignUpButton } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
 
-const HERO_URL = 'https://loremflickr.com/430/380/food,meal,cooking?lock=42';
+const HERO_URL = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=430&h=380&fit=crop&q=80';
 
 const FEATURES = [
-  { emoji: '👈👉', title: 'Swipe to pick', desc: 'Tinder-style for dinner' },
-  { emoji: '🛒', title: 'Smart grocery list', desc: 'Organized by aisle' },
-  { emoji: '📋', title: 'Recipe cards', desc: 'Save & print anytime' },
+  { emoji: '👈👉', title: 'Swipe to pick', desc: 'Tinder-style meal discovery' },
+  { emoji: '🛒', title: 'Smart grocery list', desc: 'One-tap shopping' },
+  { emoji: '📋', title: 'Recipe cards', desc: 'Easy-to-follow steps' },
+  { emoji: '💰', title: '70% cheaper than eating out', desc: 'Real groceries, real savings' },
 ];
 
 const TESTIMONIALS = [
-  { quote: '"Finally stopped the 5pm \'what\'s for dinner\' panic."', name: 'Sarah M.' },
-  { quote: '"Grocery list + recipes in one place. Game changer."', name: 'James T.' },
+  { quote: '"$200/month at restaurants vs $30 here? I\'m saving thousands."', name: 'Emily R.' },
+  { quote: '"HelloFresh is nice but these recipes taste better and cost way less."', name: 'Marcus D.' },
+  { quote: '"I actually know what I\'m cooking this week. Game changer."', name: 'Sarah M.' },
 ];
 
 export default function Landing() {
@@ -67,9 +69,22 @@ export default function Landing() {
 
       <div className="flex-1 flex flex-col page-pad gap-7 pt-4">
 
+        {/* Value Prop */}
+        <div>
+          <p className="text-[17px] leading-relaxed font-semibold mb-3" style={{ color: 'var(--text)' }}>
+            Stop the dinner-time panic. Save thousands.
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-[13px]" style={{ color: 'var(--text-mid)' }}>
+            <div>❌ Eating out: $15-25/person × 20x/mo = $300-500</div>
+            <div>❌ HelloFresh: $120/week = $480+/month</div>
+            <div>✅ Make Me Meals: $10/month + grocery cost</div>
+            <div>✅ Average meal: $3-5 per person</div>
+          </div>
+        </div>
+
         {/* Subline */}
-        <p className="text-[17px] leading-relaxed" style={{ color: 'var(--text-mid)' }}>
-          AI-generated meal plans + smart grocery lists. Less stress, more flavor.
+        <p className="text-[16px] leading-relaxed" style={{ color: 'var(--text-mid)' }}>
+          AI-generated meal plans tailored to your budget + smart grocery lists. No boxed meals. No waste.
         </p>
 
         {/* CTAs */}

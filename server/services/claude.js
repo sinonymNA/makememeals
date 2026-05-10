@@ -59,7 +59,7 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   const storeDesc = STORES[store] || STORES['Any'];
   const perMealBudget = Math.round(budget / Math.max(count - 1, 1));
 
-  const excludeText = exclude.length ? exclude.join(', ') : 'nothing';
+  const excludeText = exclude.length ? `NEVER suggest: ${exclude.join(', ')}` : 'None (no restrictions)';
 
   // Rotate cuisine focus for variety across generations
   const cuisineFocus = CUISINE_ROTATIONS[Math.floor(Math.random() * CUISINE_ROTATIONS.length)];
@@ -69,8 +69,9 @@ Servings: ${servings}
 Store: ${store} (${storeDesc})
 Weekly budget: $${budget} total (roughly $${perMealBudget} per meal)
 Dietary restrictions: ${buildRestrictions(prefs)}
-Do NOT include: ${excludeText}
+${excludeText}
 Cuisine direction this week: lean toward ${cuisineFocus} — mix in 1-2 other styles for variety. Each meal must be distinct.
+CRITICAL: The excluded meals above have been made recently. Do NOT generate any of them again, even with slight variations.
 
 Return a JSON array. Each item:
 {
