@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, Share2, Printer } from 'lucide-react';
+import { ChevronLeft, Share2, Printer, Home } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { setAuthToken, buildGroceryList } from '../lib/api.js';
 import GroceryPaper from '../components/GroceryPaper.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 
 function checkedKey(planId) { return `grocery-checked-${planId}`; }
+function pantryKey(planId)  { return `grocery-pantry-${planId}`; }
 
 function restoreChecked(items, planId) {
   try {
@@ -22,6 +23,97 @@ function persistChecked(items, planId) {
   localStorage.setItem(checkedKey(planId), JSON.stringify(checked));
 }
 
+function restorePantry(planId) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(pantryKey(planId)) || '[]');
+    return new Set(saved);
+  } catch { return new Set(); }
+}
+
+function persistPantry(names, planId) {
+  localStorage.setItem(pantryKey(planId), JSON.stringify([...names]));
+}
+
+function PantryModal({ items, pantryNames, onSave, onClose }) {
+  const [selected, setSelected] = useState(new Set(pantryNames));
+
+  function toggle(name) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="w-full max-w-[430px] overflow-y-auto"
+        style={{ maxHeight: '80vh', borderRadius: '24px 24px 0 0', background: 'var(--card)' }}
+      >
+        <div className="p-6">
+          <div className="w-12 h-1.5 rounded-full mx-auto mb-5" style={{ background: 'var(--border-mid)' }} />
+          <h2 className="text-[18px] font-semibold mb-1" style={{ color: 'var(--text)' }}>
+            Already have some? 🏠
+          </h2>
+          <p className="text-[13px] mb-5" style={{ color: 'var(--text-mid)' }}>
+            Select items you already have at home — they'll be removed from your list.
+          </p>
+
+          <div className="flex flex-col">
+            {items.map(item => (
+              <label
+                key={item.name}
+                className="flex items-center gap-3 py-3 cursor-pointer"
+                style={{ borderBottom: '1px solid var(--border)' }}
+              >
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                  style={{
+                    border: '2px solid var(--border-mid)',
+                    background: selected.has(item.name) ? 'var(--accent)' : 'transparent',
+                    borderColor: selected.has(item.name) ? 'var(--accent)' : 'var(--border-mid)',
+                  }}
+                  onClick={() => toggle(item.name)}
+                >
+                  {selected.has(item.name) && (
+                    <svg viewBox="0 0 12 10" fill="none" width={10} height={10}>
+                      <path d="M1 5l3 3 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[14px]" style={{ color: 'var(--text)' }}>
+                    {item.quantity} {item.unit} {item.name}
+                  </span>
+                </div>
+                {item.estimated_price != null && (
+                  <span className="text-[13px] flex-shrink-0" style={{ color: 'var(--text-light)' }}>
+                    ${Number(item.estimated_price).toFixed(2)}
+                  </span>
+                )}
+              </label>
+            ))}
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <button className="pill-button outline flex-1 justify-center" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="pill-button flex-1 justify-center" onClick={() => onSave(selected)}>
+              Done ({selected.size} selected)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function GroceryList() {
   const { planId } = useParams();
   const navigate = useNavigate();
@@ -31,6 +123,8 @@ export default function GroceryList() {
   const [estimatedTotal, setEstimatedTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pantryNames, setPantryNames] = useState(() => restorePantry(planId));
+  const [showPantryModal, setShowPantryModal] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -64,17 +158,20 @@ export default function GroceryList() {
     });
   }
 
+  function handlePantrySave(selected) {
+    setPantryNames(selected);
+    persistPantry(selected, planId);
+    setShowPantryModal(false);
+  }
+
   async function handleShare() {
-    const text = items
+    const text = visibleItems
       .filter(i => !i.checked)
       .map(i => `• ${i.quantity} ${i.unit} ${i.name}`.trim())
       .join('\n');
-
-    const shareText = `🛒 Grocery List\n\n${text}\n\nEstimated total: ~$${estimatedTotal?.toFixed(2)}\n\nMade with MakeMeMeals.com`;
-
+    const shareText = `🛒 Grocery List\n\n${text}\n\nEst. total: ~$${adjustedTotal.toFixed(2)}\n\nMade with MakeMeMeals.com`;
     if (navigator.share) {
-      try { await navigator.share({ title: 'My Grocery List', text: shareText }); }
-      catch { /* User cancelled */ }
+      try { await navigator.share({ title: 'My Grocery List', text: shareText }); } catch {}
     } else {
       await navigator.clipboard.writeText(shareText);
       toast.success('Grocery list copied!');
@@ -83,80 +180,112 @@ export default function GroceryList() {
 
   if (loading) return <LoadingScreen type="grocery" />;
 
+  const navButton = (
+    <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
+      <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
+    </button>
+  );
+
   if (error) {
     return (
       <div className="app-shell" style={{ background: 'var(--bg)' }}>
-        <div className="page-pad pt-8 pb-4 flex items-center gap-3">
-          <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
-            <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
-          </button>
+        <div className="page-pad pt-8 pb-4 flex items-center gap-3">{navButton}
           <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
         </div>
         <div className="card p-6 mx-5 text-center">
           <div className="text-4xl mb-3">😕</div>
-          <p className="font-bold text-[15px]" style={{ color: 'var(--text)' }}>Couldn't load grocery list</p>
-          <p className="text-[13px] font-semibold mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
+          <p className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>Couldn't load grocery list</p>
+          <p className="text-[13px] mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
           <button className="pill-button text-[14px]" onClick={load}>Try again</button>
         </div>
       </div>
     );
   }
 
-  const checkedCount = items.filter(i => i.checked).length;
-
   if (items.length === 0) {
     return (
       <div className="app-shell" style={{ background: 'var(--bg)' }}>
-        <div className="page-pad pt-8 pb-4 flex items-center gap-3">
-          <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
-            <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
-          </button>
-          <div>
-            <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
-          </div>
+        <div className="page-pad pt-8 pb-4 flex items-center gap-3">{navButton}
+          <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
         </div>
         <div className="card p-8 mx-5 text-center mt-8">
           <div className="text-4xl mb-3">🛒</div>
-          <p className="font-bold text-[16px]" style={{ color: 'var(--text)' }}>No items yet</p>
-          <p className="text-[14px] font-semibold mt-2" style={{ color: 'var(--text-mid)' }}>Complete your meal plan to build a grocery list.</p>
+          <p className="font-semibold text-[16px]" style={{ color: 'var(--text)' }}>No items yet</p>
+          <p className="text-[14px] mt-2" style={{ color: 'var(--text-mid)' }}>Complete your meal plan to build a grocery list.</p>
           <button className="pill-button mt-6" onClick={() => navigate(`/week/${planId}`)}>Back to week view</button>
         </div>
       </div>
     );
   }
 
+  // Derive pantry-adjusted view
+  const visibleItems = items.filter(i => !pantryNames.has(i.name));
+  const pantryTotal  = items.filter(i => pantryNames.has(i.name))
+    .reduce((s, i) => s + Number(i.estimated_price || 0), 0);
+  const adjustedTotal = Math.max(0, estimatedTotal - pantryTotal);
+  const checkedCount  = visibleItems.filter(i => i.checked).length;
+
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
+      {showPantryModal && (
+        <PantryModal
+          items={items}
+          pantryNames={pantryNames}
+          onSave={handlePantrySave}
+          onClose={() => setShowPantryModal(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="page-pad pt-8 pb-4 flex items-center gap-3 no-print">
-        <button className="w-10 h-10 flex items-center justify-center" onClick={() => navigate(`/week/${planId}`)} style={{ borderRadius: '12px', border: '1px solid var(--border-mid)', background: 'var(--bg)' }}>
-          <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
-        </button>
-        <div>
+        {navButton}
+        <div className="flex-1">
           <h1 className="text-[22px] font-semibold" style={{ color: 'var(--text)' }}>Grocery List 🛒</h1>
           {checkedCount > 0 && (
-            <p className="text-[13px] font-semibold" style={{ color: 'var(--text-mid)' }}>
-              {checkedCount} of {items.length} checked off
+            <p className="text-[13px]" style={{ color: 'var(--text-mid)' }}>
+              {checkedCount} of {visibleItems.length} checked off
             </p>
           )}
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="px-5 mb-4 no-print">
-        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ background: 'var(--accent-green)', width: `${(checkedCount / items.length) * 100}%` }}
-          />
+      {visibleItems.length > 0 && (
+        <div className="px-5 mb-3 no-print">
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ background: 'var(--accent)', width: `${(checkedCount / visibleItems.length) * 100}%` }}
+            />
+          </div>
         </div>
+      )}
+
+      {/* Pantry controls */}
+      <div className="px-5 mb-4 no-print flex items-center gap-2 flex-wrap">
+        <button
+          className="pill-button outline text-[13px]"
+          style={{ padding: '8px 16px' }}
+          onClick={() => setShowPantryModal(true)}
+        >
+          <Home size={13} /> Already have some?
+        </button>
+        {pantryNames.size > 0 && (
+          <span
+            className="text-[12px] px-3 py-1 rounded-full cursor-pointer"
+            style={{ background: 'var(--bg-warm)', color: 'var(--accent)' }}
+            onClick={() => setShowPantryModal(true)}
+          >
+            {pantryNames.size} item{pantryNames.size > 1 ? 's' : ''} hidden · ${pantryTotal.toFixed(2)} saved
+          </span>
+        )}
       </div>
 
-      <GroceryPaper items={items} estimatedTotal={estimatedTotal} onToggle={handleToggle} />
+      <GroceryPaper items={visibleItems} estimatedTotal={adjustedTotal} onToggle={handleToggle} />
 
       {/* Action buttons */}
       <div className="page-pad flex gap-3 mt-6 pb-10 no-print">
-        <button className="pill-button ghost flex-1 justify-center text-[14px]" onClick={handleShare}>
+        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={handleShare}>
           <Share2 size={15} /> Share List
         </button>
         <button className="pill-button flex-1 justify-center text-[14px]" onClick={() => window.print()}>

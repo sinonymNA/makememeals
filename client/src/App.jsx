@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import GuestWeekView from './pages/GuestWeekView.jsx';
 import GuestRecipes from './pages/GuestRecipes.jsx';
 import GuestGroceryList from './pages/GuestGroceryList.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 function ProtectedRoute({ children }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -55,6 +56,8 @@ function AnimatedRoutes() {
         <Route path="/guest/week/:planId"     element={<PageWrapper><GuestWeekView /></PageWrapper>} />
         <Route path="/guest/recipes/:planId"  element={<PageWrapper><GuestRecipes /></PageWrapper>} />
         <Route path="/guest/grocery/:planId"  element={<PageWrapper><GuestGroceryList /></PageWrapper>} />
+
+        <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
     </AnimatePresence>
   );

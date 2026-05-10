@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, readFileSync } from 'fs';
@@ -22,7 +23,20 @@ app.use(cors({
   credentials: true,
 }));
 
+// Webhook route needs raw body — must be before express.json()
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
+
+// Rate limit expensive AI generation endpoints
+const generateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests — please wait a minute before generating again.' },
+});
+app.use('/api/meals/generate', generateLimit);
+app.use('/api/guest/generate', generateLimit);
 
 app.use('/api/meals', mealsRouter);
 app.use('/api/grocery', groceryRouter);

@@ -16,18 +16,32 @@ router.post('/generate', requireAuth, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    // Require active subscription
+    if (user.subscription !== 'active') {
+      return res.status(402).json({ error: 'Subscription required', code: 'subscription_required' });
+    }
+
+    // Fetch names of recent meals so Claude avoids repeating them
+    const recentMeals = await sql`
+      SELECT m.name FROM meals m
+      JOIN meal_plans mp ON mp.id = m.plan_id
+      WHERE mp.user_id = ${user.id}
+      ORDER BY mp.created_at DESC
+      LIMIT 20
+    `;
+    const excludeAll = [...new Set([
+      ...previousMeals,
+      ...recentMeals.map(m => m.name),
+    ])];
+
     // Only generate 3 meals upfront — swipe screen fetches more as needed
-    const meals = await generateMeals(3, servings, preferences, previousMeals, '');
+    const meals = await generateMeals(3, servings, preferences, excludeAll, '');
 
     const [plan] = await sql`
       INSERT INTO meal_plans (user_id, days, week_of)
       VALUES (${user.id}, ${days}, CURRENT_DATE)
       RETURNING id
     `;
-
-    if (user.subscription === 'free') {
-      await sql`UPDATE users SET free_weeks = free_weeks + 1 WHERE id = ${user.id}`;
-    }
 
     res.json({ planId: plan.id, meals });
   } catch (err) {

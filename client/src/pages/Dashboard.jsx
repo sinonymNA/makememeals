@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useUser, UserButton } from '@clerk/clerk-react';
-import { Plus, ChevronRight } from 'lucide-react';
-import { setAuthToken, registerUser, getPlans } from '../lib/api.js';
+import { Plus, ChevronRight, ExternalLink } from 'lucide-react';
+import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus } from '../lib/api.js';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -17,6 +17,8 @@ export default function Dashboard() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -27,8 +29,9 @@ export default function Dashboard() {
       if (user?.primaryEmailAddress?.emailAddress) {
         await registerUser(user.primaryEmailAddress.emailAddress).catch(() => {});
       }
-      const data = await getPlans();
+      const [data, statusData] = await Promise.all([getPlans(), getSubscriptionStatus()]);
       setPlans(data);
+      setSubscription(statusData.subscription);
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to load plans');
@@ -39,7 +42,28 @@ export default function Dashboard() {
 
   useEffect(() => { load(); }, [load]);
 
+  async function handleUpgrade() {
+    setCheckoutLoading(true);
+    try {
+      const { url } = await createCheckout();
+      window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      setCheckoutLoading(false);
+    }
+  }
+
+  async function handleManageBilling() {
+    try {
+      const { url } = await createPortal();
+      window.location.href = url;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   const subscribed = searchParams.get('subscribed');
+  const isActive = subscription === 'active';
 
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
@@ -59,7 +83,7 @@ export default function Dashboard() {
         <UserButton afterSignOutUrl="/" />
       </div>
 
-      {/* Subscription success banner */}
+      {/* Success banner */}
       {subscribed && (
         <div className="mx-5 mb-5 p-4 rounded-2xl text-center" style={{ background: 'var(--accent-green)', color: 'white' }}>
           <p className="font-semibold text-[15px]">🎉 Welcome to Make Me Meals!</p>
@@ -67,34 +91,60 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* New plan CTA */}
-      <div className="px-5 mb-6">
-        <button
-          className="w-full p-5 rounded-3xl flex items-center justify-between"
-          onClick={() => navigate('/setup')}
-          style={{ background: 'var(--accent)', cursor: 'pointer' }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">✨</div>
-            <div className="text-left">
-              <div className="font-semibold text-[16px] text-white">New Meal Plan</div>
-              <div className="text-[13px] text-white/80">Pick your meals for the week</div>
+      {/* Upgrade CTA for non-subscribers */}
+      {!loading && subscription === 'free' && (
+        <div className="px-5 mb-5">
+          <div
+            className="rounded-3xl p-5"
+            style={{ background: 'var(--bg-warm)', border: '1.5px solid var(--accent)' }}
+          >
+            <p className="font-semibold text-[16px] mb-1" style={{ color: 'var(--text)' }}>
+              Start generating meal plans ✨
+            </p>
+            <p className="text-[13px] mb-4" style={{ color: 'var(--text-mid)' }}>
+              $10/month · Unlimited plans · Cancel anytime
+            </p>
+            <button
+              className="pill-button w-full justify-center"
+              onClick={handleUpgrade}
+              disabled={checkoutLoading}
+            >
+              {checkoutLoading ? 'Redirecting…' : 'Upgrade — $10/month'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* New plan CTA (only for subscribers) */}
+      {isActive && (
+        <div className="px-5 mb-6">
+          <button
+            className="w-full p-5 rounded-3xl flex items-center justify-between"
+            onClick={() => navigate('/setup')}
+            style={{ background: 'var(--accent)', cursor: 'pointer' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">✨</div>
+              <div className="text-left">
+                <div className="font-semibold text-[16px] text-white">New Meal Plan</div>
+                <div className="text-[13px] text-white/80">Pick your meals for the week</div>
+              </div>
             </div>
-          </div>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.25)' }}>
-            <Plus size={16} color="white" strokeWidth={3} />
-          </div>
-        </button>
-      </div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.25)' }}>
+              <Plus size={16} color="white" strokeWidth={3} />
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Past plans */}
       <div className="page-pad pt-0">
-        <div className="section-label">Your plans</div>
+        {isActive && <div className="section-label">Your plans</div>}
 
         {loading ? (
           <div className="text-center py-10" style={{ color: 'var(--text-light)' }}>
             <div className="text-3xl mb-2">📋</div>
-            <p className="text-[14px]">Loading your plans...</p>
+            <p className="text-[14px]">Loading…</p>
           </div>
         ) : error ? (
           <div className="card p-6 text-center">
@@ -103,7 +153,7 @@ export default function Dashboard() {
             <p className="text-[13px] mt-1 mb-4" style={{ color: 'var(--text-mid)' }}>{error}</p>
             <button className="pill-button text-[14px]" onClick={load}>Try again</button>
           </div>
-        ) : plans.length === 0 ? (
+        ) : isActive && plans.length === 0 ? (
           <div className="card p-8 text-center">
             <div className="text-4xl mb-3">🍽️</div>
             <p className="font-semibold text-[16px]" style={{ color: 'var(--text)' }}>No plans yet!</p>
@@ -137,9 +187,7 @@ export default function Dashboard() {
                       </div>
                       {emojis.length > 0 && (
                         <div className="flex gap-0.5 mt-1 text-[15px]">
-                          {emojis.slice(0, 5).map((emoji, i) => (
-                            <span key={i}>{emoji}</span>
-                          ))}
+                          {emojis.slice(0, 5).map((emoji, i) => <span key={i}>{emoji}</span>)}
                         </div>
                       )}
                     </div>
@@ -152,7 +200,20 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="pb-16" />
+      {/* Manage billing link */}
+      {isActive && (
+        <div className="text-center pb-4 mt-2">
+          <button
+            className="text-[12px] flex items-center gap-1 mx-auto"
+            style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer' }}
+            onClick={handleManageBilling}
+          >
+            <ExternalLink size={11} /> Manage billing
+          </button>
+        </div>
+      )}
+
+      <div className="pb-10" />
     </div>
   );
 }

@@ -28,17 +28,28 @@ const STORES = {
   'Any':          'standard grocery store ingredients',
 };
 
+const CUISINE_ROTATIONS = [
+  'Mediterranean (Greek, Turkish, Lebanese)',
+  'East Asian (Japanese, Korean, Chinese)',
+  'Latin American (Mexican, Peruvian, Cuban)',
+  'South Asian (Indian, Thai, Vietnamese)',
+  'American comfort food with a twist',
+  'Italian and French bistro-style',
+  'Middle Eastern (Moroccan, Persian, Israeli)',
+  'Modern fusion and globally-inspired',
+];
+
 function buildRestrictions(prefs) {
   if (!prefs) return 'None';
   const restrictions = [];
-  if (prefs.picky_eaters)  restrictions.push('family-friendly, no adventurous ingredients');
-  if (prefs.keep_mild)     restrictions.push('no spicy dishes');
-  if (prefs.meat_free)     restrictions.push('vegetarian only, no meat or seafood');
-  if (prefs.gluten_free)   restrictions.push('strictly gluten-free');
-  if (prefs.dairy_free)    restrictions.push('strictly dairy-free');
+  if (prefs.picky_eaters)   restrictions.push('family-friendly, no adventurous ingredients');
+  if (prefs.keep_mild)      restrictions.push('no spicy dishes');
+  if (prefs.meat_free)      restrictions.push('vegetarian only, no meat or seafood');
+  if (prefs.gluten_free)    restrictions.push('strictly gluten-free');
+  if (prefs.dairy_free)     restrictions.push('strictly dairy-free');
   if (prefs.thirty_min_max) restrictions.push('30 minutes or less total cook time');
-  if (prefs.high_protein)  restrictions.push('high-protein meals, prioritize lean meats, legumes, eggs');
-  if (prefs.low_waste)     restrictions.push('minimal ingredients, use whole items, minimal food waste');
+  if (prefs.high_protein)   restrictions.push('high-protein meals, prioritize lean meats, legumes, eggs');
+  if (prefs.low_waste)      restrictions.push('minimal ingredients, use whole items, minimal food waste');
   return restrictions.length ? restrictions.join(', ') : 'None';
 }
 
@@ -46,9 +57,12 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   const store     = prefs?.store   || 'Any';
   const budget    = prefs?.budget  || 100;
   const storeDesc = STORES[store] || STORES['Any'];
-  const perMealBudget = Math.round(budget / (count - 2));  // rough per-meal budget
+  const perMealBudget = Math.round(budget / Math.max(count - 1, 1));
 
   const excludeText = exclude.length ? exclude.join(', ') : 'nothing';
+
+  // Rotate cuisine focus for variety across generations
+  const cuisineFocus = CUISINE_ROTATIONS[Math.floor(Math.random() * CUISINE_ROTATIONS.length)];
 
   return `Generate exactly ${count} dinner recipes. Be concise.
 Servings: ${servings}
@@ -56,6 +70,7 @@ Store: ${store} (${storeDesc})
 Weekly budget: $${budget} total (roughly $${perMealBudget} per meal)
 Dietary restrictions: ${buildRestrictions(prefs)}
 Do NOT include: ${excludeText}
+Cuisine direction this week: lean toward ${cuisineFocus} — mix in 1-2 other styles for variety. Each meal must be distinct.
 
 Return a JSON array. Each item:
 {
@@ -67,17 +82,18 @@ Return a JSON array. Each item:
   "estimated_cost": number (total USD for ${servings} servings),
   "ingredients": [
     {
-      "name": "string",
-      "quantity": "string",
-      "unit": "string",
+      "name": "string (product name as sold at ${store}, e.g. 'chicken thighs', 'basmati rice', 'crushed tomatoes')",
+      "quantity": "string (how many units to buy, e.g. '1', '2', '0.5')",
+      "unit": "string (what you buy: 'lb', 'bag', 'bunch', 'can', 'bottle', 'head', 'oz', 'pack', 'jar', 'box', 'loaf' — NOT recipe measures like tbsp/cup/tsp)",
       "category": "string",
-      "estimated_price": number (USD for this item at ${store})
+      "estimated_price": number (USD price for this purchasable item at ${store})
     }
   ],
   "steps": ["string"] (max 6 steps)
 }
 
-Categories: "Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other"${prefPrompt}`;
+Categories: "Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other"
+Ingredients rule: List what goes in the shopping cart, not what you measure at the stove. Skip everyday pantry staples (salt, pepper, basic oil, common spices) unless they are a key/unusual ingredient in this dish. Price each item as the full purchasable unit at ${store}.${prefPrompt}`;
 }
 
 function parseResponse(raw) {
@@ -96,7 +112,7 @@ function parseResponse(raw) {
 }
 
 export async function generateMeals(count, servings, prefs, excludeNames = [], prefPrompt = '') {
-  const maxTokens = Math.min(count * 750, 4500);
+  const maxTokens = Math.min(count * 900, 5500);
 
   try {
     const message = await client.messages.create({

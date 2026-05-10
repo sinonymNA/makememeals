@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth, SignInButton, SignUpButton } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
 
-const HERO_URL = 'https://source.unsplash.com/430x380/?food,meal,cooking,dinner';
+const HERO_URL = 'https://loremflickr.com/430/380/food,meal,cooking?lock=42';
 
 const FEATURES = [
   { emoji: '👈👉', title: 'Swipe to pick', desc: 'Tinder-style for dinner' },

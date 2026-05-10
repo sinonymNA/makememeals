@@ -41,8 +41,12 @@ export const savePreferences = (prefs) => api.post('/user/preferences', prefs).t
 export const getPlans = () => api.get('/user/plans').then(r => r.data);
 
 // Payments
-export const createCheckout = (email) =>
-  api.post('/payments/create-checkout', { email }).then(r => r.data);
+export const createCheckout = () =>
+  api.post('/payments/create-checkout').then(r => r.data);
+export const createPortal = () =>
+  api.post('/payments/create-portal').then(r => r.data);
+export const getSubscriptionStatus = () =>
+  api.get('/payments/status').then(r => r.data);
 
 // Guest (no auth)
 export const guestGenerate = (sessionKey, days, servings, preferences) =>
