@@ -41,8 +41,8 @@ export const savePreferences = (prefs) => api.post('/user/preferences', prefs).t
 export const getPlans = () => api.get('/user/plans').then(r => r.data);
 
 // Payments
-export const createCheckout = () =>
-  api.post('/payments/create-checkout').then(r => r.data);
+export const createCheckout = (plan = 'monthly') =>
+  api.post('/payments/create-checkout', { plan }).then(r => r.data);
 export const createPortal = () =>
   api.post('/payments/create-portal').then(r => r.data);
 export const getSubscriptionStatus = () =>

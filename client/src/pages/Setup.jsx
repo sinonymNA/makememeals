@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PillSelector from '../components/PillSelector.jsx';
 import ToggleCard from '../components/ToggleCard.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
+import PaywallModal from '../components/PaywallModal.jsx';
 import toast from 'react-hot-toast';
 import { setAuthToken, generateMeals, getPreferences, savePreferences } from '../lib/api.js';
 import { ChevronLeft } from 'lucide-react';
@@ -113,6 +114,7 @@ export default function Setup({ isGuest = false }) {
   const [loading, setLoading] = useState(false);
   const [inspiration, setInspiration] = useState('');
   const [showInspiration, setShowInspiration] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
     if (isGuest) return;
@@ -176,6 +178,12 @@ export default function Setup({ isGuest = false }) {
       navigate('/swipe');
     } catch (err) {
       if (err?.response?.status === 402) {
+        const data = err.response?.data || {};
+        if (data.paywall) {
+          setLoading(false);
+          setShowPaywall(true);
+          return;
+        }
         toast.error("You've already used your free guest plan! Sign up to continue.");
         navigate('/');
       } else {
@@ -197,6 +205,7 @@ export default function Setup({ isGuest = false }) {
 
   return (
     <div className="app-shell min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
+      {showPaywall && <PaywallModal onClose={() => setShowPaywall(false)} />}
       {/* Recipe inspiration modal */}
       {showInspiration && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }} onClick={e => e.target === e.currentTarget && setShowInspiration(false)}>

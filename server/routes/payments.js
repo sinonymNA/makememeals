@@ -11,7 +11,6 @@ function getStripe() {
 }
 
 // POST /api/payments/validate-promo
-// Check if promo code is valid and activate subscription if it is
 router.post('/validate-promo', requireAuth, async (req, res) => {
   try {
     const { promoCode } = req.body;
@@ -34,13 +33,18 @@ router.post('/validate-promo', requireAuth, async (req, res) => {
 });
 
 // POST /api/payments/create-checkout
-// Creates a Stripe Checkout Session for the $10/month subscription
+// plan: 'monthly' | 'annual'
 router.post('/create-checkout', requireAuth, async (req, res) => {
   try {
     const stripe = getStripe();
+    const { plan = 'monthly' } = req.body;
 
-    if (!process.env.STRIPE_PRICE_ID) {
-      return res.status(500).json({ error: 'STRIPE_PRICE_ID not configured' });
+    const priceId = plan === 'annual'
+      ? process.env.STRIPE_PRICE_ID_ANNUAL
+      : process.env.STRIPE_PRICE_ID_MONTHLY;
+
+    if (!priceId) {
+      return res.status(500).json({ error: `STRIPE_PRICE_ID_${plan.toUpperCase()} not configured` });
     }
 
     const [user] = await sql`SELECT id, email FROM users WHERE clerk_id = ${req.userId}`;
@@ -51,11 +55,14 @@ router.post('/create-checkout', requireAuth, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${clientUrl}/dashboard?subscribed=1`,
-      cancel_url: `${clientUrl}/dashboard`,
+      cancel_url:  `${clientUrl}/dashboard`,
       client_reference_id: req.userId,
       customer_email: user.email,
+      subscription_data: {
+        metadata: { clerk_id: req.userId },
+      },
     });
 
     res.json({ url: session.url });
@@ -66,11 +73,9 @@ router.post('/create-checkout', requireAuth, async (req, res) => {
 });
 
 // POST /api/payments/create-portal
-// Lets subscribed users manage their billing via Stripe Customer Portal
 router.post('/create-portal', requireAuth, async (req, res) => {
   try {
     const stripe = getStripe();
-
     const [user] = await sql`SELECT stripe_customer_id FROM users WHERE clerk_id = ${req.userId}`;
     if (!user?.stripe_customer_id) {
       return res.status(400).json({ error: 'No active subscription found' });
@@ -92,16 +97,15 @@ router.post('/create-portal', requireAuth, async (req, res) => {
 // GET /api/payments/status
 router.get('/status', requireAuth, async (req, res) => {
   try {
-    const [user] = await sql`SELECT subscription FROM users WHERE clerk_id = ${req.userId}`;
+    const [user] = await sql`SELECT subscription, free_plans_used FROM users WHERE clerk_id = ${req.userId}`;
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ subscription: user.subscription });
+    res.json({ subscription: user.subscription, free_plans_used: user.free_plans_used ?? 0 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // POST /api/payments/webhook
-// Stripe sends events here — verify signature, update DB
 router.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   if (!sig || !process.env.STRIPE_WEBHOOK_SECRET) {
@@ -120,37 +124,45 @@ router.post('/webhook', async (req, res) => {
   try {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const clerkId = session.client_reference_id;
+      const clerkId   = session.client_reference_id;
       const customerId = session.customer;
+      const subscriptionId = session.subscription;
 
       await sql`
         UPDATE users
-        SET subscription = 'active', stripe_customer_id = ${customerId}
+        SET subscription = 'active',
+            stripe_customer_id     = ${customerId},
+            stripe_subscription_id = ${subscriptionId}
         WHERE clerk_id = ${clerkId}
       `;
-      console.log(`Subscription activated for clerk_id: ${clerkId}`);
+      console.log(`[Stripe] Subscription activated — clerk_id: ${clerkId}`);
+      // TODO: send welcome email via Resend when RESEND_API_KEY is set
     }
 
     if (event.type === 'customer.subscription.deleted') {
-      const subscription = event.data.object;
-      const customerId = subscription.customer;
-
+      const sub = event.data.object;
       await sql`
         UPDATE users SET subscription = 'cancelled'
-        WHERE stripe_customer_id = ${customerId}
+        WHERE stripe_customer_id = ${sub.customer}
       `;
-      console.log(`Subscription cancelled for customer: ${customerId}`);
+      console.log(`[Stripe] Subscription cancelled — customer: ${sub.customer}`);
+      // TODO: send cancellation email
     }
 
     if (event.type === 'customer.subscription.updated') {
-      const subscription = event.data.object;
-      const customerId = subscription.customer;
-      const status = subscription.status === 'active' ? 'active' : 'cancelled';
-
+      const sub = event.data.object;
+      const status = sub.status === 'active' ? 'active' : 'cancelled';
       await sql`
         UPDATE users SET subscription = ${status}
-        WHERE stripe_customer_id = ${customerId}
+        WHERE stripe_customer_id = ${sub.customer}
       `;
+    }
+
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object;
+      // Grace period: keep active for 3 days — Stripe retries handle the actual cancellation
+      console.log(`[Stripe] Payment failed — customer: ${invoice.customer}. Grace period active.`);
+      // TODO: send payment failed email via Resend
     }
   } catch (err) {
     console.error('Webhook handler error:', err.message);

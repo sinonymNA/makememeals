@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [subscription, setSubscription] = useState(null);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [promoCode, setPromoCode] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
@@ -48,14 +48,14 @@ export default function Dashboard() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function handleUpgrade() {
-    setCheckoutLoading(true);
+  async function handleUpgrade(plan = 'monthly') {
+    setCheckoutLoading(plan);
     try {
-      const { url } = await createCheckout();
+      const { url } = await createCheckout(plan);
       window.location.href = url;
     } catch (err) {
       console.error(err);
-      setCheckoutLoading(false);
+      setCheckoutLoading(null);
     }
   }
 
@@ -152,17 +152,25 @@ export default function Dashboard() {
             style={{ background: 'var(--bg-warm)', border: '1.5px solid var(--accent)' }}
           >
             <p className="font-semibold text-[16px] mb-1" style={{ color: 'var(--text)' }}>
-              Start generating meal plans ✨
+              Unlock unlimited meal plans ✨
             </p>
             <p className="text-[13px] mb-4" style={{ color: 'var(--text-mid)' }}>
-              $10/month · Unlimited plans · Cancel anytime
+              Cancel anytime · Way cheaper than HelloFresh
             </p>
             <button
-              className="pill-button w-full justify-center"
-              onClick={handleUpgrade}
+              className="pill-button w-full justify-center mb-2"
+              onClick={() => handleUpgrade('monthly')}
               disabled={checkoutLoading}
             >
-              {checkoutLoading ? 'Redirecting…' : 'Upgrade — $10/month'}
+              {checkoutLoading === 'monthly' ? 'Redirecting…' : 'Monthly — $9.99/mo'}
+            </button>
+            <button
+              className="pill-button outline w-full justify-center relative"
+              onClick={() => handleUpgrade('annual')}
+              disabled={checkoutLoading}
+            >
+              {checkoutLoading === 'annual' ? 'Redirecting…' : 'Annual — $79.99/yr'}
+              <span className="absolute -top-2 right-3 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--accent)', color: 'white' }}>Save 33%</span>
             </button>
           </div>
           <div className="px-0">

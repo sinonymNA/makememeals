@@ -12,6 +12,8 @@ import groceryRouter from './routes/grocery.js';
 import userRouter from './routes/user.js';
 import paymentsRouter from './routes/payments.js';
 import guestRouter from './routes/guest.js';
+import imagesRouter from './routes/images.js';
+import adminRouter from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -43,6 +45,8 @@ app.use('/api/grocery', groceryRouter);
 app.use('/api/user', userRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/guest', guestRouter);
+app.use('/api/images', imagesRouter);
+app.use('/api/admin', adminRouter);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

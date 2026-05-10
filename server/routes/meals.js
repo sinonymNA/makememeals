@@ -11,17 +11,23 @@ router.post('/generate', requireAuth, async (req, res) => {
     const { days, servings, preferences, previousMeals = [] } = req.body;
 
     const [user] = await sql`
-      SELECT id, subscription, free_weeks FROM users WHERE clerk_id = ${req.userId}
+      SELECT id, subscription, free_plans_used FROM users WHERE clerk_id = ${req.userId}
     `;
-
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Require active subscription
-    if (user.subscription !== 'active') {
-      return res.status(402).json({ error: 'Subscription required', code: 'subscription_required' });
+    const freePlansUsed = user.free_plans_used ?? 0;
+    const isActive = user.subscription === 'active';
+
+    // Allow 1 free plan; require subscription after that
+    if (!isActive && freePlansUsed >= 1) {
+      return res.status(402).json({
+        error: 'Subscription required',
+        code: 'subscription_required',
+        paywall: true,
+      });
     }
 
-    // Fetch names of recent meals so Claude avoids repeating them
+    // Fetch recent meal names so Claude avoids repeating them
     const recentMeals = await sql`
       SELECT m.name FROM meals m
       JOIN meal_plans mp ON mp.id = m.plan_id
@@ -34,7 +40,6 @@ router.post('/generate', requireAuth, async (req, res) => {
       ...recentMeals.map(m => m.name),
     ])];
 
-    // Only generate 3 meals upfront — swipe screen fetches more as needed
     const meals = await generateMeals(3, servings, preferences, excludeAll, '');
 
     const [plan] = await sql`
@@ -42,6 +47,11 @@ router.post('/generate', requireAuth, async (req, res) => {
       VALUES (${user.id}, ${days}, CURRENT_DATE)
       RETURNING id
     `;
+
+    // Increment free plan counter if not subscribed
+    if (!isActive) {
+      await sql`UPDATE users SET free_plans_used = ${freePlansUsed + 1} WHERE id = ${user.id}`;
+    }
 
     res.json({ planId: plan.id, meals });
   } catch (err) {
@@ -65,15 +75,10 @@ router.post('/generate-more', requireAuth, async (req, res) => {
 // GET /api/meals/plan/:planId
 router.get('/plan/:planId', requireAuth, async (req, res) => {
   try {
-    const [plan] = await sql`
-      SELECT * FROM meal_plans WHERE id = ${req.params.planId}
-    `;
+    const [plan] = await sql`SELECT * FROM meal_plans WHERE id = ${req.params.planId}`;
     if (!plan) return res.status(404).json({ error: 'Plan not found' });
 
-    const meals = await sql`
-      SELECT * FROM meals WHERE plan_id = ${req.params.planId} ORDER BY day_number
-    `;
-
+    const meals = await sql`SELECT * FROM meals WHERE plan_id = ${req.params.planId} ORDER BY day_number`;
     res.json({ ...plan, meals });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -84,21 +89,19 @@ router.get('/plan/:planId', requireAuth, async (req, res) => {
 router.post('/save', requireAuth, async (req, res) => {
   try {
     const { planId, meals } = req.body;
-
-    // Delete any existing meals for this plan (handles swap scenario)
     await sql`DELETE FROM meals WHERE plan_id = ${planId}`;
 
     const rows = meals.map((m, i) => ({
-      plan_id: planId,
-      day_number: i + 1,
-      name: m.name,
-      description: m.description,
-      prep_minutes: m.prep_minutes,
-      difficulty: m.difficulty,
-      ingredients: sql.json(m.ingredients ?? []),
-      steps: sql.json(m.steps ?? []),
+      plan_id:        planId,
+      day_number:     i + 1,
+      name:           m.name,
+      description:    m.description,
+      prep_minutes:   m.prep_minutes,
+      difficulty:     m.difficulty,
+      ingredients:    sql.json(m.ingredients ?? []),
+      steps:          sql.json(m.steps ?? []),
       estimated_cost: m.estimated_cost,
-      emoji: m.emoji,
+      emoji:          m.emoji,
     }));
 
     const saved = await sql`INSERT INTO meals ${sql(rows)} RETURNING *`;
@@ -115,14 +118,14 @@ router.patch('/:mealId/swap', requireAuth, async (req, res) => {
     const { newMeal } = req.body;
     const [meal] = await sql`
       UPDATE meals SET
-        name = ${newMeal.name},
-        description = ${newMeal.description},
-        prep_minutes = ${newMeal.prep_minutes},
-        difficulty = ${newMeal.difficulty},
-        ingredients = ${JSON.stringify(newMeal.ingredients)},
-        steps = ${JSON.stringify(newMeal.steps)},
+        name           = ${newMeal.name},
+        description    = ${newMeal.description},
+        prep_minutes   = ${newMeal.prep_minutes},
+        difficulty     = ${newMeal.difficulty},
+        ingredients    = ${JSON.stringify(newMeal.ingredients)},
+        steps          = ${JSON.stringify(newMeal.steps)},
         estimated_cost = ${newMeal.estimated_cost},
-        emoji = ${newMeal.emoji}
+        emoji          = ${newMeal.emoji}
       WHERE id = ${req.params.mealId}
       RETURNING *
     `;
