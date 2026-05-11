@@ -168,20 +168,24 @@ Return a JSON array (same order as above). Each item:
 
     const results = parseResponse(message.content[0].text);
     // Merge seed metadata with Claude's recipe details
-    return seeds.map((seed, i) => ({
-      name:           seed.name,
-      description:    seed.description,
-      emoji:          seed.emoji,
-      prep_minutes:   seed.prepTime,
-      difficulty:     seed.difficulty === 1 ? 'Easy' : seed.difficulty === 2 ? 'Medium' : 'Confident Cook',
-      estimated_cost: seed.avgCost,
-      cuisine:        seed.cuisine,
-      inspired_by:    seed.inspiredBy,
-      pexels_query:   seed.pexelsQuery,
-      ingredients:    results[i]?.ingredients ?? [],
-      steps:          results[i]?.steps ?? [],
-      chef_tip:       results[i]?.chef_tip ?? '',
-    }));
+    return seeds.map((seed, i) => {
+      const ings = results[i]?.ingredients ?? [];
+      const ingTotal = ings.reduce((s, ing) => s + Number(ing.estimated_price || 0), 0);
+      return {
+        name:           seed.name,
+        description:    seed.description,
+        emoji:          seed.emoji,
+        prep_minutes:   seed.prepTime,
+        difficulty:     seed.difficulty === 1 ? 'Easy' : seed.difficulty === 2 ? 'Medium' : 'Confident Cook',
+        estimated_cost: ingTotal > 0 ? Math.round(ingTotal) : seed.avgCost,
+        cuisine:        seed.cuisine,
+        inspired_by:    seed.inspiredBy,
+        pexels_query:   seed.pexelsQuery,
+        ingredients:    ings,
+        steps:          results[i]?.steps ?? [],
+        chef_tip:       results[i]?.chef_tip ?? '',
+      };
+    });
   } catch (err) {
     console.error('Claude seed generation error:', err.message);
     throw err;
