@@ -26,6 +26,8 @@ export default function Dashboard() {
   const [swipeStart, setSwipeStart] = useState({});
   const touchRef = useRef({});
 
+  const subscribed = searchParams.get('subscribed');
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -37,14 +39,26 @@ export default function Dashboard() {
       }
       const [data, statusData] = await Promise.all([getPlans(), getSubscriptionStatus()]);
       setPlans(data);
-      setSubscription(statusData.subscription);
+      // If ?subscribed=1 is in the URL, optimistically show as active even if
+      // the webhook hasn't updated the DB yet — re-poll after 3s to confirm
+      if (subscribed && statusData.subscription !== 'active') {
+        setSubscription('active');
+        setTimeout(async () => {
+          try {
+            const refreshed = await getSubscriptionStatus();
+            setSubscription(refreshed.subscription);
+          } catch {}
+        }, 3000);
+      } else {
+        setSubscription(statusData.subscription);
+      }
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to load plans');
     } finally {
       setLoading(false);
     }
-  }, [getToken, user]);
+  }, [getToken, user, subscribed]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -115,7 +129,6 @@ export default function Dashboard() {
     touchRef.current[planId] = null;
   }
 
-  const subscribed = searchParams.get('subscribed');
   const isActive = subscription === 'active';
 
   return (
