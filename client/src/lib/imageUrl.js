@@ -1,13 +1,13 @@
 // Server proxies to Pexels API (with curated Unsplash CDN fallbacks).
-// Same meal name always gets the same image via server-side hash.
-export function getMealImageUrl(mealName) {
-  if (!mealName) return '/api/images/food?q=food';
-  return `/api/images/food?q=${encodeURIComponent(mealName)}`;
+// Prefers pexels_query from Claude seed over raw meal name for better photo accuracy.
+export function getMealImageUrl(mealName, pexelsQuery) {
+  const q = pexelsQuery || mealName || 'food';
+  return `/api/images/food?q=${encodeURIComponent(q)}`;
 }
 
 export function attachImageUrls(meals) {
   return (meals || []).map(m => ({
     ...m,
-    imageUrl: m.imageUrl || getMealImageUrl(m.name),
+    imageUrl: m.imageUrl || getMealImageUrl(m.name, m.pexels_query),
   }));
 }

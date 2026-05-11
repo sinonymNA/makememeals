@@ -83,6 +83,10 @@ Return a JSON array. Each item:
   "prep_minutes": number,
   "difficulty": "Easy" | "Medium" | "Confident Cook",
   "estimated_cost": number (total USD for ${servings} servings),
+  "cuisine": "string (one of: asian | italian | latin | american | mediterranean | indian | steakhouse | healthy)",
+  "inspired_by": "string (city, region, or culinary tradition this dish draws from, e.g. 'Sichuan street food' or 'New Orleans Cajun')",
+  "pexels_query": "string (2-4 words for a Pexels food photo search, e.g. 'tonkotsu ramen bowl' or 'miso glazed salmon')",
+  "chef_tip": "string (one insider tip that elevates this dish — technique, swap, or secret ingredient)",
   "ingredients": [
     {
       "name": "string (product name as sold at ${store}, e.g. 'chicken thighs', 'basmati rice', 'crushed tomatoes')",

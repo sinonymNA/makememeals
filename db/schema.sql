@@ -86,3 +86,10 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS promo_code             TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS promo_redeemed_at      TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS free_plans_used        INT DEFAULT 0;
+
+-- Recipe card system
+ALTER TABLE meals ADD COLUMN IF NOT EXISTS cuisine      TEXT;
+ALTER TABLE meals ADD COLUMN IF NOT EXISTS pexels_query TEXT;
+ALTER TABLE meals ADD COLUMN IF NOT EXISTS chef_tip     TEXT;
+ALTER TABLE meals ADD COLUMN IF NOT EXISTS inspired_by  TEXT;
+ALTER TABLE meal_plans ADD COLUMN IF NOT EXISTS meal_emojis JSONB;

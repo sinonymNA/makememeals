@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useUser, UserButton } from '@clerk/clerk-react';
-import { Plus, ChevronRight, ExternalLink, Trash2 } from 'lucide-react';
+import { Plus, ChevronRight, ExternalLink, Trash2, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan } from '../lib/api.js';
 
@@ -210,9 +210,9 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* New plan CTA (only for subscribers) */}
+      {/* New plan CTA + Recipe Cards (only for subscribers) */}
       {isActive && (
-        <div className="px-5 mb-6">
+        <div className="px-5 mb-6 flex flex-col gap-3">
           <button
             className="w-full p-5 rounded-3xl flex items-center justify-between"
             onClick={() => navigate('/setup')}
@@ -229,6 +229,22 @@ export default function Dashboard() {
               <Plus size={16} color="white" strokeWidth={3} />
             </div>
           </button>
+          {plans.length > 0 && (
+            <button
+              className="w-full p-4 rounded-3xl flex items-center justify-between"
+              onClick={() => navigate('/recipe-cards')}
+              style={{ background: 'var(--card)', border: '1.5px solid var(--border)', cursor: 'pointer' }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">🃏</div>
+                <div className="text-left">
+                  <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>Recipe Card Collection</div>
+                  <div className="text-[12px]" style={{ color: 'var(--text-mid)' }}>Save & share your favourite meals</div>
+                </div>
+              </div>
+              <ChevronRight size={16} style={{ color: 'var(--text-light)' }} />
+            </button>
+          )}
         </div>
       )}
 

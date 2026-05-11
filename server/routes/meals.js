@@ -102,6 +102,10 @@ router.post('/save', requireAuth, async (req, res) => {
       steps:          sql.json(m.steps ?? []),
       estimated_cost: m.estimated_cost,
       emoji:          m.emoji,
+      cuisine:        m.cuisine ?? null,
+      pexels_query:   m.pexels_query ?? null,
+      chef_tip:       m.chef_tip ?? null,
+      inspired_by:    m.inspired_by ?? null,
     }));
 
     const saved = await sql`INSERT INTO meals ${sql(rows)} RETURNING *`;
@@ -125,7 +129,11 @@ router.patch('/:mealId/swap', requireAuth, async (req, res) => {
         ingredients    = ${JSON.stringify(newMeal.ingredients)},
         steps          = ${JSON.stringify(newMeal.steps)},
         estimated_cost = ${newMeal.estimated_cost},
-        emoji          = ${newMeal.emoji}
+        emoji          = ${newMeal.emoji},
+        cuisine        = ${newMeal.cuisine ?? null},
+        pexels_query   = ${newMeal.pexels_query ?? null},
+        chef_tip       = ${newMeal.chef_tip ?? null},
+        inspired_by    = ${newMeal.inspired_by ?? null}
       WHERE id = ${req.params.mealId}
       RETURNING *
     `;

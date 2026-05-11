@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, ChevronRight, Download, Image } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Image, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { setAuthToken, getPlan } from '../lib/api.js';
 import { exportAsImage, exportAsPDF } from '../lib/export.js';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import { getMealImageUrl } from '../lib/imageUrl.js';
+import RecipeCardViewer from '../components/RecipeCardViewer.jsx';
+import { detectCuisine } from '../lib/detectCuisine.js';
 
 function RecipeDetail({ meal, id }) {
   const imageUrl = meal.imageUrl || getMealImageUrl(meal.name);
@@ -119,6 +121,7 @@ export default function Recipes() {
   const [error, setError] = useState(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [exporting, setExporting] = useState(false);
+  const [showCardViewer, setShowCardViewer] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -255,10 +258,28 @@ export default function Recipes() {
         <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={handleSaveImage} disabled={exporting}>
           <Image size={15} /> Save Image
         </button>
-        <button className="pill-button flex-1 justify-center text-[14px]" onClick={handleSavePDF} disabled={exporting}>
+        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={handleSavePDF} disabled={exporting}>
           <Download size={15} /> Save PDF
         </button>
+        <button
+          className="pill-button flex-1 justify-center text-[14px]"
+          onClick={() => setShowCardViewer(true)}
+          style={{ background: 'var(--accent)' }}
+        >
+          <Sparkles size={15} /> Art Card
+        </button>
       </div>
+
+      {showCardViewer && (
+        <RecipeCardViewer
+          meal={{
+            ...meal,
+            imageUrl: meal.imageUrl || getMealImageUrl(meal.name, meal.pexels_query),
+            cuisine: meal.cuisine || detectCuisine(meal.name, meal.ingredients),
+          }}
+          onClose={() => setShowCardViewer(false)}
+        />
+      )}
     </div>
   );
 }
