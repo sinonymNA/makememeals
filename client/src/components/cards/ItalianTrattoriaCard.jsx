@@ -1,99 +1,100 @@
-import { Clock, Users } from 'lucide-react';
-
 export default function ItalianTrattoriaCard({ meal, cardRef }) {
+  const ingredients = meal.ingredients || [];
+  const steps = meal.steps || [];
+
   return (
     <div
       ref={cardRef}
       style={{
         width: '380px',
-        background: '#fdf8f0',
-        borderRadius: '20px',
+        background: '#F5ECD7',
+        borderRadius: '16px',
         overflow: 'hidden',
-        fontFamily: "'Georgia', serif",
-        border: '2px solid #c8a96e',
+        fontFamily: "'Georgia', 'Times New Roman', serif",
+        border: '3px solid #2D5016',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
       }}
     >
-      {/* Decorative header band */}
-      <div style={{ background: '#1a3a2a', padding: '10px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ color: '#c8a96e', fontSize: '10px', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', fontFamily: "'Inter', sans-serif" }}>
-          Italian Trattoria
-        </div>
-        <div style={{ color: '#c8a96e', fontSize: '16px' }}>🇮🇹</div>
+      {/* Header */}
+      <div style={{ background: '#2D5016', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#F5ECD7', fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', fontStyle: 'italic' }}>Trattoria Italiana</span>
+        <span style={{ color: '#F5ECD7', fontSize: '14px' }}>🇮🇹</span>
       </div>
 
-      {/* Photo */}
-      <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
+      {/* Photo with sepia overlay */}
+      <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
         <img
           src={meal.imageUrl}
           alt={meal.name}
           crossOrigin="anonymous"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(25%) saturate(1.1)' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(26,58,42,0.15)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #F5ECD7 100%)' }} />
       </div>
 
-      {/* Torn paper edge effect */}
-      <div style={{ height: '8px', background: '#fdf8f0', marginTop: '-2px', borderRadius: '0 0 0 0', boxShadow: 'inset 0 3px 6px rgba(0,0,0,0.1)' }} />
+      <div style={{ padding: '8px 22px 20px' }}>
+        <p style={{ fontSize: '11px', color: '#2D5016', fontStyle: 'italic', margin: '0 0 4px', textAlign: 'center' }}>
+          Inspired by {meal.inspired_by || meal.inspiredBy || 'Italian tradition'}
+        </p>
+        <h2 style={{ color: '#1a2e0a', fontSize: '24px', fontWeight: 700, lineHeight: 1.15, margin: '0 0 6px', textAlign: 'center', fontStyle: 'italic' }}>
+          {meal.name}
+        </h2>
+        <p style={{ color: '#5a4030', fontSize: '12px', lineHeight: 1.5, margin: '0 0 14px', textAlign: 'center' }}>{meal.description}</p>
 
-      {/* Content */}
-      <div style={{ padding: '16px 22px 22px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-          <div style={{ fontSize: '11px', color: '#8b6914', fontStyle: 'italic', marginBottom: '4px', fontFamily: "'Inter', sans-serif" }}>
-            {meal.inspired_by || meal.inspiredBy || 'La cucina italiana'}
-          </div>
-          <h2 style={{ color: '#1a3a2a', fontSize: '26px', fontWeight: 700, lineHeight: 1.1, margin: '0 0 6px' }}>
-            {meal.name}
-          </h2>
-          <div style={{ width: '40px', height: '2px', background: '#c8a96e', margin: '0 auto 10px' }} />
-          <p style={{ color: '#5a4a2a', fontSize: '13px', lineHeight: 1.5, fontStyle: 'italic' }}>
-            {meal.description}
-          </p>
-        </div>
-
-        {/* Meta row */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '12px 0', borderTop: '1px solid #e8d8b0', borderBottom: '1px solid #e8d8b0', marginBottom: '14px' }}>
-          {meal.prep_minutes && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ color: '#8b6914', fontSize: '16px', fontWeight: 700 }}>{meal.prep_minutes}</div>
-              <div style={{ color: '#8b8b6a', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'Inter', sans-serif" }}>min</div>
+        {/* Stats */}
+        <div style={{ display: 'flex', background: '#2D5016', borderRadius: '10px', overflow: 'hidden', marginBottom: '14px' }}>
+          {[
+            { label: 'Tempo', value: meal.prep_minutes ? `${meal.prep_minutes}m` : '—' },
+            { label: 'Porzioni', value: meal.servings || 4 },
+            { label: 'Costo', value: meal.estimated_cost ? `$${meal.estimated_cost}` : '—' },
+          ].map((item, i) => (
+            <div key={i} style={{ flex: 1, textAlign: 'center', padding: '9px 4px', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' }}>
+              <div style={{ color: '#F5ECD7', fontSize: '14px', fontWeight: 800 }}>{item.value}</div>
+              <div style={{ color: '#8aab6a', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '1px', fontStyle: 'italic' }}>{item.label}</div>
             </div>
-          )}
-          {meal.servings && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ color: '#8b6914', fontSize: '16px', fontWeight: 700 }}>{meal.servings}</div>
-              <div style={{ color: '#8b8b6a', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'Inter', sans-serif" }}>serves</div>
-            </div>
-          )}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ color: '#8b6914', fontSize: '16px', fontWeight: 700 }}>{meal.difficulty === 'Easy' ? '★' : meal.difficulty === 'Medium' ? '★★' : '★★★'}</div>
-            <div style={{ color: '#8b8b6a', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'Inter', sans-serif" }}>level</div>
-          </div>
+          ))}
         </div>
 
         {/* Ingredients */}
-        {meal.ingredients?.length > 0 && (
+        {ingredients.length > 0 && (
           <div style={{ marginBottom: '14px' }}>
-            <div style={{ fontSize: '10px', color: '#1a3a2a', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'Inter', sans-serif", marginBottom: '8px' }}>Ingredienti</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              {meal.ingredients.slice(0, 6).map((ing, i) => (
-                <span key={i} style={{ background: '#f0e8d0', color: '#5a4a2a', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', border: '1px solid #ddd0a8' }}>
-                  {typeof ing === 'string' ? ing : ing.name}
-                </span>
-              ))}
+            <div style={{ fontSize: '10px', color: '#2D5016', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #c8b890', paddingBottom: '4px', fontStyle: 'italic' }}>
+              Ingredienti
             </div>
+            {ingredients.slice(0, 8).map((ing, i) => (
+              <div key={i} style={{ display: 'flex', gap: '6px', fontSize: '12px', color: '#3a2a14', marginBottom: '4px' }}>
+                <span style={{ color: '#C4622D', flexShrink: 0 }}>•</span>
+                <span><strong>{ing.quantity} {ing.unit}</strong> {ing.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Steps */}
+        {steps.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '10px', color: '#2D5016', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #c8b890', paddingBottom: '4px', fontStyle: 'italic' }}>
+              Preparazione
+            </div>
+            {steps.slice(0, 6).map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#3a2a14', marginBottom: '6px', alignItems: 'flex-start' }}>
+                <span style={{ background: '#C4622D', color: '#fff', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>{i + 1}</span>
+                <span style={{ lineHeight: 1.4 }}>{step}</span>
+              </div>
+            ))}
           </div>
         )}
 
         {/* Chef tip */}
         {meal.chef_tip && (
-          <div style={{ background: '#1a3a2a', padding: '10px 14px', borderRadius: '8px' }}>
-            <div style={{ fontSize: '10px', color: '#c8a96e', fontWeight: 700, fontFamily: "'Inter', sans-serif", marginBottom: '3px' }}>CONSIGLIO DELLO CHEF</div>
-            <p style={{ color: '#d4c9a8', fontSize: '12px', lineHeight: 1.4, margin: 0, fontStyle: 'italic' }}>{meal.chef_tip}</p>
+          <div style={{ background: 'rgba(196,98,45,0.08)', border: '1px solid #C4622D', padding: '10px 14px', borderRadius: '8px', marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#C4622D', fontWeight: 700, letterSpacing: '1px', marginBottom: '3px', fontStyle: 'italic' }}>Il Segreto dello Chef</div>
+            <p style={{ color: '#5a3a1a', fontSize: '12px', lineHeight: 1.4, margin: 0, fontStyle: 'italic' }}>{meal.chef_tip}</p>
           </div>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '10px', color: '#c8a96e', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'Inter', sans-serif" }}>
-          Make Me Meals
+        <div style={{ textAlign: 'right', fontSize: '9px', color: '#2D5016', opacity: 0.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', fontStyle: 'italic' }}>
+          MakeMeMeals.com
         </div>
       </div>
     </div>

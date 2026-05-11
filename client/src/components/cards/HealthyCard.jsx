@@ -1,100 +1,100 @@
-import { Clock, Users } from 'lucide-react';
-
 export default function HealthyCard({ meal, cardRef }) {
+  const ingredients = meal.ingredients || [];
+  const steps = meal.steps || [];
+
   return (
     <div
       ref={cardRef}
       style={{
         width: '380px',
-        background: '#f4faf4',
-        borderRadius: '20px',
+        background: '#fff',
+        borderRadius: '16px',
         overflow: 'hidden',
-        fontFamily: "'Inter', sans-serif",
-        position: 'relative',
-        border: '1.5px solid #c8e6c9',
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        border: '2px solid #7D9B76',
+        boxShadow: '0 4px 24px rgba(45,74,45,0.10)',
       }}
     >
-      {/* Leaf pattern header */}
-      <div style={{ background: '#2e7d32', padding: '10px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px' }}>🌿</div>
-        <div style={{ color: 'white', fontSize: '10px', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase' }}>
-          Nourish + Thrive
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px' }}>🌿</div>
+      {/* Sage header */}
+      <div style={{ background: '#7D9B76', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#fff', fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>Wholesome Kitchen</span>
+        <span style={{ fontSize: '14px' }}>🥗</span>
       </div>
 
       {/* Photo */}
-      <div style={{ height: '195px', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
         <img
           src={meal.imageUrl}
           alt={meal.name}
           crossOrigin="anonymous"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.1)' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.1) brightness(1.02)' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(46,125,50,0.05)' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(to bottom, transparent, #f4faf4)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 50%, #fff 100%)' }} />
       </div>
 
-      {/* Content */}
-      <div style={{ padding: '8px 22px 22px' }}>
-        <div style={{ fontSize: '10px', color: '#2e7d32', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>
-          {meal.inspired_by || meal.inspiredBy || 'Clean & Nourishing'}
-        </div>
-        <h2 style={{ color: '#1a3a1a', fontSize: '24px', fontWeight: 800, lineHeight: 1.1, marginBottom: '6px' }}>
+      <div style={{ padding: '8px 22px 20px' }}>
+        <p style={{ fontSize: '11px', color: '#7D9B76', fontStyle: 'italic', margin: '0 0 4px', textAlign: 'center' }}>
+          Inspired by {meal.inspired_by || meal.inspiredBy || 'clean eating tradition'}
+        </p>
+        <h2 style={{ color: '#2D4A2D', fontSize: '24px', fontWeight: 700, lineHeight: 1.15, margin: '0 0 6px', textAlign: 'center' }}>
           {meal.name}
         </h2>
-        <p style={{ color: '#4a6a4a', fontSize: '13px', lineHeight: 1.5, marginBottom: '14px' }}>
-          {meal.description}
-        </p>
+        <p style={{ color: '#4a5a4a', fontSize: '12px', lineHeight: 1.5, margin: '0 0 14px', textAlign: 'center' }}>{meal.description}</p>
 
-        {/* Nutrient highlights */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-          {meal.prep_minutes && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#e8f5e9', padding: '5px 10px', borderRadius: '20px' }}>
-              <Clock size={11} color="#2e7d32" />
-              <span style={{ color: '#2e7d32', fontSize: '11px', fontWeight: 700 }}>{meal.prep_minutes} min</span>
+        {/* Stats */}
+        <div style={{ display: 'flex', background: '#EDF4EC', border: '1px solid #7D9B76', borderRadius: '10px', overflow: 'hidden', marginBottom: '14px' }}>
+          {[
+            { label: 'Prep', value: meal.prep_minutes ? `${meal.prep_minutes}m` : '—' },
+            { label: 'Serves', value: meal.servings || 4 },
+            { label: 'Cost', value: meal.estimated_cost ? `$${meal.estimated_cost}` : '—' },
+          ].map((item, i) => (
+            <div key={i} style={{ flex: 1, textAlign: 'center', padding: '9px 4px', borderRight: i < 2 ? '1px solid #7D9B76' : 'none' }}>
+              <div style={{ color: '#2D4A2D', fontSize: '14px', fontWeight: 800 }}>{item.value}</div>
+              <div style={{ color: '#7D9B76', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '1px' }}>{item.label}</div>
             </div>
-          )}
-          {meal.servings && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#e8f5e9', padding: '5px 10px', borderRadius: '20px' }}>
-              <Users size={11} color="#2e7d32" />
-              <span style={{ color: '#2e7d32', fontSize: '11px', fontWeight: 700 }}>{meal.servings} servings</span>
-            </div>
-          )}
-          <div style={{ background: '#e8f5e9', padding: '5px 10px', borderRadius: '20px' }}>
-            <span style={{ color: '#2e7d32', fontSize: '11px', fontWeight: 700 }}>{meal.difficulty || 'Easy'}</span>
-          </div>
-          {meal.estimated_cost && (
-            <div style={{ background: '#e8f5e9', padding: '5px 10px', borderRadius: '20px' }}>
-              <span style={{ color: '#2e7d32', fontSize: '11px', fontWeight: 700 }}>~${meal.estimated_cost}</span>
-            </div>
-          )}
+          ))}
         </div>
 
-        {/* Ingredients with leaf bullets */}
-        {meal.ingredients?.length > 0 && (
+        {/* Ingredients */}
+        {ingredients.length > 0 && (
           <div style={{ marginBottom: '14px' }}>
-            <div style={{ fontSize: '10px', color: '#2e7d32', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>What's In It</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {meal.ingredients.slice(0, 7).map((ing, i) => (
-                <span key={i} style={{ background: 'white', color: '#2e5a2e', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', border: '1px solid #c8e6c9', fontWeight: 500 }}>
-                  {typeof ing === 'string' ? ing : ing.name}
-                </span>
-              ))}
+            <div style={{ fontSize: '10px', color: '#2D4A2D', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '2px solid #7D9B76', paddingBottom: '4px' }}>
+              What You Need
             </div>
+            {ingredients.slice(0, 8).map((ing, i) => (
+              <div key={i} style={{ display: 'flex', gap: '6px', fontSize: '12px', color: '#2a3a2a', marginBottom: '4px' }}>
+                <span style={{ color: '#7D9B76', flexShrink: 0 }}>•</span>
+                <span><strong>{ing.quantity} {ing.unit}</strong> {ing.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Steps */}
+        {steps.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '10px', color: '#2D4A2D', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '2px solid #7D9B76', paddingBottom: '4px' }}>
+              How to Make It
+            </div>
+            {steps.slice(0, 6).map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#2a3a2a', marginBottom: '6px', alignItems: 'flex-start' }}>
+                <span style={{ background: '#7D9B76', color: '#fff', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>{i + 1}</span>
+                <span style={{ lineHeight: 1.4 }}>{step}</span>
+              </div>
+            ))}
           </div>
         )}
 
         {/* Chef tip */}
         {meal.chef_tip && (
-          <div style={{ background: '#e8f5e9', border: '1px solid #c8e6c9', padding: '10px 14px', borderRadius: '10px' }}>
-            <div style={{ fontSize: '10px', color: '#2e7d32', fontWeight: 700, marginBottom: '3px' }}>🌱 WELLNESS TIP</div>
-            <p style={{ color: '#3a6a3a', fontSize: '12px', lineHeight: 1.4, margin: 0 }}>{meal.chef_tip}</p>
+          <div style={{ background: '#EDF4EC', border: '1px solid #7D9B76', padding: '10px 14px', borderRadius: '8px', marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#2D4A2D', fontWeight: 700, letterSpacing: '1px', marginBottom: '3px' }}>🌿 NUTRITIONIST'S TIP</div>
+            <p style={{ color: '#3a5a3a', fontSize: '12px', lineHeight: 1.4, margin: 0 }}>{meal.chef_tip}</p>
           </div>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '10px', color: '#a8c8a8', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-          Make Me Meals
+        <div style={{ textAlign: 'right', fontSize: '9px', color: '#7D9B76', opacity: 0.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
+          MakeMeMeals.com
         </div>
       </div>
     </div>

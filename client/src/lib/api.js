@@ -46,7 +46,7 @@ export const createCheckout = (plan = 'monthly') =>
 export const createPortal = () =>
   api.post('/payments/create-portal').then(r => r.data);
 export const getSubscriptionStatus = () =>
-  api.get('/payments/status').then(r => r.data);
+  api.get('/payments/subscription').then(r => r.data);
 export const validatePromo = (promoCode) =>
   api.post('/payments/validate-promo', { promoCode }).then(r => r.data);
 export const deletePlan = (planId) =>

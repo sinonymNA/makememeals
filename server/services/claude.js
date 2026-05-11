@@ -118,6 +118,76 @@ function parseResponse(raw) {
   }
 }
 
+const SEED_SYSTEM_PROMPT = `You are a professional chef writing home-cook-friendly recipes for a meal planning app.
+You will receive a list of dishes from our curated restaurant-inspired library.
+Your job: write full recipes — ingredients with exact shopping quantities, clear step-by-step instructions, and one insider chef tip per dish.
+
+Rules:
+- Ingredients are what you buy at the store (lbs, bags, cans, bunches) — NOT recipe measures (tbsp, cup)
+- Skip everyday pantry staples (salt, pepper, olive oil, basic spices) unless a specific quantity/brand matters
+- Steps should be clear, technique-forward, and specific (temperatures, times, visual cues)
+- The chef tip must be a genuine technique or secret that elevates the dish — not generic advice
+- Write as if the dish came from the restaurant it was inspired by
+- Always return valid JSON array only. No explanation, no markdown, no preamble.`;
+
+export async function generateMealsFromSeeds(seeds, servings, store = 'Any') {
+  const storeDesc = STORES[store] || STORES['Any'];
+  const maxTokens = Math.min(seeds.length * 900, 7000);
+
+  const userPrompt = `Write full recipes for these ${seeds.length} restaurant-inspired dishes.
+Servings: ${servings} people. Shopping at: ${store} (${storeDesc}).
+
+${seeds.map((s, i) => `${i + 1}. ${s.name} — Inspired by: ${s.inspiredBy}`).join('\n')}
+
+Return a JSON array (same order as above). Each item:
+{
+  "ingredients": [
+    {
+      "name": "string (product name as sold at ${store})",
+      "quantity": "string (e.g. '1', '2', '0.5')",
+      "unit": "string (lb, bag, bunch, can, bottle, head, oz, pack, jar, box — NOT tbsp/cup/tsp)",
+      "category": "Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other",
+      "estimated_price": number (USD for this purchasable unit at ${store})
+    }
+  ],
+  "steps": ["string (max 6 clear, specific steps)"],
+  "chef_tip": "string (one genuine insider technique that makes this dish restaurant-quality)"
+}`;
+
+  try {
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system: SEED_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    if (!message.content?.[0]?.text) {
+      throw new Error(`No content in Claude response: ${JSON.stringify(message)}`);
+    }
+
+    const results = parseResponse(message.content[0].text);
+    // Merge seed metadata with Claude's recipe details
+    return seeds.map((seed, i) => ({
+      name:           seed.name,
+      description:    seed.description,
+      emoji:          seed.emoji,
+      prep_minutes:   seed.prepTime,
+      difficulty:     seed.difficulty === 1 ? 'Easy' : seed.difficulty === 2 ? 'Medium' : 'Confident Cook',
+      estimated_cost: seed.avgCost,
+      cuisine:        seed.cuisine,
+      inspired_by:    seed.inspiredBy,
+      pexels_query:   seed.pexelsQuery,
+      ingredients:    results[i]?.ingredients ?? [],
+      steps:          results[i]?.steps ?? [],
+      chef_tip:       results[i]?.chef_tip ?? '',
+    }));
+  } catch (err) {
+    console.error('Claude seed generation error:', err.message);
+    throw err;
+  }
+}
+
 export async function generateMeals(count, servings, prefs, excludeNames = [], prefPrompt = '') {
   const maxTokens = Math.min(count * 900, 5500);
 

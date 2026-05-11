@@ -1,105 +1,100 @@
-import { Clock, Users } from 'lucide-react';
-
 export default function MediterraneanCard({ meal, cardRef }) {
+  const ingredients = meal.ingredients || [];
+  const steps = meal.steps || [];
+
   return (
     <div
       ref={cardRef}
       style={{
         width: '380px',
-        background: '#f0f6ff',
-        borderRadius: '20px',
+        background: '#fff',
+        borderRadius: '16px',
         overflow: 'hidden',
-        fontFamily: "'Inter', sans-serif",
-        position: 'relative',
+        fontFamily: "'Georgia', 'Times New Roman', serif",
+        border: '3px solid #0047AB',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
       }}
     >
-      {/* Blue sea pattern top bar */}
-      <div style={{ height: '6px', background: 'linear-gradient(90deg, #1e5f8a, #2e86c1, #76b8d6, #1e5f8a)' }} />
+      {/* Header */}
+      <div style={{ background: '#0047AB', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#fff', fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>Mediterranean</span>
+        <span style={{ fontSize: '14px' }}>🫒</span>
+      </div>
 
       {/* Photo */}
-      <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
         <img
           src={meal.imageUrl}
           alt={meal.name}
           crossOrigin="anonymous"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(30,95,138,0.1)' }} />
-        {/* White wash effect at bottom */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(to bottom, transparent, #f0f6ff)' }} />
-        {/* Cuisine badge */}
-        <div style={{
-          position: 'absolute', top: 14, right: 14,
-          background: '#1e5f8a', color: 'white',
-          fontSize: '10px', fontWeight: 700, letterSpacing: '1.5px',
-          padding: '5px 12px', borderRadius: '20px', textTransform: 'uppercase',
-        }}>
-          🫒 Mediterranean
-        </div>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 50%, #fff 100%)' }} />
       </div>
 
-      {/* Content */}
-      <div style={{ padding: '8px 22px 22px' }}>
-        <div style={{ fontSize: '10px', color: '#2e86c1', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>
-          {meal.inspired_by || meal.inspiredBy || 'Sun & Sea'}
-        </div>
-        <h2 style={{ color: '#0d2b4a', fontSize: '26px', fontWeight: 800, lineHeight: 1.1, marginBottom: '6px' }}>
+      <div style={{ padding: '8px 22px 20px' }}>
+        <p style={{ fontSize: '11px', color: '#0047AB', fontStyle: 'italic', margin: '0 0 4px', textAlign: 'center' }}>
+          Inspired by {meal.inspired_by || meal.inspiredBy || 'Mediterranean tradition'}
+        </p>
+        <h2 style={{ color: '#0047AB', fontSize: '24px', fontWeight: 700, lineHeight: 1.15, margin: '0 0 6px', textAlign: 'center' }}>
           {meal.name}
         </h2>
-        <p style={{ color: '#4a6a8a', fontSize: '13px', lineHeight: 1.5, marginBottom: '14px', fontStyle: 'italic' }}>
-          {meal.description}
-        </p>
+        <p style={{ color: '#3a3a4a', fontSize: '12px', lineHeight: 1.5, margin: '0 0 14px', textAlign: 'center' }}>{meal.description}</p>
 
-        {/* Olive branch divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-          <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, transparent, #76b8d6)' }} />
-          <span style={{ fontSize: '16px' }}>🫒</span>
-          <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left, transparent, #76b8d6)' }} />
-        </div>
-
-        {/* Meta */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '14px' }}>
-          {meal.prep_minutes && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ color: '#1e5f8a', fontSize: '18px', fontWeight: 800 }}>{meal.prep_minutes}</div>
-              <div style={{ color: '#76b8d6', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>min</div>
+        {/* Stats */}
+        <div style={{ display: 'flex', background: '#0047AB', borderRadius: '10px', overflow: 'hidden', marginBottom: '14px' }}>
+          {[
+            { label: 'Prep', value: meal.prep_minutes ? `${meal.prep_minutes}m` : '—' },
+            { label: 'Serves', value: meal.servings || 4 },
+            { label: 'Cost', value: meal.estimated_cost ? `$${meal.estimated_cost}` : '—' },
+          ].map((item, i) => (
+            <div key={i} style={{ flex: 1, textAlign: 'center', padding: '9px 4px', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.2)' : 'none' }}>
+              <div style={{ color: '#fff', fontSize: '14px', fontWeight: 800 }}>{item.value}</div>
+              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '1px' }}>{item.label}</div>
             </div>
-          )}
-          {meal.servings && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ color: '#1e5f8a', fontSize: '18px', fontWeight: 800 }}>{meal.servings}</div>
-              <div style={{ color: '#76b8d6', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>serves</div>
-            </div>
-          )}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ color: '#1e5f8a', fontSize: '14px', fontWeight: 800 }}>{meal.difficulty || 'Medium'}</div>
-            <div style={{ color: '#76b8d6', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>level</div>
-          </div>
+          ))}
         </div>
 
         {/* Ingredients */}
-        {meal.ingredients?.length > 0 && (
+        {ingredients.length > 0 && (
           <div style={{ marginBottom: '14px' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {meal.ingredients.slice(0, 7).map((ing, i) => (
-                <span key={i} style={{ background: 'white', color: '#2e6a9a', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', border: '1px solid #b8d8f0', fontWeight: 600 }}>
-                  {typeof ing === 'string' ? ing : ing.name}
-                </span>
-              ))}
+            <div style={{ fontSize: '10px', color: '#0047AB', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '2px solid #0047AB', paddingBottom: '4px' }}>
+              What You Need
             </div>
+            {ingredients.slice(0, 8).map((ing, i) => (
+              <div key={i} style={{ display: 'flex', gap: '6px', fontSize: '12px', color: '#2a2a3a', marginBottom: '4px' }}>
+                <span style={{ color: '#0047AB', flexShrink: 0 }}>•</span>
+                <span><strong>{ing.quantity} {ing.unit}</strong> {ing.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Steps */}
+        {steps.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '10px', color: '#0047AB', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '2px solid #0047AB', paddingBottom: '4px' }}>
+              How to Make It
+            </div>
+            {steps.slice(0, 6).map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#2a2a3a', marginBottom: '6px', alignItems: 'flex-start' }}>
+                <span style={{ background: '#0047AB', color: '#fff', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>{i + 1}</span>
+                <span style={{ lineHeight: 1.4 }}>{step}</span>
+              </div>
+            ))}
           </div>
         )}
 
         {/* Chef tip */}
         {meal.chef_tip && (
-          <div style={{ background: 'white', border: '1px solid #b8d8f0', padding: '10px 14px', borderRadius: '10px' }}>
-            <div style={{ fontSize: '10px', color: '#1e5f8a', fontWeight: 700, marginBottom: '3px' }}>CHEF'S WISDOM</div>
-            <p style={{ color: '#4a6a8a', fontSize: '12px', lineHeight: 1.4, margin: 0 }}>{meal.chef_tip}</p>
+          <div style={{ background: 'rgba(224,123,84,0.08)', border: '2px solid #E07B54', padding: '10px 14px', borderRadius: '8px', marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#E07B54', fontWeight: 700, letterSpacing: '1px', marginBottom: '3px' }}>☀️ CHEF'S TIP</div>
+            <p style={{ color: '#5a3a2a', fontSize: '12px', lineHeight: 1.4, margin: 0 }}>{meal.chef_tip}</p>
           </div>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '10px', color: '#76b8d6', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-          Make Me Meals
+        <div style={{ textAlign: 'right', fontSize: '9px', color: '#0047AB', opacity: 0.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
+          MakeMeMeals.com
         </div>
       </div>
     </div>

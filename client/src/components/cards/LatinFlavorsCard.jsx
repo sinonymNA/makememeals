@@ -1,103 +1,113 @@
-import { Clock, Users } from 'lucide-react';
-
 export default function LatinFlavorsCard({ meal, cardRef }) {
+  const ingredients = meal.ingredients || [];
+  const steps = meal.steps || [];
+
   return (
     <div
       ref={cardRef}
       style={{
         width: '380px',
-        background: '#fff8f0',
-        borderRadius: '20px',
+        background: '#fff',
+        borderRadius: '16px',
         overflow: 'hidden',
-        fontFamily: "'Inter', sans-serif",
-        position: 'relative',
+        fontFamily: "'Arial Black', 'Arial', sans-serif",
+        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
       }}
     >
-      {/* Photo with warm overlay */}
-      <div style={{ height: '210px', overflow: 'hidden', position: 'relative' }}>
+      {/* Alternating border pattern header */}
+      <div style={{ display: 'flex', height: '8px' }}>
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div key={i} style={{ flex: 1, background: i % 2 === 0 ? '#D4622D' : '#00897B' }} />
+        ))}
+      </div>
+
+      {/* Header */}
+      <div style={{ background: '#D4622D', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#fff', fontSize: '10px', fontWeight: 900, letterSpacing: '2px', textTransform: 'uppercase' }}>Latin Flavors</span>
+        <span style={{ fontSize: '14px' }}>🌶️</span>
+      </div>
+
+      {/* Square saturated photo */}
+      <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
         <img
           src={meal.imageUrl}
           alt={meal.name}
           crossOrigin="anonymous"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.3) contrast(1.05)' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(230,57,70,0.35) 0%, rgba(255,140,0,0.2) 100%)' }} />
-        {/* Diagonal stripe pattern */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px',
-          background: 'linear-gradient(to bottom, transparent, #fff8f0)'
-        }} />
-        {/* Cuisine badge */}
-        <div style={{
-          position: 'absolute', top: 16, left: 16,
-          background: 'linear-gradient(135deg, #e63946, #ff8c00)',
-          color: 'white', fontSize: '10px', fontWeight: 800,
-          letterSpacing: '2px', padding: '5px 12px', borderRadius: '20px',
-          textTransform: 'uppercase',
-        }}>
-          🌶️ Sabores Latinos
-        </div>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 50%, #fff 100%)' }} />
       </div>
 
-      {/* Content */}
-      <div style={{ padding: '4px 22px 22px' }}>
-        <div style={{ fontSize: '10px', color: '#cc4400', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>
-          {meal.inspired_by || meal.inspiredBy || 'Casa cooking'}
-        </div>
-        <h2 style={{ color: '#1a1210', fontSize: '26px', fontWeight: 900, lineHeight: 1.1, marginBottom: '6px' }}>
+      <div style={{ padding: '8px 22px 20px' }}>
+        <p style={{ fontSize: '11px', color: '#00897B', fontStyle: 'italic', margin: '0 0 4px', textAlign: 'center' }}>
+          Inspired by {meal.inspired_by || meal.inspiredBy || 'Latin tradition'}
+        </p>
+        <h2 style={{ color: '#D4622D', fontSize: '24px', fontWeight: 900, lineHeight: 1.15, margin: '0 0 6px', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
           {meal.name}
         </h2>
-        <p style={{ color: '#7a5a44', fontSize: '13px', lineHeight: 1.5, marginBottom: '14px' }}>
-          {meal.description}
-        </p>
+        <p style={{ color: '#3a2a1a', fontSize: '12px', lineHeight: 1.5, margin: '0 0 14px', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>{meal.description}</p>
 
-        {/* Zigzag divider */}
-        <svg width="100%" height="12" viewBox="0 0 380 12" style={{ margin: '0 0 14px', display: 'block' }}>
-          <polyline points="0,12 19,0 38,12 57,0 76,12 95,0 114,12 133,0 152,12 171,0 190,12 209,0 228,12 247,0 266,12 285,0 304,12 323,0 342,12 361,0 380,12" style={{ fill: 'none', stroke: '#ff8c00', strokeWidth: 2 }} />
-        </svg>
-
-        {/* Meta */}
-        <div style={{ display: 'flex', gap: '14px', marginBottom: '14px' }}>
-          {meal.prep_minutes && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#7a5a44', fontSize: '12px' }}>
-              <Clock size={12} color="#e63946" /> {meal.prep_minutes} min
+        {/* Stats */}
+        <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', marginBottom: '14px', border: '2px solid #D4622D' }}>
+          {[
+            { label: 'Tiempo', value: meal.prep_minutes ? `${meal.prep_minutes}m` : '—', bg: '#D4622D' },
+            { label: 'Porciones', value: meal.servings || 4, bg: '#00897B' },
+            { label: 'Costo', value: meal.estimated_cost ? `$${meal.estimated_cost}` : '—', bg: '#D4622D' },
+          ].map((item, i) => (
+            <div key={i} style={{ flex: 1, textAlign: 'center', padding: '9px 4px', background: item.bg }}>
+              <div style={{ color: '#fff', fontSize: '14px', fontWeight: 900 }}>{item.value}</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '1px' }}>{item.label}</div>
             </div>
-          )}
-          {meal.servings && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#7a5a44', fontSize: '12px' }}>
-              <Users size={12} color="#e63946" /> {meal.servings}
-            </div>
-          )}
-          <div style={{ color: '#7a5a44', fontSize: '12px' }}>{meal.difficulty || 'Medium'}</div>
+          ))}
         </div>
 
-        {/* Ingredients as colorful pills */}
-        {meal.ingredients?.length > 0 && (
+        {/* Ingredients */}
+        {ingredients.length > 0 && (
           <div style={{ marginBottom: '14px' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {meal.ingredients.slice(0, 7).map((ing, i) => {
-                const colors = ['#fff0e6', '#ffe6e6', '#fff5e0', '#e6f7e6', '#e6e6ff'];
-                const textColors = ['#cc4400', '#cc0000', '#cc7700', '#007744', '#440099'];
-                return (
-                  <span key={i} style={{ background: colors[i % 5], color: textColors[i % 5], fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 600 }}>
-                    {typeof ing === 'string' ? ing : ing.name}
-                  </span>
-                );
-              })}
+            <div style={{ fontSize: '10px', color: '#D4622D', fontWeight: 900, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '2px solid #D4622D', paddingBottom: '4px' }}>
+              Ingredientes
             </div>
+            {ingredients.slice(0, 8).map((ing, i) => (
+              <div key={i} style={{ display: 'flex', gap: '6px', fontSize: '12px', color: '#2a1a0a', marginBottom: '4px', fontFamily: 'Arial, sans-serif' }}>
+                <span style={{ color: '#00897B', flexShrink: 0, fontWeight: 900 }}>•</span>
+                <span><strong>{ing.quantity} {ing.unit}</strong> {ing.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Steps */}
+        {steps.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '10px', color: '#00897B', fontWeight: 900, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '2px solid #00897B', paddingBottom: '4px' }}>
+              Preparación
+            </div>
+            {steps.slice(0, 6).map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#2a1a0a', marginBottom: '6px', alignItems: 'flex-start', fontFamily: 'Arial, sans-serif' }}>
+                <span style={{ background: '#00897B', color: '#fff', width: '18px', height: '18px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 900, flexShrink: 0, marginTop: '1px' }}>{i + 1}</span>
+                <span style={{ lineHeight: 1.4 }}>{step}</span>
+              </div>
+            ))}
           </div>
         )}
 
         {/* Chef tip */}
         {meal.chef_tip && (
-          <div style={{ background: 'linear-gradient(135deg, #e63946, #ff8c00)', padding: '12px 14px', borderRadius: '12px' }}>
-            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)', fontWeight: 700, marginBottom: '3px' }}>TRUCO DEL CHEF</div>
-            <p style={{ color: 'white', fontSize: '12px', lineHeight: 1.4, margin: 0 }}>{meal.chef_tip}</p>
+          <div style={{ background: 'rgba(212,98,45,0.08)', border: '2px dashed #D4622D', padding: '10px 14px', borderRadius: '8px', marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#D4622D', fontWeight: 900, letterSpacing: '1px', marginBottom: '3px' }}>🌶 TRUQUITO DEL CHEF</div>
+            <p style={{ color: '#5a2a0a', fontSize: '12px', lineHeight: 1.4, margin: 0, fontFamily: 'Arial, sans-serif' }}>{meal.chef_tip}</p>
           </div>
         )}
 
-        <div style={{ textAlign: 'right', marginTop: '12px', fontSize: '10px', color: '#cc7744', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-          Make Me Meals
+        {/* Bottom border pattern */}
+        <div style={{ display: 'flex', height: '6px', borderRadius: '3px', overflow: 'hidden', marginBottom: '8px' }}>
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} style={{ flex: 1, background: i % 2 === 0 ? '#00897B' : '#D4622D' }} />
+          ))}
+        </div>
+
+        <div style={{ textAlign: 'right', fontSize: '9px', color: '#D4622D', opacity: 0.5, fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase' }}>
+          MakeMeMeals.com
         </div>
       </div>
     </div>

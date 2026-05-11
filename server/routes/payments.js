@@ -106,10 +106,26 @@ router.get('/status', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/payments/subscription — fresh DB check, never cached
+router.get('/subscription', requireAuth, async (req, res) => {
+  try {
+    const [user] = await sql`SELECT subscription, free_plans_used FROM users WHERE clerk_id = ${req.userId}`;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    console.log(`[Sub] clerk_id: ${req.userId} → ${user.subscription}`);
+    res.json({ subscription: user.subscription, free_plans_used: user.free_plans_used ?? 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/payments/webhook
 router.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
+  const bodyLen = Buffer.isBuffer(req.body) ? req.body.length : 0;
+  console.log(`[Webhook] Received — sig: ${!!sig}, bytes: ${bodyLen}, secret: ${!!process.env.STRIPE_WEBHOOK_SECRET}`);
+
   if (!sig || !process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error('[Webhook] Missing stripe-signature or STRIPE_WEBHOOK_SECRET env var');
     return res.status(400).json({ error: 'Missing stripe signature or webhook secret' });
   }
 
@@ -117,56 +133,53 @@ router.post('/webhook', async (req, res) => {
   try {
     const stripe = getStripe();
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    console.log(`[Webhook] Verified — type: ${event.type}, id: ${event.id}`);
   } catch (err) {
-    console.error('Webhook signature error:', err.message);
+    console.error('[Webhook] Signature failed:', err.message);
     return res.status(400).json({ error: `Webhook error: ${err.message}` });
   }
 
   try {
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-      const clerkId   = session.client_reference_id;
-      const customerId = session.customer;
-      const subscriptionId = session.subscription;
+      const session      = event.data.object;
+      const clerkId      = session.client_reference_id;
+      const customerId   = session.customer;
+      const subId        = session.subscription;
+      console.log(`[Webhook] checkout.session.completed — clerk_id: ${clerkId}, customer: ${customerId}`);
 
-      await sql`
-        UPDATE users
-        SET subscription = 'active',
-            stripe_customer_id     = ${customerId},
-            stripe_subscription_id = ${subscriptionId}
-        WHERE clerk_id = ${clerkId}
-      `;
-      console.log(`[Stripe] Subscription activated — clerk_id: ${clerkId}`);
-      // TODO: send welcome email via Resend when RESEND_API_KEY is set
+      if (!clerkId) {
+        console.error('[Webhook] No client_reference_id — cannot activate subscription');
+      } else {
+        const rows = await sql`
+          UPDATE users
+          SET subscription           = 'active',
+              stripe_customer_id     = ${customerId},
+              stripe_subscription_id = ${subId}
+          WHERE clerk_id = ${clerkId}
+          RETURNING id, subscription
+        `;
+        console.log(`[Webhook] Activated — rows: ${rows.length}, status: ${rows[0]?.subscription}`);
+      }
     }
 
     if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object;
-      await sql`
-        UPDATE users SET subscription = 'cancelled'
-        WHERE stripe_customer_id = ${sub.customer}
-      `;
-      console.log(`[Stripe] Subscription cancelled — customer: ${sub.customer}`);
-      // TODO: send cancellation email
+      console.log(`[Webhook] subscription.deleted — customer: ${sub.customer}`);
+      await sql`UPDATE users SET subscription = 'cancelled' WHERE stripe_customer_id = ${sub.customer}`;
     }
 
     if (event.type === 'customer.subscription.updated') {
-      const sub = event.data.object;
+      const sub    = event.data.object;
       const status = sub.status === 'active' ? 'active' : 'cancelled';
-      await sql`
-        UPDATE users SET subscription = ${status}
-        WHERE stripe_customer_id = ${sub.customer}
-      `;
+      console.log(`[Webhook] subscription.updated — customer: ${sub.customer}, status: ${status}`);
+      await sql`UPDATE users SET subscription = ${status} WHERE stripe_customer_id = ${sub.customer}`;
     }
 
     if (event.type === 'invoice.payment_failed') {
-      const invoice = event.data.object;
-      // Grace period: keep active for 3 days — Stripe retries handle the actual cancellation
-      console.log(`[Stripe] Payment failed — customer: ${invoice.customer}. Grace period active.`);
-      // TODO: send payment failed email via Resend
+      console.log(`[Webhook] invoice.payment_failed — customer: ${event.data.object.customer}`);
     }
   } catch (err) {
-    console.error('Webhook handler error:', err.message);
+    console.error('[Webhook] Handler error:', err.message);
     return res.status(500).json({ error: 'Webhook handler failed' });
   }
 

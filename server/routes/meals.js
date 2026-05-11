@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import { generateMeals } from '../services/claude.js';
+import { generateMeals, generateMealsFromSeeds } from '../services/claude.js';
+import { selectSeeds } from '../data/seeds.js';
 import sql from '../db.js';
 
 const router = Router();
@@ -40,7 +41,8 @@ router.post('/generate', requireAuth, async (req, res) => {
       ...recentMeals.map(m => m.name),
     ])];
 
-    const meals = await generateMeals(3, servings, preferences, excludeAll, '');
+    const seeds = selectSeeds({ count: 3, prefs: preferences, excludeNames: excludeAll });
+    const meals = await generateMealsFromSeeds(seeds, servings, preferences?.store || 'Any');
 
     const [plan] = await sql`
       INSERT INTO meal_plans (user_id, days, week_of)
@@ -63,8 +65,9 @@ router.post('/generate', requireAuth, async (req, res) => {
 // POST /api/meals/generate-more
 router.post('/generate-more', requireAuth, async (req, res) => {
   try {
-    const { preferences, excludeNames = [], prefPrompt = '' } = req.body;
-    const meals = await generateMeals(3, preferences?.servings || 4, preferences, excludeNames, prefPrompt);
+    const { preferences, excludeNames = [] } = req.body;
+    const seeds = selectSeeds({ count: 3, prefs: preferences, excludeNames });
+    const meals = await generateMealsFromSeeds(seeds, preferences?.servings || 4, preferences?.store || 'Any');
     res.json({ meals });
   } catch (err) {
     console.error('Generate-more error:', err);
