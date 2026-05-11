@@ -14,6 +14,12 @@ Every meal should have ONE interesting element that makes it
 feel special — an unexpected spice, a sauce, a technique,
 a flavor combo — while still being achievable for a home cook.
 
+CRITICAL: You MUST stay within budget. If the budget is tight,
+prioritize affordable proteins (chicken, eggs, beans, ground meat)
+and seasonal produce. Avoid expensive ingredients (seafood, specialty items)
+unless they fit the budget. The user is counting on you to hit the
+per-meal budget target — exceeding it makes the weekly cost unaffordable.
+
 Always return valid JSON only. No explanation. No markdown.
 No preamble. Just the JSON array.`;
 
@@ -57,7 +63,7 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   const store     = prefs?.store   || 'Any';
   const budget    = prefs?.budget  || 100;
   const storeDesc = STORES[store] || STORES['Any'];
-  const perMealBudget = Math.round(budget / Math.max(count - 1, 1));
+  const perMealBudget = Math.round(budget / Math.max(count, 1));
 
   const excludeText = exclude.length ? `NEVER suggest: ${exclude.join(', ')}` : 'None (no restrictions)';
 
@@ -68,12 +74,13 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   return `Generate exactly ${count} dinner recipes. Be concise.
 Servings: ${servings}
 Store: ${store} (${storeDesc})
-Weekly budget: $${budget} total (roughly $${perMealBudget} per meal)
+Weekly budget: $${budget} TOTAL (must stay within $${perMealBudget} per meal)
 Dietary restrictions: ${buildRestrictions(prefs)}
 ${excludeText}
 ${inspirationLine}
 Cuisine direction this week: lean toward ${cuisineFocus} — mix in 1-2 other styles for variety. Each meal must be distinct.
 CRITICAL: The excluded meals above have been made recently. Do NOT generate any of them again, even with slight variations.
+BUDGET RULE: Each recipe's estimated_cost must be ≤ $${perMealBudget}. If total hits budget, you're done. Do NOT exceed the per-meal budget.
 
 Return a JSON array. Each item:
 {
@@ -123,24 +130,41 @@ You will receive a list of dishes from our curated restaurant-inspired library.
 Your job: write full recipes — ingredients with exact shopping quantities, clear step-by-step instructions, and one insider chef tip per dish.
 
 Rules:
-- Ingredients are what you buy at the store (lbs, bags, cans, bunches) — NOT recipe measures (tbsp, cup)
+- Scale every ingredient quantity for the EXACT number of servings specified. Never default to 4 servings.
+- Ingredients are what you buy at the store — use specific culinary amounts, NOT vague packaging:
+  GOOD: "3 medium yellow onions, diced" | "1.5 lbs chicken thighs" | "4 oz provolone, sliced thin" | "1 can (14 oz) diced tomatoes"
+  BAD: "1 bag onions" | "1 pack chicken" | "1 pack provolone" | "1 bag carrots"
+- Produce: always specify count + size (small/medium/large) and prep note e.g. "2 large carrots, peeled and diced"
+- Meat/fish: always specify weight in lbs or oz
+- Cheese/deli: always specify oz and prep note e.g. "6 oz provolone, sliced thin"
+- Canned goods: include can size e.g. "1 can (15 oz) chickpeas, drained"
 - Skip everyday pantry staples (salt, pepper, olive oil, basic spices) unless a specific quantity/brand matters
 - Steps should be clear, technique-forward, and specific (temperatures, times, visual cues)
 - The chef tip must be a genuine technique or secret that elevates the dish — not generic advice
-- Write as if the dish came from the restaurant it was inspired by
 - Always return valid JSON array only. No explanation, no markdown, no preamble.`;
 
-export async function generateMealsFromSeeds(seeds, servings, store = 'Any', budget = null) {
+export async function generateMealsFromSeeds(seeds, servings, store = 'Any', budget = null, days = null) {
   const storeDesc = STORES[store] || STORES['Any'];
   const maxTokens = Math.min(seeds.length * 900, 7000);
-  const perMealBudget = budget ? Math.round(budget / seeds.length) : null;
+  // Divide by total days when known, otherwise by seeds count — ensures budget per-meal is correct
+  const totalMeals = days || seeds.length;
+  const perMealBudget = budget ? Math.round(budget / totalMeals) : null;
   const budgetLine = perMealBudget
-    ? `Budget: $${budget} total for all ${seeds.length} meals (~$${perMealBudget} per meal in ingredients). Keep ingredient costs within this budget.`
+    ? `BUDGET: Each meal must cost under $${perMealBudget} in ingredients for ${servings} people. Total weekly budget: $${budget}.`
     : '';
 
   const userPrompt = `Write full recipes for these ${seeds.length} restaurant-inspired dishes.
-Servings: ${servings} people. Shopping at: ${store} (${storeDesc}).
+
+SERVINGS: Exactly ${servings} people. Scale ALL ingredient quantities for ${servings} servings. NEVER use 4 servings as a default.
 ${budgetLine}
+Shopping at: ${store} (${storeDesc}).
+
+QUANTITY FORMAT — always use specific culinary amounts. Examples:
+- "3 medium yellow onions, diced" not "1 bag yellow onions"
+- "2 large carrots, peeled" not "1 bag carrots"
+- "1.5 lbs chicken thighs" not "1 pack chicken"
+- "8 oz provolone, sliced thin" not "1 pack provolone"
+- "1 can (14 oz) diced tomatoes" not "1 can tomatoes"
 
 ${seeds.map((s, i) => `${i + 1}. ${s.name} — Inspired by: ${s.inspiredBy}`).join('\n')}
 
@@ -148,14 +172,14 @@ Return a JSON array (same order as above). Each item:
 {
   "ingredients": [
     {
-      "name": "string (product name as sold at ${store})",
-      "quantity": "string (e.g. '1', '2', '0.5')",
-      "unit": "string (lb, bag, bunch, can, bottle, head, oz, pack, jar, box — NOT tbsp/cup/tsp)",
+      "name": "string (ingredient + prep note: 'yellow onions, diced' NOT just 'onions')",
+      "quantity": "string (specific: '3 medium', '1.5 lbs', '8 oz', '1 can (14 oz)' — NEVER '1 bag' or '1 pack')",
+      "unit": "string (only if needed after quantity: 'lb', 'oz', 'can' — NEVER 'bag' or 'pack')",
       "category": "Meat & Seafood" | "Produce" | "Dairy" | "Pantry" | "Bakery" | "Frozen" | "Other",
-      "estimated_price": number (USD for this purchasable unit at ${store})
+      "estimated_price": number (USD for this amount at ${store})
     }
   ],
-  "steps": ["string (max 6 clear, specific steps)"],
+  "steps": ["string (max 6 clear, specific steps with temperatures and visual cues)"],
   "chef_tip": "string (one genuine insider technique that makes this dish restaurant-quality)"
 }`;
 
@@ -186,6 +210,7 @@ Return a JSON array (same order as above). Each item:
         cuisine:        seed.cuisine,
         inspired_by:    seed.inspiredBy,
         pexels_query:   seed.pexelsQuery,
+        servings:       servings,
         ingredients:    ings,
         steps:          results[i]?.steps ?? [],
         chef_tip:       results[i]?.chef_tip ?? '',

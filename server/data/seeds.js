@@ -224,6 +224,23 @@ export const SEEDS = [
   { id:'so03', name:'Beef Stew with Crusty Bread', inspiredBy:'Irish pub tradition', cuisine:'american', difficulty:2, prepTime:120, avgCost:18, emoji:'🍲', pexelsQuery:'beef stew rustic hearty vegetables', keywords:['chuck beef','potato','carrot','Guinness','rosemary'], dietaryTags:['gluten-free'], description:"Braised chuck beef and root vegetables in a deep, dark Guinness-enriched gravy. The stew that an Irish pub would serve on the worst weather day of the year — and somehow fixes it." },
   { id:'so04', name:'Southwest Chicken Tortilla Soup', inspiredBy:'Tex-Mex tradition', cuisine:'latin', difficulty:1, prepTime:40, avgCost:12, emoji:'🍲', pexelsQuery:'chicken tortilla soup southwest spicy', keywords:['chicken','corn','black beans','chipotle','tortilla strips'], dietaryTags:['gluten-free'], description:"A smoky, cumin-forward broth with shredded chicken, corn, black beans, and chipotle, loaded with tortilla strips, avocado, and cilantro. The soup that tastes like it took all day but takes one hour." },
   { id:'so05', name:'Pho Ga (Chicken Pho)', inspiredBy:'Vietnamese tradition', cuisine:'asian', difficulty:2, prepTime:120, avgCost:13, emoji:'🍜', pexelsQuery:'pho ga chicken vietnamese noodle soup', keywords:['chicken','rice noodles','star anise','ginger','bean sprouts'], dietaryTags:['gluten-free'], description:"A crystal-clear chicken broth fragrant with charred ginger and star anise, over rice noodles with poached chicken and a full herb platter. The Vietnamese bowl that heals everything — especially if you're sick." },
+
+  // ── BUDGET-FRIENDLY (for tight food budgets) ───────────────────────────────
+  { id:'bu01', name:'Egg Fried Rice', inspiredBy:'Chinese takeout', cuisine:'asian', difficulty:1, prepTime:20, avgCost:8, emoji:'🍚', pexelsQuery:'egg fried rice simple asian', keywords:['eggs','rice','peas','soy sauce','garlic'], dietaryTags:['vegetarian','gluten-free'], description:"Day-old rice scrambled with beaten eggs, frozen peas, and a soy sauce drizzle. The ultra-budget meal that tastes like a restaurant did it — less than $10 for a full dinner." },
+  { id:'bu02', name:'Bean and Cheese Quesadillas', inspiredBy:'Tex-Mex budget eats', cuisine:'latin', difficulty:1, prepTime:15, avgCost:9, emoji:'🫔', pexelsQuery:'cheese bean quesadilla simple', keywords:['flour tortillas','canned beans','cheddar','salsa'], dietaryTags:['vegetarian'], description:"Warm canned beans and melted cheddar tucked in a flour tortilla and crisped on the skillet. The budget meal that tastes like you tried — because you did, just efficiently." },
+  { id:'bu03', name:'Lentil Soup', inspiredBy:'peasant cooking tradition', cuisine:'healthy', difficulty:1, prepTime:45, avgCost:8, emoji:'🫘', pexelsQuery:'lentil soup simple hearty', keywords:['red lentils','onion','carrot','garlic','cumin'], dietaryTags:['vegan','gluten-free'], description:"Red lentils, carrots, onion, and cumin simmered until creamy. The soup that costs under $10, feeds a family, and tastes like you spent all day in the kitchen — you didn't." },
+  { id:'bu04', name:'Spaghetti Aglio e Olio', inspiredBy:'Italian poverty pasta', cuisine:'italian', difficulty:1, prepTime:20, avgCost:7, emoji:'🍝', pexelsQuery:'spaghetti aglio e olio garlic oil', keywords:['spaghetti','garlic','red pepper flakes','olive oil'], dietaryTags:['vegan'], description:"Spaghetti tossed with garlicky olive oil and red pepper flakes. The Italian staple that costs nearly nothing and tastes like everything — restaurant quality with a grocery bill under $10." },
+  { id:'bu05', name:'Ground Beef Tacos', inspiredBy:'taquería favorite', cuisine:'latin', difficulty:1, prepTime:20, avgCost:10, emoji:'🌮', pexelsQuery:'ground beef tacos simple', keywords:['ground beef','corn tortillas','salsa','onion','cilantro'], dietaryTags:['gluten-free'], description:"Seasoned ground beef in corn tortillas with salsa, onion, and cilantro. The taco night that costs $10 for everyone and tastes like you cooked all afternoon." },
+  { id:'bu06', name:'Chicken and Rice Bowls', inspiredBy:'Asian budget lunch', cuisine:'asian', difficulty:1, prepTime:30, avgCost:9, emoji:'🍚', pexelsQuery:'chicken rice bowl simple white rice', keywords:['chicken thighs','white rice','soy sauce','ginger','garlic'], dietaryTags:['gluten-free'], description:"Poached chicken thighs over fluffy white rice with a simple ginger-garlic soy sauce. The comforting meal that costs under $10 and doesn't require any special ingredients." },
+  { id:'bu07', name:'Baked Sweet Potato with Beans', inspiredBy:'vegan budget favorite', cuisine:'healthy', difficulty:1, prepTime:50, avgCost:8, emoji:'🍠', pexelsQuery:'sweet potato black beans lime', keywords:['sweet potato','black beans','lime','cumin','cilantro'], dietaryTags:['vegan','gluten-free'], description:"A fluffy baked sweet potato topped with seasoned black beans, a squeeze of lime, and cilantro. The budget bowl that's naturally vegan and completely satisfying for under $10." },
+  { id:'bu08', name:'Scrambled Egg and Potato Hash', inspiredBy:'breakfast-for-dinner tradition', cuisine:'american', difficulty:1, prepTime:25, avgCost:8, emoji:'🍳', pexelsQuery:'hash brown scrambled eggs breakfast', keywords:['potatoes','eggs','onion','butter','salt'], dietaryTags:['vegetarian','gluten-free'], description:"Crispy hash browns with scrambled eggs and caramelized onions — the breakfast-for-dinner that costs pocket change and feeds everyone happy." },
+  { id:'bu09', name:'Vegetable Fried Rice', inspiredBy:'resourceful cooking', cuisine:'healthy', difficulty:1, prepTime:20, avgCost:8, emoji:'🥦', pexelsQuery:'vegetable fried rice frozen vegetables', keywords:['rice','frozen vegetables','soy sauce','garlic','sesame oil'], dietaryTags:['vegan','gluten-free'], description:"Day-old rice with frozen peas, carrots, corn, and a soy sauce drizzle — made with pantry staples. The meal that's genuinely budget-friendly but tastes like a restaurant did it." },
+  { id:'bu10', name:'Chickpea Curry', inspiredBy:'Indian lentil tradition', cuisine:'indian', difficulty:1, prepTime:30, avgCost:9, emoji:'🫘', pexelsQuery:'chickpea curry coconut milk tomato', keywords:['chickpeas','tomato','coconut milk','ginger','turmeric'], dietaryTags:['vegan','gluten-free'], description:"Canned chickpeas in a turmeric-ginger-tomato curry base with a splash of coconut milk. The warmly spiced meal that's naturally vegan and costs under $10 with rice on the side." },
+  { id:'bu11', name:'Pasta e Fagioli', inspiredBy:'Italian peasant soup', cuisine:'italian', difficulty:1, prepTime:35, avgCost:9, emoji:'🍲', pexelsQuery:'pasta e fagioli bean soup', keywords:['pasta','canned beans','tomato','garlic','rosemary'], dietaryTags:['vegan'], description:"Ditalini pasta with canned white beans and tomatoes simmered with garlic and rosemary. The Italian budget soup that's hearty, warming, and costs under $10." },
+  { id:'bu12', name:'Stir-Fried Cabbage with Tofu', inspiredBy:'Asian vegetable stir-fry', cuisine:'asian', difficulty:1, prepTime:15, avgCost:8, emoji:'🥬', pexelsQuery:'cabbage tofu stir fry simple soy sauce', keywords:['cabbage','tofu','soy sauce','garlic','ginger'], dietaryTags:['vegan','gluten-free'], description:"Quick-fried cabbage and crispy tofu in a ginger-soy sauce — served over rice. The ultra-budget meal that's on the table in 20 minutes and tastes unexpectedly delicious." },
+  { id:'bu13', name:'Black Bean and Rice Burrito Bowls', inspiredBy:'Chipotle copycat', cuisine:'latin', difficulty:1, prepTime:25, avgCost:9, emoji:'🍚', pexelsQuery:'burrito bowl black bean rice cilantro lime', keywords:['black beans','rice','lime','cilantro','salsa'], dietaryTags:['vegan','gluten-free'], description:"Seasoned rice and black beans with lime, cilantro, and salsa — the $10 burrito bowl hack that tastes like the restaurant version but costs less." },
+  { id:'bu14', name:'Minestrone Vegetable Soup', inspiredBy:'Italian garden soup', cuisine:'italian', difficulty:1, prepTime:40, avgCost:9, emoji:'🍲', pexelsQuery:'minestrone vegetable soup italian', keywords:['canned tomatoes','mixed vegetables','pasta','vegetable broth','basil'], dietaryTags:['vegan'], description:"Canned tomatoes, frozen mixed vegetables, small pasta shapes, and herb broth simmered together. The vegetable soup that uses pantry staples and costs nearly nothing." },
+  { id:'bu15', name:'Dal Rice with Yogurt', inspiredBy:'Indian comfort food', cuisine:'indian', difficulty:1, prepTime:40, avgCost:8, emoji:'🍚', pexelsQuery:'dal lentil rice yogurt raita', keywords:['red lentils','turmeric','cumin','yogurt','rice'], dietaryTags:['vegetarian','gluten-free'], description:"Turmeric-cumin lentil dal served over rice with cooling yogurt on the side. The Indian budget meal that's deeply comforting, protein-rich, and costs under $10." },
 ];
 
 export const CUISINES = ['american','italian','latin','asian','mediterranean','indian','steakhouse','healthy'];
@@ -236,7 +253,7 @@ const DIETARY_FILTER_MAP = {
   high_protein: s => !s.dietaryTags.includes('vegetarian') && !s.dietaryTags.includes('vegan'),
 };
 
-export function selectSeeds({ count, prefs = {}, excludeNames = [] }) {
+export function selectSeeds({ count, servings, prefs = {}, excludeNames = [] }) {
   let pool = SEEDS.filter(s => !excludeNames.includes(s.name));
 
   // Hard dietary filters
@@ -246,6 +263,18 @@ export function selectSeeds({ count, prefs = {}, excludeNames = [] }) {
   if (prefs.thirty_min_max) pool = pool.filter(DIETARY_FILTER_MAP.thirty_min_max);
   if (prefs.high_protein)   pool = pool.filter(DIETARY_FILTER_MAP.high_protein);
   if (prefs.picky_eaters)   pool = pool.filter(s => s.difficulty <= 2);
+
+  // Budget filtering: if per-meal budget is tight, prefer budget-friendly recipes
+  if (prefs.budget && prefs.servings) {
+    const perMealBudget = Math.round(prefs.budget / Math.max(count, 1));
+    if (perMealBudget < 15) {
+      // Prefer recipes under $12 when budget is tight
+      const budgetPool = pool.filter(s => s.avgCost <= 12);
+      if (budgetPool.length >= count) {
+        pool = budgetPool;
+      }
+    }
+  }
 
   if (pool.length < count) {
     // Relax dietary filters except the hardest ones — just fall back to full pool minus exclude
