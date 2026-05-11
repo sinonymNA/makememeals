@@ -42,7 +42,7 @@ router.post('/generate', requireAuth, async (req, res) => {
     ])];
 
     const seeds = selectSeeds({ count: 3, servings, prefs: preferences, excludeNames: excludeAll });
-    const meals = await generateMealsFromSeeds(seeds, servings, preferences?.store || 'Any', preferences?.budget || null);
+    const meals = await generateMealsFromSeeds(seeds, servings, preferences?.store || 'Any', preferences?.budget || null, days);
 
     const [plan] = await sql`
       INSERT INTO meal_plans (user_id, days, week_of)
