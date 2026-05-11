@@ -254,19 +254,19 @@ export default function Recipes() {
       </div>
 
       {/* Export */}
-      <div className="page-pad flex gap-3 mt-5 pb-10">
-        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={handleSaveImage} disabled={exporting}>
-          <Image size={15} /> Save Image
+      <div className="page-pad flex gap-2 mt-5 pb-10">
+        <button className="pill-button outline flex-1 justify-center text-[13px] min-w-0" onClick={handleSaveImage} disabled={exporting}>
+          <Image size={14} /> Image
         </button>
-        <button className="pill-button outline flex-1 justify-center text-[14px]" onClick={handleSavePDF} disabled={exporting}>
-          <Download size={15} /> Save PDF
+        <button className="pill-button outline flex-1 justify-center text-[13px] min-w-0" onClick={handleSavePDF} disabled={exporting}>
+          <Download size={14} /> PDF
         </button>
         <button
-          className="pill-button flex-1 justify-center text-[14px]"
+          className="pill-button flex-1 justify-center text-[13px] min-w-0"
           onClick={() => setShowCardViewer(true)}
           style={{ background: 'var(--accent)' }}
         >
-          <Sparkles size={15} /> Art Card
+          <Sparkles size={14} /> Art Card
         </button>
       </div>
 

@@ -130,12 +130,17 @@ Rules:
 - Write as if the dish came from the restaurant it was inspired by
 - Always return valid JSON array only. No explanation, no markdown, no preamble.`;
 
-export async function generateMealsFromSeeds(seeds, servings, store = 'Any') {
+export async function generateMealsFromSeeds(seeds, servings, store = 'Any', budget = null) {
   const storeDesc = STORES[store] || STORES['Any'];
   const maxTokens = Math.min(seeds.length * 900, 7000);
+  const perMealBudget = budget ? Math.round(budget / seeds.length) : null;
+  const budgetLine = perMealBudget
+    ? `Budget: $${budget} total for all ${seeds.length} meals (~$${perMealBudget} per meal in ingredients). Keep ingredient costs within this budget.`
+    : '';
 
   const userPrompt = `Write full recipes for these ${seeds.length} restaurant-inspired dishes.
 Servings: ${servings} people. Shopping at: ${store} (${storeDesc}).
+${budgetLine}
 
 ${seeds.map((s, i) => `${i + 1}. ${s.name} — Inspired by: ${s.inspiredBy}`).join('\n')}
 
