@@ -52,7 +52,7 @@ export default function GuestWeekView() {
         </button>
         <h1
           className="text-[24px] leading-tight"
-          style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+          style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
         >
           This week 🍽️
         </h1>

@@ -79,7 +79,7 @@ export default function RecipeCardCollection() {
           <ChevronLeft size={20} style={{ color: 'var(--text-mid)' }} />
         </button>
         <div>
-          <h1 className="text-[22px] font-bold" style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="text-[22px] font-bold" style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif" }}>
             Recipe Cards
           </h1>
           <p className="text-[12px]" style={{ color: 'var(--text-light)' }}>{meals.length} recipes collected</p>

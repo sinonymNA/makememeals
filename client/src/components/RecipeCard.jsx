@@ -3,38 +3,38 @@ import { getMealImageUrl } from '../lib/imageUrl.js';
 const CUISINE_THEMES = {
   american: {
     bg: '#FFFBF0', border: '#CC0000', accent: '#CC0000', label: '#003087',
-    font: "'Georgia', serif", headerBg: '#CC0000', headerText: '#fff', tag: 'American Kitchen',
+    font: "'Fredoka', sans-serif", headerBg: '#CC0000', headerText: '#fff', tag: 'American Kitchen',
   },
   italian: {
     bg: '#F5ECD7', border: '#2D5016', accent: '#C4622D', label: '#2D5016',
-    font: "'Georgia', serif", headerBg: '#2D5016', headerText: '#F5ECD7', tag: 'Trattoria Italiana',
+    font: "'Fredoka', sans-serif", headerBg: '#2D5016', headerText: '#F5ECD7', tag: 'Trattoria Italiana',
   },
   asian: {
     bg: '#1A1A1A', border: '#FFD700', accent: '#FFD700', label: '#FFD700',
-    font: "'Georgia', serif", headerBg: '#111', headerText: '#FFD700', tag: 'Asian Kitchen',
+    font: "'Fredoka', sans-serif", headerBg: '#111', headerText: '#FFD700', tag: 'Asian Kitchen',
     textColor: '#d4c090', descColor: '#c0a880',
   },
   latin: {
     bg: '#fff', border: '#D4622D', accent: '#D4622D', label: '#00897B',
-    font: "'Arial Black', sans-serif", headerBg: '#D4622D', headerText: '#fff', tag: 'Latin Flavors',
+    font: "'Fredoka', sans-serif", headerBg: '#D4622D', headerText: '#fff', tag: 'Latin Flavors',
   },
   mediterranean: {
     bg: '#fff', border: '#0047AB', accent: '#0047AB', label: '#0047AB',
-    font: "'Georgia', serif", headerBg: '#0047AB', headerText: '#fff', tag: 'Mediterranean',
+    font: "'Fredoka', sans-serif", headerBg: '#0047AB', headerText: '#fff', tag: 'Mediterranean',
   },
   indian: {
     bg: '#6B2D3E', border: '#FF9933', accent: '#FF9933', label: '#FF9933',
-    font: "'Georgia', serif", headerBg: '#4a1a2a', headerText: '#FF9933', tag: 'Indian Spice',
+    font: "'Fredoka', sans-serif", headerBg: '#4a1a2a', headerText: '#FF9933', tag: 'Indian Spice',
     textColor: '#f0d8b8', descColor: '#e0c0a0',
   },
   steakhouse: {
     bg: '#1C1C1C', border: '#B8860B', accent: '#B8860B', label: '#B8860B',
-    font: "'Arial Black', sans-serif", headerBg: '#B8860B', headerText: '#1C1C1C', tag: 'The Steakhouse',
+    font: "'Fredoka', sans-serif", headerBg: '#B8860B', headerText: '#1C1C1C', tag: 'The Steakhouse',
     textColor: '#d0b080', descColor: '#c0a060',
   },
   healthy: {
     bg: '#fff', border: '#7D9B76', accent: '#7D9B76', label: '#2D4A2D',
-    font: "'Arial', sans-serif", headerBg: '#7D9B76', headerText: '#fff', tag: 'Wholesome Kitchen',
+    font: "'Fredoka', sans-serif", headerBg: '#7D9B76', headerText: '#fff', tag: 'Wholesome Kitchen',
   },
 };
 

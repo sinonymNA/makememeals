@@ -173,7 +173,7 @@ export default function Swipe() {
                 <div className="w-12 h-1.5 rounded-full mx-auto mb-6" style={{ background: 'var(--border-mid)' }} />
                 <h2
                   className="text-[22px] text-center mb-1"
-                  style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+                  style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
                 >
                   {expandedMeal.name}
                 </h2>

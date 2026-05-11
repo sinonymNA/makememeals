@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')).render(
         position="top-center"
         toastOptions={{
           style: {
-            fontFamily: "'Nunito', sans-serif",
+            fontFamily: "'Fredoka', sans-serif",
             fontWeight: 700,
             borderRadius: '16px',
             padding: '12px 18px',

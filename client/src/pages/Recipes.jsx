@@ -31,7 +31,7 @@ function RecipeDetail({ meal, id }) {
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 20px' }}>
           <h2
             className="text-[24px] leading-tight"
-            style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+            style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
           >
             {meal.name}
           </h2>

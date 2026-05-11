@@ -35,7 +35,7 @@ export default function PaywallModal({ onClose }) {
             <div className="text-4xl mb-3">🍽️</div>
             <h2
               className="text-[24px] font-bold mb-2"
-              style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif" }}
+              style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif" }}
             >
               Ready for another week?
             </h2>
