@@ -41,7 +41,7 @@ router.post('/generate', requireAuth, async (req, res) => {
       ...recentMeals.map(m => m.name),
     ])];
 
-    const seeds = selectSeeds({ count: 3, prefs: preferences, excludeNames: excludeAll });
+    const seeds = selectSeeds({ count: 3, servings, prefs: preferences, excludeNames: excludeAll });
     const meals = await generateMealsFromSeeds(seeds, servings, preferences?.store || 'Any', preferences?.budget || null);
 
     const [plan] = await sql`
@@ -66,7 +66,7 @@ router.post('/generate', requireAuth, async (req, res) => {
 router.post('/generate-more', requireAuth, async (req, res) => {
   try {
     const { preferences, excludeNames = [] } = req.body;
-    const seeds = selectSeeds({ count: 3, prefs: preferences, excludeNames });
+    const seeds = selectSeeds({ count: 3, servings: preferences?.servings || 4, prefs: preferences, excludeNames });
     const meals = await generateMealsFromSeeds(seeds, preferences?.servings || 4, preferences?.store || 'Any', preferences?.budget || null);
     res.json({ meals });
   } catch (err) {

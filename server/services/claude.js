@@ -14,6 +14,12 @@ Every meal should have ONE interesting element that makes it
 feel special — an unexpected spice, a sauce, a technique,
 a flavor combo — while still being achievable for a home cook.
 
+CRITICAL: You MUST stay within budget. If the budget is tight,
+prioritize affordable proteins (chicken, eggs, beans, ground meat)
+and seasonal produce. Avoid expensive ingredients (seafood, specialty items)
+unless they fit the budget. The user is counting on you to hit the
+per-meal budget target — exceeding it makes the weekly cost unaffordable.
+
 Always return valid JSON only. No explanation. No markdown.
 No preamble. Just the JSON array.`;
 
@@ -57,7 +63,7 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   const store     = prefs?.store   || 'Any';
   const budget    = prefs?.budget  || 100;
   const storeDesc = STORES[store] || STORES['Any'];
-  const perMealBudget = Math.round(budget / Math.max(count - 1, 1));
+  const perMealBudget = Math.round(budget / Math.max(count, 1));
 
   const excludeText = exclude.length ? `NEVER suggest: ${exclude.join(', ')}` : 'None (no restrictions)';
 
@@ -68,12 +74,13 @@ function buildUserPrompt(count, servings, prefs, exclude, prefPrompt = '') {
   return `Generate exactly ${count} dinner recipes. Be concise.
 Servings: ${servings}
 Store: ${store} (${storeDesc})
-Weekly budget: $${budget} total (roughly $${perMealBudget} per meal)
+Weekly budget: $${budget} TOTAL (must stay within $${perMealBudget} per meal)
 Dietary restrictions: ${buildRestrictions(prefs)}
 ${excludeText}
 ${inspirationLine}
 Cuisine direction this week: lean toward ${cuisineFocus} — mix in 1-2 other styles for variety. Each meal must be distinct.
 CRITICAL: The excluded meals above have been made recently. Do NOT generate any of them again, even with slight variations.
+BUDGET RULE: Each recipe's estimated_cost must be ≤ $${perMealBudget}. If total hits budget, you're done. Do NOT exceed the per-meal budget.
 
 Return a JSON array. Each item:
 {
