@@ -11,7 +11,7 @@ const STEPS = [
 
 const REVIEWS = [
   { q: '"Saves me $300 a month vs. HelloFresh. No contest."', n: 'Emily R.' },
-  { q: '"Finally know what's for dinner without the panic."', n: 'Marcus D.' },
+  { q: '"Finally know what’s for dinner without the panic."', n: 'Marcus D.' },
   { q: '"Best $10/month I spend. The recipes are actually fire."', n: 'Sarah M.' },
 ];
 
