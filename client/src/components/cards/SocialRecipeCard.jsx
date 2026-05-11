@@ -13,7 +13,7 @@ function Chip({ icon, value, theme }) {
       display: 'flex',
       alignItems: 'center',
       gap: '4px',
-      fontFamily: 'Fredoka', sans-serif,
+      fontFamily: "'Fredoka', sans-serif",
       whiteSpace: 'nowrap',
     }}>
       {icon} {value}
@@ -70,7 +70,7 @@ export default function SocialRecipeCard({ meal, socialRef }) {
             letterSpacing: '0.15em',
             color: '#fff',
             textTransform: 'uppercase',
-            fontFamily: 'Fredoka', sans-serif,
+            fontFamily: "'Fredoka', sans-serif",
             fontWeight: 600,
           }}>
             {theme.tag}
@@ -121,7 +121,7 @@ export default function SocialRecipeCard({ meal, socialRef }) {
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           marginBottom: '8px',
-          fontFamily: 'Fredoka', sans-serif,
+          fontFamily: "'Fredoka', sans-serif",
         }}>
           Ingredients
         </div>
