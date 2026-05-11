@@ -13,7 +13,7 @@ function Chip({ icon, value, theme }) {
       display: 'flex',
       alignItems: 'center',
       gap: '4px',
-      fontFamily: 'Inter, -apple-system, sans-serif',
+      fontFamily: 'Fredoka', sans-serif,
       whiteSpace: 'nowrap',
     }}>
       {icon} {value}
@@ -41,7 +41,7 @@ export default function SocialRecipeCard({ meal, socialRef }) {
         background: theme.cardBg,
         borderRadius: '20px',
         overflow: 'hidden',
-        fontFamily: "'Georgia', 'Times New Roman', serif",
+        fontFamily: "'Fredoka', sans-serif",
         position: 'relative',
         boxShadow: '0 8px 40px rgba(0,0,0,0.22)',
         flexShrink: 0,
@@ -70,7 +70,7 @@ export default function SocialRecipeCard({ meal, socialRef }) {
             letterSpacing: '0.15em',
             color: '#fff',
             textTransform: 'uppercase',
-            fontFamily: 'Inter, -apple-system, sans-serif',
+            fontFamily: 'Fredoka', sans-serif,
             fontWeight: 600,
           }}>
             {theme.tag}
@@ -95,7 +95,7 @@ export default function SocialRecipeCard({ meal, socialRef }) {
 
         {/* Recipe name */}
         <h2 style={{
-          fontFamily: "'Playfair Display', 'Georgia', serif",
+          fontFamily: "'Fredoka', sans-serif",
           fontSize: '24px',
           fontWeight: 700,
           color: theme.nameColor,
@@ -121,7 +121,7 @@ export default function SocialRecipeCard({ meal, socialRef }) {
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           marginBottom: '8px',
-          fontFamily: 'Inter, -apple-system, sans-serif',
+          fontFamily: 'Fredoka', sans-serif,
         }}>
           Ingredients
         </div>

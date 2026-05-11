@@ -266,7 +266,7 @@ export default function Setup({ isGuest = false }) {
               <div className="text-[40px] text-center mb-3">👥</div>
               <h1
                 className="text-[28px] text-center leading-tight mb-8"
-                style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+                style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
               >
                 How many people?
               </h1>
@@ -288,7 +288,7 @@ export default function Setup({ isGuest = false }) {
               <div className="text-[40px] text-center mb-3">📅</div>
               <h1
                 className="text-[28px] text-center leading-tight mb-8"
-                style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+                style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
               >
                 How many nights?
               </h1>
@@ -310,7 +310,7 @@ export default function Setup({ isGuest = false }) {
               <div className="text-[40px] text-center mb-3">⚙️</div>
               <h1
                 className="text-[28px] text-center leading-tight mb-8"
-                style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+                style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
               >
                 Your preferences
               </h1>

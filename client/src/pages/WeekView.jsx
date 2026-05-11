@@ -81,7 +81,7 @@ export default function WeekView() {
         <div className="flex-1">
           <h1
             className="text-[26px] leading-tight"
-            style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+            style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
           >
             This week 🍽️
           </h1>

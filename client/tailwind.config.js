@@ -4,8 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        jakarta: ["'Plus Jakarta Sans'", 'sans-serif'],
-        playfair: ["'Playfair Display'", 'serif'],
+        fredoka: ["'Fredoka'", 'sans-serif'],
         caveat: ["'Caveat'", 'cursive'],
       },
       colors: {

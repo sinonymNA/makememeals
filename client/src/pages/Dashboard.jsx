@@ -141,7 +141,7 @@ export default function Dashboard() {
           </div>
           <h1
             className="text-[26px] leading-tight"
-            style={{ color: 'var(--text)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
+            style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
           >
             Hey {user?.firstName || 'there'}! 👋
           </h1>
