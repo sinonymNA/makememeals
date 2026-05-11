@@ -313,7 +313,7 @@ html, body {
   padding-bottom: 16px;
 }
 .landing-logo {
-  height: 96px;
+  height: 64px;
   width: auto;
   object-fit: contain;
 }
@@ -542,7 +542,7 @@ html, body {
 
 /* ── Responsive: tablet+ ── */
 @media (min-width: 640px) {
-  .landing-logo { height: 114px; }
+  .landing-logo { height: 76px; }
   .landing-h1 { font-size: 56px; }
   .landing-subhead { max-width: 480px; font-size: 18px; }
   .landing-ctas { flex-direction: row; max-width: 560px; }
@@ -557,7 +557,7 @@ html, body {
 
 /* ── Responsive: desktop ── */
 @media (min-width: 900px) {
-  .landing-logo { height: 126px; }
+  .landing-logo { height: 84px; }
   .landing-h1 { font-size: 72px; }
   .landing-subhead { max-width: 560px; font-size: 19px; }
   .landing-ctas { max-width: 600px; }
