@@ -50,7 +50,8 @@ router.post('/create-checkout', requireAuth, async (req, res) => {
     const [user] = await sql`SELECT id, email FROM users WHERE clerk_id = ${req.userId}`;
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    // Strip trailing slash to prevent //dashboard double-slash redirect
+    const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -81,7 +82,7 @@ router.post('/create-portal', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'No active subscription found' });
     }
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
     const session = await stripe.billingPortal.sessions.create({
       customer: user.stripe_customer_id,
       return_url: `${clientUrl}/dashboard`,
