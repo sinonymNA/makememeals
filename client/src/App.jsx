@@ -15,6 +15,8 @@ import GuestRecipes from './pages/GuestRecipes.jsx';
 import GuestGroceryList from './pages/GuestGroceryList.jsx';
 import NotFound from './pages/NotFound.jsx';
 import RecipeCardCollection from './pages/RecipeCardCollection.jsx';
+import Pantry from './pages/Pantry.jsx';
+import Coupons from './pages/Coupons.jsx';
 
 function ProtectedRoute({ children }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -52,6 +54,8 @@ function AnimatedRoutes() {
         <Route path="/recipes/:planId" element={<ProtectedRoute><PageWrapper><Recipes /></PageWrapper></ProtectedRoute>} />
         <Route path="/grocery/:planId" element={<ProtectedRoute><PageWrapper><GroceryList /></PageWrapper></ProtectedRoute>} />
         <Route path="/recipe-cards"    element={<ProtectedRoute><PageWrapper><RecipeCardCollection /></PageWrapper></ProtectedRoute>} />
+        <Route path="/pantry"          element={<ProtectedRoute><PageWrapper><Pantry /></PageWrapper></ProtectedRoute>} />
+        <Route path="/coupons"         element={<ProtectedRoute><PageWrapper><Coupons /></PageWrapper></ProtectedRoute>} />
 
         {/* Guest routes (no auth) */}
         <Route path="/guest-setup"            element={<PageWrapper><Setup isGuest /></PageWrapper>} />

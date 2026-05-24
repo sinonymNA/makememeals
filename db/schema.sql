@@ -93,3 +93,92 @@ ALTER TABLE meals ADD COLUMN IF NOT EXISTS pexels_query TEXT;
 ALTER TABLE meals ADD COLUMN IF NOT EXISTS chef_tip     TEXT;
 ALTER TABLE meals ADD COLUMN IF NOT EXISTS inspired_by  TEXT;
 ALTER TABLE meal_plans ADD COLUMN IF NOT EXISTS meal_emojis JSONB;
+
+-- Admin flag
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
+
+-- Pantry / fridge tracker
+CREATE TABLE IF NOT EXISTS pantry_items (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
+  name        TEXT NOT NULL,
+  quantity    NUMERIC(10,2),
+  unit        TEXT,
+  category    TEXT DEFAULT 'other',
+  expires_at  DATE,
+  added_at    TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_pantry_user_id ON pantry_items(user_id);
+
+-- Uploaded recipe cards (admin-curated + user-submitted)
+CREATE TABLE IF NOT EXISTS recipe_cards (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      UUID REFERENCES users(id) ON DELETE CASCADE,
+  source       TEXT DEFAULT 'user',
+  image_url    TEXT,
+  name         TEXT,
+  cuisine      TEXT,
+  description  TEXT,
+  ingredients  JSONB DEFAULT '[]',
+  steps        JSONB DEFAULT '[]',
+  prep_minutes INT,
+  servings     INT,
+  chef_tip     TEXT,
+  approved     BOOLEAN DEFAULT FALSE,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_recipe_cards_user_id  ON recipe_cards(user_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_cards_approved ON recipe_cards(approved);
+
+-- Coupons
+CREATE TABLE IF NOT EXISTS coupons (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  store       TEXT NOT NULL DEFAULT 'all',
+  brand       TEXT,
+  product     TEXT NOT NULL,
+  description TEXT,
+  discount    TEXT,
+  category    TEXT,
+  image_emoji TEXT DEFAULT '🏷️',
+  valid_until DATE,
+  keywords    TEXT[] DEFAULT '{}',
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_coupons_store ON coupons(store);
+
+-- Seed sample coupons (only if table is empty)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM coupons LIMIT 1) THEN
+    INSERT INTO coupons (store, brand, product, description, discount, category, image_emoji, valid_until, keywords) VALUES
+      ('kroger',   'Tyson',    'Chicken Breast',      'Fresh boneless skinless chicken breast',     '$2.00 off',    'meat',      '🍗', CURRENT_DATE + 30, ARRAY['chicken','breast','tyson']),
+      ('kroger',   'Kraft',    'Shredded Cheese',     'Any variety 8oz bag',                        '$1.00 off',    'dairy',     '🧀', CURRENT_DATE + 14, ARRAY['cheese','shredded','kraft','cheddar','mozzarella']),
+      ('kroger',   'Kellogg''s','Cereal',             'Any Kellogg''s cereal box 12oz+',            'Buy 2 Get 1',  'grains',    '🥣', CURRENT_DATE + 21, ARRAY['cereal','kelloggs','cornflakes','granola']),
+      ('kroger',   NULL,       'Fresh Salmon Fillet', 'Wild-caught Atlantic salmon per lb',         '$3.00 off/lb', 'seafood',   '🐟', CURRENT_DATE + 7,  ARRAY['salmon','fish','seafood','fillet']),
+      ('kroger',   'Dole',     'Salad Kit',           'Dole chopped salad kit 10-13oz',             '$0.75 off',    'produce',   '🥗', CURRENT_DATE + 10, ARRAY['salad','lettuce','greens','dole']),
+      ('kroger',   'Hunt''s',  'Canned Tomatoes',     'Hunt''s diced or crushed tomatoes 14.5oz',  '4 for $5',     'canned',    '🍅', CURRENT_DATE + 45, ARRAY['tomato','tomatoes','canned','hunts','diced']),
+      ('kroger',   'Barilla',  'Pasta',               'Any Barilla pasta 12-16oz',                  'Buy 2 Get 1',  'grains',    '🍝', CURRENT_DATE + 60, ARRAY['pasta','barilla','spaghetti','penne','linguine','fettuccine']),
+      ('kroger',   'Chobani',  'Greek Yogurt',        'Chobani Greek yogurt any flavor 5.3oz',      '5 for $5',     'dairy',     '🥛', CURRENT_DATE + 14, ARRAY['yogurt','greek yogurt','chobani']),
+      ('publix',   NULL,       'Ground Beef 80/20',   '1 lb package fresh ground beef',             '$1.50 off',    'meat',      '🥩', CURRENT_DATE + 5,  ARRAY['beef','ground beef','hamburger','meat']),
+      ('publix',   'Pepperidge Farm','Bread',         'Pepperidge Farm sandwich bread any variety', 'Buy 1 Get 1',  'grains',    '🍞', CURRENT_DATE + 7,  ARRAY['bread','sandwich bread','loaf','pepperidge']),
+      ('publix',   'Minute Maid','Orange Juice',      'Minute Maid 59oz carton',                    '$1.25 off',    'beverages', '🍊', CURRENT_DATE + 21, ARRAY['orange juice','juice','minute maid','OJ']),
+      ('publix',   NULL,       'Shrimp',              'Large 21-25 count raw shrimp per lb',        '$2.00 off/lb', 'seafood',   '🦐', CURRENT_DATE + 7,  ARRAY['shrimp','seafood','prawn']),
+      ('publix',   'Boar''s Head','Deli Meat',        'Any Boar''s Head deli meat 0.5lb',           '$1.00 off',    'meat',      '🥪', CURRENT_DATE + 10, ARRAY['deli','turkey','ham','roast beef','boars head']),
+      ('publix',   NULL,       'Avocados',            'Hass avocados each',                         '3 for $3',     'produce',   '🥑', CURRENT_DATE + 5,  ARRAY['avocado','avocados','hass']),
+      ('walmart',  'Great Value','Eggs',              'Great Value large eggs 12ct',                '$0.50 off',    'dairy',     '🥚', CURRENT_DATE + 21, ARRAY['eggs','egg','dozen']),
+      ('walmart',  'Bertolli', 'Olive Oil',           'Bertolli extra virgin olive oil 16.9oz',     '$1.00 off',    'condiments','🫙', CURRENT_DATE + 90, ARRAY['olive oil','oil','bertolli','evoo']),
+      ('walmart',  'McCormick','Spices',              'Any McCormick spice or seasoning',            'Buy 2 Get 1',  'condiments','🌶️', CURRENT_DATE + 90, ARRAY['spice','seasoning','mccormick','garlic','onion','paprika','cumin']),
+      ('walmart',  'Birds Eye','Frozen Vegetables',   'Birds Eye frozen vegetables any variety',    '2 for $4',     'frozen',    '🥦', CURRENT_DATE + 60, ARRAY['frozen vegetables','broccoli','mixed vegetables','birds eye','peas','corn']),
+      ('all',      'Goya',     'Black Beans',         'Goya black beans 15oz can',                  '3 for $2',     'canned',    '🫘', CURRENT_DATE + 90, ARRAY['beans','black beans','goya','legumes']),
+      ('all',      'Quaker',   'Oats',                'Quaker old fashioned oats 18oz',             '$1.00 off',    'grains',    '🌾', CURRENT_DATE + 90, ARRAY['oats','oatmeal','quaker','breakfast']),
+      ('all',      NULL,       'Sweet Potatoes',      'Fresh sweet potatoes per lb',                '$0.50 off/lb', 'produce',   '🍠', CURRENT_DATE + 14, ARRAY['sweet potato','sweet potatoes','yam']),
+      ('all',      'Heinz',    'Ketchup',             'Heinz tomato ketchup 32oz',                  '$0.75 off',    'condiments','🍅', CURRENT_DATE + 90, ARRAY['ketchup','heinz','condiment']),
+      ('all',      NULL,       'Limes',               'Fresh limes bag 2lb',                        '2 for $3',     'produce',   '🍋', CURRENT_DATE + 7,  ARRAY['lime','limes','citrus']),
+      ('all',      'Classico', 'Pasta Sauce',         'Classico tomato pasta sauce 24oz jar',       'Buy 2 for $6', 'canned',    '🫙', CURRENT_DATE + 90, ARRAY['pasta sauce','marinara','classico','tomato sauce']),
+      ('all',      NULL,       'Garlic',              'Fresh garlic bulb each',                     '3 for $2',     'produce',   '🧄', CURRENT_DATE + 14, ARRAY['garlic','bulb','clove']),
+      ('all',      NULL,       'Yellow Onions',       'Yellow onions 3lb bag',                      '$0.75 off',    'produce',   '🧅', CURRENT_DATE + 14, ARRAY['onion','onions','yellow onion']),
+      ('all',      'Bush''s',  'Baked Beans',         'Bush''s Best baked beans any variety 28oz', '$0.50 off',    'canned',    '🫘', CURRENT_DATE + 90, ARRAY['baked beans','beans','bushs'])
+    ;
+  END IF;
+END $$;

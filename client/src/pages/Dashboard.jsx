@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useUser, UserButton } from '@clerk/clerk-react';
-import { Plus, ChevronRight, ExternalLink, Trash2, BookOpen } from 'lucide-react';
+import { Plus, ChevronRight, ExternalLink, Trash2, ShoppingBag, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan } from '../lib/api.js';
 
@@ -141,7 +141,7 @@ export default function Dashboard() {
           </div>
           <h1
             className="text-[26px] leading-tight"
-            style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
+            style={{ color: 'var(--text)', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700 }}
           >
             Hey {user?.firstName || 'there'}! 👋
           </h1>
@@ -238,13 +238,35 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 <div className="text-2xl">🃏</div>
                 <div className="text-left">
-                  <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>Recipe Card Collection</div>
-                  <div className="text-[12px]" style={{ color: 'var(--text-mid)' }}>Save & share your favourite meals</div>
+                  <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>Recipe Cards</div>
+                  <div className="text-[12px]" style={{ color: 'var(--text-mid)' }}>Browse, upload & share recipes</div>
                 </div>
               </div>
               <ChevronRight size={16} style={{ color: 'var(--text-light)' }} />
             </button>
           )}
+
+          {/* Pantry & Coupons quick links */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <button
+              className="p-4 rounded-3xl flex flex-col gap-1"
+              onClick={() => navigate('/pantry')}
+              style={{ background: 'var(--card)', border: '1.5px solid var(--border)', cursor: 'pointer', textAlign: 'left' }}
+            >
+              <div style={{ fontSize: '22px', marginBottom: '2px' }}>🧺</div>
+              <div className="font-semibold text-[14px]" style={{ color: 'var(--text)' }}>Pantry</div>
+              <div className="text-[11px]" style={{ color: 'var(--text-mid)' }}>Track your fridge & pantry</div>
+            </button>
+            <button
+              className="p-4 rounded-3xl flex flex-col gap-1"
+              onClick={() => navigate('/coupons')}
+              style={{ background: 'var(--card)', border: '1.5px solid var(--border)', cursor: 'pointer', textAlign: 'left' }}
+            >
+              <div style={{ fontSize: '22px', marginBottom: '2px' }}>🏷️</div>
+              <div className="font-semibold text-[14px]" style={{ color: 'var(--text)' }}>Coupons</div>
+              <div className="text-[11px]" style={{ color: 'var(--text-mid)' }}>Deals matched to your list</div>
+            </button>
+          </div>
         </div>
       )}
 

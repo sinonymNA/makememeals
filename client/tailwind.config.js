@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        fredoka: ["'Fredoka'", 'sans-serif'],
-        caveat: ["'Caveat'", 'cursive'],
+        serif:   ["'Playfair Display'", 'Georgia', 'serif'],
+        sans:    ["'DM Sans'", 'system-ui', 'sans-serif'],
+        display: ["'Playfair Display'", 'Georgia', 'serif'],
+        caveat:  ["'Caveat'", 'cursive'],
       },
       colors: {
         bg: '#FFFFFF',

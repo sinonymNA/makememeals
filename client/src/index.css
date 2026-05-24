@@ -44,11 +44,15 @@ html, body {
   padding: 0;
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Fredoka', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 400;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+h1, h2, h3, .display-font {
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 #root { min-height: 100vh; }
@@ -81,7 +85,7 @@ html, body {
 .pill-button {
   border-radius: 9999px;
   padding: 14px 32px;
-  font-family: 'Fredoka', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
   background: var(--accent);
@@ -129,7 +133,7 @@ html, body {
 .pill-option {
   padding: 12px 24px;
   border-radius: 9999px;
-  font-family: 'Fredoka', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
@@ -257,7 +261,7 @@ html, body {
 .recipe-card-print {
   background: #FEFEF6;
   border-radius: 16px;
-  font-family: 'Fredoka', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   position: relative;
   overflow: hidden;
 }
@@ -290,7 +294,7 @@ html, body {
 .landing-root {
   background: #FAFAF8;
   min-height: 100vh;
-  font-family: 'Fredoka', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   color: #1a1a1a;
 }
 

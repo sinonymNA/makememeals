@@ -14,6 +14,9 @@ import paymentsRouter from './routes/payments.js';
 import guestRouter from './routes/guest.js';
 import imagesRouter from './routes/images.js';
 import adminRouter from './routes/admin.js';
+import pantryRouter from './routes/pantry.js';
+import recipeCardsRouter from './routes/recipeCards.js';
+import couponsRouter from './routes/coupons.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,6 +50,12 @@ app.use('/api/payments', paymentsRouter);
 app.use('/api/guest', guestRouter);
 app.use('/api/images', imagesRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/pantry', pantryRouter);
+app.use('/api/recipe-cards', recipeCardsRouter);
+app.use('/api/coupons', couponsRouter);
+
+// Serve uploaded images
+app.use('/uploads', express.static(join(__dirname, '../uploads')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

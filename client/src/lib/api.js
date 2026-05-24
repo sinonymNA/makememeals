@@ -61,3 +61,33 @@ export const guestGetPlan = (planId) =>
   api.get(`/guest/plan/${planId}`).then(r => r.data);
 export const guestBuildGrocery = (planId) =>
   api.post('/guest/grocery', { planId }).then(r => r.data);
+
+// Pantry
+export const getPantry = () =>
+  api.get('/pantry').then(r => r.data);
+export const addPantryItem = (item) =>
+  api.post('/pantry', item).then(r => r.data);
+export const updatePantryItem = (id, item) =>
+  api.put(`/pantry/${id}`, item).then(r => r.data);
+export const deletePantryItem = (id) =>
+  api.delete(`/pantry/${id}`).then(r => r.data);
+export const scanPantry = (image, mediaType) =>
+  api.post('/pantry/scan', { image, mediaType }).then(r => r.data);
+export const cookMeal = (ingredients) =>
+  api.post('/pantry/cook', { ingredients }).then(r => r.data);
+export const checkPantry = (planId) =>
+  api.get(`/pantry/check?planId=${planId}`).then(r => r.data);
+
+// Recipe cards (uploaded)
+export const getRecipeCards = () =>
+  api.get('/recipe-cards').then(r => r.data);
+export const uploadRecipeCard = (formData) =>
+  api.post('/recipe-cards/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data);
+export const deleteRecipeCard = (id) =>
+  api.delete(`/recipe-cards/${id}`).then(r => r.data);
+
+// Coupons
+export const getCoupons = (store = 'all', search = '') =>
+  api.get('/coupons', { params: { store, search } }).then(r => r.data);
+export const matchCoupons = (planId, store = 'all') =>
+  api.get('/coupons/match', { params: { planId, store } }).then(r => r.data);

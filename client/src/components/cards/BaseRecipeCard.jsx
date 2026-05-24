@@ -13,7 +13,7 @@ function Chip({ icon, value, theme }) {
       display: 'flex',
       alignItems: 'center',
       gap: '5px',
-      fontFamily: "'Fredoka', sans-serif",
+      fontFamily: "'DM Sans', sans-serif",
       whiteSpace: 'nowrap',
     }}>
       {icon} {value}
@@ -44,7 +44,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
         background: theme.cardBg,
         borderRadius: '20px',
         overflow: 'hidden',
-        fontFamily: "'Fredoka', sans-serif",
+        fontFamily: "'DM Sans', sans-serif",
         boxShadow: '0 6px 32px rgba(0,0,0,0.18)',
         border: 'none',
       }}
@@ -72,7 +72,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
             letterSpacing: '0.15em',
             color: '#fff',
             textTransform: 'uppercase',
-            fontFamily: "'Fredoka', sans-serif",
+            fontFamily: "'DM Sans', sans-serif",
             fontWeight: 600,
           }}>
             {theme.tag}
@@ -91,7 +91,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
             fontStyle: 'italic',
             margin: '0 0 6px',
             textAlign: 'center',
-            fontFamily: "'Fredoka', sans-serif",
+            fontFamily: "'DM Sans', sans-serif",
           }}>
             Inspired by {meal.inspired_by || meal.inspiredBy}
           </p>
@@ -99,7 +99,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
 
         {/* Recipe name */}
         <h2 style={{
-          fontFamily: "'Fredoka', sans-serif",
+          fontFamily: "'Playfair Display', Georgia, serif",
           fontSize: '26px',
           fontWeight: 700,
           color: theme.nameColor,
@@ -144,7 +144,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               marginBottom: '10px',
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
             }}>
               Ingredients
             </div>
@@ -174,7 +174,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               marginBottom: '10px',
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
             }}>
               How to Make It
             </div>
@@ -187,7 +187,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
                   borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '11px', fontWeight: 700, flexShrink: 0, marginTop: '1px',
-                  fontFamily: "'Fredoka', sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                 }}>{i + 1}</span>
                 <span style={{ lineHeight: 1.5 }}>{step}</span>
               </div>
@@ -200,7 +200,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
                   color: theme.accent, fontSize: '13px',
                   fontWeight: 600, cursor: 'pointer',
                   padding: '4px 0',
-                  fontFamily: "'Fredoka', sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   textDecoration: 'underline',
                   textUnderlineOffset: '2px',
                 }}
@@ -227,7 +227,7 @@ export default function BaseRecipeCard({ meal, cardRef, theme }) {
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: '4px',
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
             }}>⭐ Chef's Tip</div>
             <p style={{ color: theme.descColor, fontSize: '12px', lineHeight: 1.5, margin: 0 }}>{meal.chef_tip}</p>
           </div>
