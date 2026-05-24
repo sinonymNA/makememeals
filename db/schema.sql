@@ -147,6 +147,10 @@ CREATE TABLE IF NOT EXISTS coupons (
 );
 CREATE INDEX IF NOT EXISTS idx_coupons_store ON coupons(store);
 
+-- Patch existing recipe_cards table with missing columns
+ALTER TABLE recipe_cards ADD COLUMN IF NOT EXISTS estimated_cost NUMERIC(6,2);
+ALTER TABLE recipe_cards ADD COLUMN IF NOT EXISTS servings       INT;
+
 -- Seed admin recipe cards (only if table is empty)
 DO $$
 BEGIN
