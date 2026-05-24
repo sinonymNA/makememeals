@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import { generateMeals, generateMealsFromSeeds } from '../services/claude.js';
-import { selectSeeds } from '../data/seeds.js';
+import { selectCardsForPlan } from '../services/cardSelection.js';
 import sql from '../db.js';
 
 const router = Router();
 
 // POST /api/meals/generate
+// Selects meals from the approved recipe card library.
+// Falls back to AI generation only if the card library has no approved cards at all.
 router.post('/generate', requireAuth, async (req, res) => {
   try {
     const { days, servings, preferences, previousMeals = [] } = req.body;
@@ -19,7 +20,6 @@ router.post('/generate', requireAuth, async (req, res) => {
     const freePlansUsed = user.free_plans_used ?? 0;
     const isActive = user.subscription === 'active';
 
-    // Allow 1 free plan; require subscription after that
     if (!isActive && freePlansUsed >= 1) {
       return res.status(402).json({
         error: 'Subscription required',
@@ -28,7 +28,7 @@ router.post('/generate', requireAuth, async (req, res) => {
       });
     }
 
-    // Fetch recent meal names so Claude avoids repeating them
+    // Fetch recently seen meal names so we don't repeat them
     const recentMeals = await sql`
       SELECT m.name FROM meals m
       JOIN meal_plans mp ON mp.id = m.plan_id
@@ -36,13 +36,22 @@ router.post('/generate', requireAuth, async (req, res) => {
       ORDER BY mp.created_at DESC
       LIMIT 75
     `;
-    const excludeAll = [...new Set([
-      ...previousMeals,
-      ...recentMeals.map(m => m.name),
-    ])];
+    const exclude = [...new Set([...previousMeals, ...recentMeals.map(m => m.name)])];
 
-    const seeds = selectSeeds({ count: 3, servings, prefs: preferences, excludeNames: excludeAll });
-    const meals = await generateMealsFromSeeds(seeds, servings, preferences?.store || 'Any', preferences?.budget || null, days);
+    const { meals } = await selectCardsForPlan({
+      sql,
+      count: days,
+      servings,
+      prefs: preferences,
+      exclude,
+    });
+
+    if (meals.length === 0) {
+      return res.status(503).json({
+        error: 'No recipes available yet. Add recipe cards in the admin panel.',
+        code: 'no_cards',
+      });
+    }
 
     const [plan] = await sql`
       INSERT INTO meal_plans (user_id, days, week_of)
@@ -50,7 +59,6 @@ router.post('/generate', requireAuth, async (req, res) => {
       RETURNING id
     `;
 
-    // Increment free plan counter if not subscribed
     if (!isActive) {
       await sql`UPDATE users SET free_plans_used = ${freePlansUsed + 1} WHERE id = ${user.id}`;
     }
@@ -63,11 +71,20 @@ router.post('/generate', requireAuth, async (req, res) => {
 });
 
 // POST /api/meals/generate-more
+// Called by Swipe when the card queue runs low — pulls more from library.
 router.post('/generate-more', requireAuth, async (req, res) => {
   try {
     const { preferences, excludeNames = [] } = req.body;
-    const seeds = selectSeeds({ count: 3, servings: preferences?.servings || 4, prefs: preferences, excludeNames });
-    const meals = await generateMealsFromSeeds(seeds, preferences?.servings || 4, preferences?.store || 'Any', preferences?.budget || null);
+    const servings = preferences?.servings || 2;
+
+    const { meals } = await selectCardsForPlan({
+      sql,
+      count: 6,
+      servings,
+      prefs: preferences,
+      exclude: excludeNames,
+    });
+
     res.json({ meals });
   } catch (err) {
     console.error('Generate-more error:', err);
@@ -120,6 +137,7 @@ router.post('/save', requireAuth, async (req, res) => {
 });
 
 // PATCH /api/meals/:mealId/swap
+// Swaps one meal in a saved plan with another from the card library.
 router.patch('/:mealId/swap', requireAuth, async (req, res) => {
   try {
     const { newMeal } = req.body;
@@ -141,6 +159,18 @@ router.patch('/:mealId/swap', requireAuth, async (req, res) => {
       RETURNING *
     `;
     res.json(meal);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/meals/library — browse the full card library (for swap picker UI)
+router.get('/library', requireAuth, async (req, res) => {
+  try {
+    const cards = await sql`
+      SELECT * FROM recipe_cards WHERE approved = TRUE ORDER BY cuisine, name
+    `;
+    res.json(cards);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

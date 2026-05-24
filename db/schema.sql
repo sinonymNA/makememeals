@@ -147,6 +147,40 @@ CREATE TABLE IF NOT EXISTS coupons (
 );
 CREATE INDEX IF NOT EXISTS idx_coupons_store ON coupons(store);
 
+-- Seed admin recipe cards (only if table is empty)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM recipe_cards LIMIT 1) THEN
+    INSERT INTO recipe_cards
+      (source, image_url, name, cuisine, description, ingredients, steps, prep_minutes, servings, estimated_cost, chef_tip, inspired_by, approved)
+    VALUES
+    (
+      'admin', NULL,
+      'Shrimp Fra Diavolo',
+      'italian',
+      'A fiery Italian-American classic — seared shrimp in a spicy tomato sauce tossed with al dente linguine. Restaurant quality, done in 25 minutes.',
+      '[{"name":"large shrimp","quantity":"1","unit":"lb"},{"name":"linguine","quantity":"16","unit":"oz"},{"name":"crushed tomatoes","quantity":"28","unit":"oz"},{"name":"white wine (Pinot Grigio)","quantity":"0.5","unit":"cup"},{"name":"garlic","quantity":"4","unit":"cloves"},{"name":"red pepper flakes","quantity":"1","unit":"tsp"},{"name":"fresh parsley","quantity":"0.25","unit":"cup chopped"},{"name":"olive oil","quantity":"2","unit":"tbsp"},{"name":"butter","quantity":"2","unit":"tbsp"},{"name":"salt and pepper","quantity":"","unit":"to taste"}]',
+      '["Cook linguine in heavily salted boiling water until al dente.","Reserve 1 cup pasta water, then drain and set aside.","Season shrimp generously with salt and pepper.","Heat olive oil and 1 tbsp butter in a large skillet over high heat.","Add shrimp and sear 1–2 min per side until pink. Remove and set aside.","Add garlic and red pepper flakes to the same pan. Sauté 30 seconds.","Pour in white wine, scraping up any browned bits. Reduce by half, about 2 min.","Add crushed tomatoes. Simmer 5 minutes until slightly thickened.","Return shrimp to sauce. Add pasta and toss, using pasta water to loosen as needed. Stir in remaining butter and parsley. Serve immediately."]',
+      25, 2, 14.00,
+      'Save your pasta water — it''s the secret to a silky, restaurant-quality sauce.',
+      'Italian coastal tradition',
+      TRUE
+    ),
+    (
+      'admin', NULL,
+      'Tuscan Ribeye with Rosemary Butter',
+      'steakhouse',
+      'A butter-basted bone-in ribeye with fragrant rosemary and golden baby potatoes — inspired by Carrabba''s signature Italian steakhouse style.',
+      '[{"name":"bone-in ribeye steaks","quantity":"2","unit":"steaks"},{"name":"fresh rosemary","quantity":"2","unit":"sprigs"},{"name":"butter","quantity":"3","unit":"tbsp"},{"name":"minced garlic","quantity":"2","unit":"cloves"},{"name":"baby gold potatoes","quantity":"1","unit":"lb"},{"name":"olive oil","quantity":"2","unit":"tbsp"},{"name":"salt and pepper","quantity":"","unit":"to taste"}]',
+      '["Take steaks out of the fridge 30 minutes before cooking to come to room temperature.","Boil or roast baby potatoes until golden and tender. Season with salt and olive oil.","Preheat a heavy cast iron skillet over high heat until smoking.","Pat steaks dry and season generously with salt and pepper on both sides.","Add olive oil to skillet. Sear steaks 3–4 minutes per side without moving.","Reduce heat to medium. Add butter, garlic, and rosemary.","Tilt the pan and use a spoon to continuously baste the steaks with the foamy butter for 1–2 minutes.","Cook to your desired doneness (125°F rare, 135°F medium-rare, 145°F medium).","Transfer steaks to a cutting board. Rest 5 full minutes before slicing. Serve with potatoes."]',
+      25, 2, 18.00,
+      'Let the steak rest 5 full minutes before cutting — this is non-negotiable. Cutting too early loses all the juices.',
+      'Carrabba''s',
+      TRUE
+    );
+  END IF;
+END $$;
+
 -- Seed sample coupons (only if table is empty)
 DO $$
 BEGIN

@@ -186,6 +186,8 @@ export default function Setup({ isGuest = false }) {
         }
         toast.error("You've already used your free guest plan! Sign up to continue.");
         navigate('/');
+      } else if (err?.response?.data?.code === 'no_cards') {
+        toast.error('No recipes in the library yet — upload some recipe cards first!');
       } else {
         console.error(err);
         toast.error('Something went wrong. Please try again.');

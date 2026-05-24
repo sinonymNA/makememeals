@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generateMeals } from '../services/claude.js';
+import { selectCardsForPlan } from '../services/cardSelection.js';
 import sql from '../db.js';
 
 const router = Router();
@@ -21,8 +21,11 @@ router.post('/generate', async (req, res) => {
       return res.status(402).json({ error: 'guest_used', message: 'Guest plan already used. Sign up for unlimited!' });
     }
 
-    // Generate meals
-    const meals = await generateMeals(3, servings, preferences, [], '');
+    // Generate meals from card library
+    const { meals } = await selectCardsForPlan({ sql, count: days, servings, prefs: preferences, exclude: [] });
+    if (meals.length === 0) {
+      return res.status(503).json({ error: 'No recipes available yet.' });
+    }
 
     // Create a guest meal plan (no user_id)
     const [plan] = await sql`
