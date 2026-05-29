@@ -517,7 +517,7 @@ export default function Landing() {
                 Get My Free Meal Plan →
               </CTAButton>
               <div style={{ fontFamily: NU, fontSize: 12, color: C.inkLight }}>
-                Free forever · No card required · 30 seconds
+                First plan free · No card required · 30 seconds
               </div>
             </motion.div>
           </div>
@@ -724,7 +724,7 @@ export default function Landing() {
             <CTAButton style={{ width: isMobile ? '100%' : 'auto', fontSize: 17, padding: '17px 40px' }}>
               Try It Free — Takes 30 Seconds →
             </CTAButton>
-            <div style={{ fontFamily: NU, fontSize: 12, color: C.inkLight, marginTop: 14 }}>No card required. Free forever.</div>
+            <div style={{ fontFamily: NU, fontSize: 12, color: C.inkLight, marginTop: 14 }}>No card required. First plan free.</div>
           </FadeIn>
         </div>
       </section>
@@ -762,7 +762,7 @@ export default function Landing() {
                   { label: 'Setup time', val: '30 seconds' },
                   { label: 'Flexibility', val: 'Any store' },
                   { label: 'Recipes', val: 'Restaurant-inspired' },
-                  { label: 'Price', val: 'FREE' },
+                  { label: 'Price', val: 'First plan free' },
                 ].map((r, i) => (
                   <div key={i} style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -854,7 +854,7 @@ export default function Landing() {
             fontFamily: NU, fontSize: 13, color: 'rgba(255,255,255,0.65)',
             marginTop: 18, lineHeight: 1.6,
           }}>
-            Free forever · No card required<br />Join 300+ families eating better
+            First plan free · No card required<br />Join 300+ families eating better
           </div>
         </FadeIn>
       </section>

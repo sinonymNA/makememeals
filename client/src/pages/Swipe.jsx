@@ -300,11 +300,22 @@ export default function Swipe() {
           )}
         </AnimatePresence>
 
-        {isFetchingMore && (
-          <p className="text-[12px] mt-3" style={{ color: 'var(--text-light)' }}>
-            Finding more options...
-          </p>
-        )}
+        <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <AnimatePresence>
+            {isFetchingMore && (
+              <motion.p
+                className="text-[12px]"
+                style={{ color: 'var(--text-light)', margin: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                Finding more options...
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

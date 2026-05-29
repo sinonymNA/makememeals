@@ -6,6 +6,9 @@
 const CUISINE_EMOJI = {
   italian: '🍝', asian: '🥢', latin: '🌶️', american: '🍔',
   mediterranean: '🫒', indian: '🌿', steakhouse: '🥩', healthy: '🌱',
+  mexican: '🌮', southern: '🍗', thai: '🍜', korean: '🥢',
+  japanese: '🍱', french: '🥖', seafood: '🐟', bbq: '🔥',
+  greek: '🫒',
 };
 
 function cuisineEmoji(cuisine) {
