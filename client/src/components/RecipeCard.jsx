@@ -43,8 +43,33 @@ const DEFAULT_THEME = CUISINE_THEMES.american;
 export default function RecipeCard({ meal, onClick, style }) {
   const theme = CUISINE_THEMES[meal.cuisine] || DEFAULT_THEME;
   const imgSrc = meal.imageUrl || getMealImageUrl(meal.name);
+  const isDesignedCard = meal.imageUrl && meal.imageUrl.startsWith('/recipe-cards/');
   const textColor = theme.textColor || '#1a1a1a';
   const descColor = theme.descColor || '#555';
+
+  // Designed card images render full-bleed — no need to add info on top
+  if (isDesignedCard) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+          cursor: onClick ? 'pointer' : 'default',
+          ...style,
+        }}
+        onClick={onClick}
+      >
+        <img
+          src={meal.imageUrl}
+          alt={meal.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

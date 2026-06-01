@@ -188,14 +188,33 @@ export default function Swipe() {
           >
             <motion.div
               className="w-full max-w-[430px] overflow-y-auto"
-              style={{ maxHeight: '85vh', borderRadius: '24px 24px 0 0', background: 'var(--card)' }}
+              style={{ maxHeight: '90vh', borderRadius: '24px 24px 0 0', background: 'var(--card)' }}
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
+              {/* If this is a designed recipe card, show full card image at top */}
+              {expandedMeal.imageUrl?.startsWith('/recipe-cards/') ? (
+                <div style={{ position: 'relative' }}>
+                  <img
+                    src={expandedMeal.imageUrl}
+                    alt={expandedMeal.name}
+                    style={{ width: '100%', display: 'block', borderRadius: '24px 24px 0 0', maxHeight: '340px', objectFit: 'cover' }}
+                  />
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '80px',
+                    background: 'linear-gradient(to bottom, transparent, var(--card))',
+                  }} />
+                </div>
+              ) : null}
               <div className="p-6">
-                <div className="w-12 h-1.5 rounded-full mx-auto mb-6" style={{ background: 'var(--border-mid)' }} />
+                {!expandedMeal.imageUrl?.startsWith('/recipe-cards/') && (
+                  <div className="w-12 h-1.5 rounded-full mx-auto mb-6" style={{ background: 'var(--border-mid)' }} />
+                )}
+                {expandedMeal.imageUrl?.startsWith('/recipe-cards/') && (
+                  <div className="w-12 h-1.5 rounded-full mx-auto mb-4" style={{ background: 'var(--border-mid)' }} />
+                )}
                 <h2
                   className="text-[22px] text-center mb-1"
                   style={{ color: 'var(--text)', fontFamily: "'Fredoka', sans-serif", fontWeight: 700 }}
@@ -272,7 +291,9 @@ export default function Swipe() {
         </div>
 
         <p className="text-[12px] mt-2 mb-4" style={{ color: 'var(--text-light)' }}>
-          Tap card to see full recipe
+          {queue[0]?.imageUrl?.startsWith('/recipe-cards/')
+            ? 'Tap card for recipe & ingredients'
+            : 'Tap card to see full recipe'}
         </p>
 
         {/* Action buttons */}
