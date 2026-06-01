@@ -56,6 +56,8 @@ app.use('/api/coupons', couponsRouter);
 
 // Serve uploaded images
 app.use('/uploads', express.static(join(__dirname, '../uploads')));
+// Serve recipe card images
+app.use('/recipe-cards', express.static(join(__dirname, 'recipe-cards')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
