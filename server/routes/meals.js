@@ -108,8 +108,12 @@ router.get('/plan/:planId', requireAuth, async (req, res) => {
 // POST /api/meals/save
 router.post('/save', requireAuth, async (req, res) => {
   try {
-    const { planId, meals } = req.body;
+    const { planId, meals, servings } = req.body;
     await sql`DELETE FROM meals WHERE plan_id = ${planId}`;
+
+    if (servings) {
+      await sql`UPDATE meal_plans SET servings = ${servings} WHERE id = ${planId}`;
+    }
 
     const rows = meals.map((m, i) => ({
       plan_id:        planId,
@@ -126,6 +130,7 @@ router.post('/save', requireAuth, async (req, res) => {
       pexels_query:   m.pexels_query ?? null,
       chef_tip:       m.chef_tip ?? null,
       inspired_by:    m.inspired_by ?? null,
+      image_url:      m.imageUrl ?? null,
     }));
 
     const saved = await sql`INSERT INTO meals ${sql(rows)} RETURNING *`;
@@ -154,7 +159,8 @@ router.patch('/:mealId/swap', requireAuth, async (req, res) => {
         cuisine        = ${newMeal.cuisine ?? null},
         pexels_query   = ${newMeal.pexels_query ?? null},
         chef_tip       = ${newMeal.chef_tip ?? null},
-        inspired_by    = ${newMeal.inspired_by ?? null}
+        inspired_by    = ${newMeal.inspired_by ?? null},
+        image_url      = ${newMeal.imageUrl ?? null}
       WHERE id = ${req.params.mealId}
       RETURNING *
     `;

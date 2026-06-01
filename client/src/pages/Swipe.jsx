@@ -119,7 +119,7 @@ export default function Swipe() {
         setAuthToken(token);
         swipeData.isGuest
           ? await guestSave(swipeData.planId, newConfirmed)
-          : await saveMeals(swipeData.planId, newConfirmed);
+          : await saveMeals(swipeData.planId, newConfirmed, swipeData.servings);
         // Clear progress backup — plan is saved
         localStorage.removeItem('swipeBackup');
         sessionStorage.removeItem('swipeData');

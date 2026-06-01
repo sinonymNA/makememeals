@@ -8,6 +8,6 @@ export function getMealImageUrl(mealName, pexelsQuery) {
 export function attachImageUrls(meals) {
   return (meals || []).map(m => ({
     ...m,
-    imageUrl: m.imageUrl || getMealImageUrl(m.name, m.pexels_query),
+    imageUrl: m.imageUrl || m.image_url || getMealImageUrl(m.name, m.pexels_query),
   }));
 }

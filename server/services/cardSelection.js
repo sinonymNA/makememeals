@@ -49,7 +49,10 @@ function scaleIngredients(ingredients, fromServings, toServings) {
     const qty = parseFloat(ing.quantity);
     if (isNaN(qty)) return ing; // keep text like "to taste" unchanged
     const scaled = Math.round(qty * factor * 4) / 4; // round to nearest ¼
-    return { ...ing, quantity: String(scaled) };
+    const scaledPrice = ing.estimated_price != null
+      ? Math.round(ing.estimated_price * factor * 100) / 100
+      : null;
+    return { ...ing, quantity: String(scaled), ...(scaledPrice != null ? { estimated_price: scaledPrice } : {}) };
   });
 }
 

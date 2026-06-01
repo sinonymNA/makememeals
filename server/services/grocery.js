@@ -8,6 +8,20 @@ const CATEGORY_ORDER = [
   'Other',
 ];
 
+const UNIT_ALIASES = {
+  cups: 'cup', tbsps: 'tbsp', tablespoon: 'tbsp', tablespoons: 'tbsp',
+  tsps: 'tsp', teaspoon: 'tsp', teaspoons: 'tsp',
+  ounce: 'oz', ounces: 'oz',
+  pound: 'lb', pounds: 'lb', lbs: 'lb',
+  gram: 'g', grams: 'g',
+  clove: 'cloves',
+};
+
+function normalizeUnit(u) {
+  const s = (u || '').toLowerCase().trim();
+  return UNIT_ALIASES[s] || s;
+}
+
 function normalize(name) {
   return name.toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
 }
@@ -15,11 +29,13 @@ function normalize(name) {
 function mergeQuantity(existing, incoming) {
   const a = parseFloat(existing.quantity);
   const b = parseFloat(incoming.quantity);
-  if (!isNaN(a) && !isNaN(b) && existing.unit === incoming.unit) {
-    return { quantity: String(Math.round((a + b) * 100) / 100), unit: existing.unit };
+  const unitA = normalizeUnit(existing.unit);
+  const unitB = normalizeUnit(incoming.unit);
+  if (!isNaN(a) && !isNaN(b) && unitA === unitB) {
+    return { quantity: String(Math.round((a + b) * 100) / 100), unit: existing.unit || incoming.unit };
   }
-  if (existing.unit === incoming.unit) {
-    return { quantity: `${existing.quantity} + ${incoming.quantity}`, unit: existing.unit };
+  if (unitA === unitB) {
+    return { quantity: `${existing.quantity} + ${incoming.quantity}`, unit: existing.unit || incoming.unit };
   }
   return { quantity: `${existing.quantity} ${existing.unit} + ${incoming.quantity} ${incoming.unit}`, unit: '' };
 }
