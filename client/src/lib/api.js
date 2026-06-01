@@ -52,6 +52,9 @@ export const validatePromo = (promoCode) =>
 export const deletePlan = (planId) =>
   api.delete(`/user/plans/${planId}`).then(r => r.data);
 
+export const claimGuestPlan = (planId) =>
+  api.post('/user/claim-guest', { planId }).then(r => r.data);
+
 // Guest (no auth)
 export const guestGenerate = (sessionKey, days, servings, preferences) =>
   api.post('/guest/generate', { sessionKey, days, servings, preferences }).then(r => r.data);

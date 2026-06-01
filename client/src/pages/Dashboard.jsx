@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useUser, UserButton } from '@clerk/clerk-react';
 import { Plus, ChevronRight, ExternalLink, Trash2, ShoppingBag, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan } from '../lib/api.js';
+import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan, claimGuestPlan } from '../lib/api.js';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -61,6 +61,21 @@ export default function Dashboard() {
   }, [getToken, user, subscribed]);
 
   useEffect(() => { load(); }, [load]);
+
+  // If user signed up after a guest plan, claim it so it shows in their history
+  useEffect(() => {
+    const guestPlanId = localStorage.getItem('guestPlanId');
+    if (!guestPlanId || !user) return;
+    getToken().then(token => {
+      setAuthToken(token);
+      claimGuestPlan(guestPlanId)
+        .then(() => {
+          localStorage.removeItem('guestPlanId');
+          load();
+        })
+        .catch(() => localStorage.removeItem('guestPlanId'));
+    }).catch(() => {});
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleUpgrade(plan = 'monthly') {
     setCheckoutLoading(plan);

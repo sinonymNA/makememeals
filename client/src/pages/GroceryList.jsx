@@ -122,6 +122,7 @@ export default function GroceryList() {
   const [items, setItems] = useState([]);
   const [estimatedTotal, setEstimatedTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const budget = Number(localStorage.getItem(`plan-budget-${planId}`) || 0);
   const [error, setError] = useState(null);
   const [pantryNames, setPantryNames] = useState(() => restorePantry(planId));
   const [showPantryModal, setShowPantryModal] = useState(false);
@@ -281,7 +282,7 @@ export default function GroceryList() {
         )}
       </div>
 
-      <GroceryPaper items={visibleItems} estimatedTotal={adjustedTotal} onToggle={handleToggle} />
+      <GroceryPaper items={visibleItems} estimatedTotal={adjustedTotal} budget={budget} onToggle={handleToggle} />
 
       {/* Action buttons */}
       <div className="page-pad flex gap-3 mt-6 pb-10 no-print">

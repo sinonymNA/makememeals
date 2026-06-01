@@ -15,6 +15,7 @@ export default function WeekView() {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [swapModal, setSwapModal] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -67,8 +68,34 @@ export default function WeekView() {
   const meals = (plan.meals || []).sort((a, b) => a.day_number - b.day_number);
   const totalCost = meals.reduce((s, m) => s + Number(m.estimated_cost || 0), 0);
 
+  function confirmSwap(meal) {
+    const swipeData = JSON.parse(sessionStorage.getItem('swipeData') || '{}');
+    sessionStorage.setItem('swipeData', JSON.stringify({
+      ...swipeData, planId, days: 1, confirmed: [],
+      swapMealId: meal.id, swapDayNumber: meal.day_number,
+      excluded: meals.map(m => m.name),
+    }));
+    navigate('/swipe');
+  }
+
   return (
     <div className="app-shell" style={{ background: 'var(--bg)' }}>
+      {/* Swap confirmation modal */}
+      {swapModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="card p-6 mx-5 max-w-sm text-center">
+            <div className="text-3xl mb-3">🔄</div>
+            <p className="font-semibold text-[16px] mb-2" style={{ color: 'var(--text)' }}>Swap this meal?</p>
+            <p className="text-[14px] mb-5" style={{ color: 'var(--text-mid)' }}>
+              We'll find a replacement for <strong>{swapModal.name}</strong>. You can keep swiping until you find one you love.
+            </p>
+            <div className="flex gap-3">
+              <button className="pill-button outline flex-1" onClick={() => setSwapModal(null)}>Keep it</button>
+              <button className="pill-button flex-1" onClick={() => confirmSwap(swapModal)}>Find a swap →</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="page-pad pt-10 pb-5 flex items-center gap-3">
         <button
@@ -132,22 +159,14 @@ export default function WeekView() {
                     <Clock size={11} /> {meal.prep_minutes}m
                   </span>
                   <span className="text-[12px]" style={{ color: 'var(--text-light)' }}>
-                    ~${meal.estimated_cost}
+                    ~${meal.estimated_cost} · {plan.servings || meal.servings || '?'} servings
                   </span>
                 </div>
               </div>
               <button
                 className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)' }}
-                onClick={() => {
-                  const swipeData = JSON.parse(sessionStorage.getItem('swipeData') || '{}');
-                  sessionStorage.setItem('swipeData', JSON.stringify({
-                    ...swipeData, planId, days: 1, confirmed: [],
-                    swapMealId: meal.id, swapDayNumber: meal.day_number,
-                    excluded: meals.map(m => m.name),
-                  }));
-                  navigate('/swipe');
-                }}
+                onClick={() => setSwapModal(meal)}
                 title="Swap this meal"
               >
                 <RefreshCw size={14} style={{ color: 'var(--accent)' }} />

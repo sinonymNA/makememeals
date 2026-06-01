@@ -114,6 +114,29 @@ router.get('/plans', requireAuth, async (req, res) => {
   }
 });
 
+// POST /api/user/claim-guest — link a guest plan to the now-authenticated user
+router.post('/claim-guest', requireAuth, async (req, res) => {
+  try {
+    const { planId } = req.body;
+    if (!planId) return res.status(400).json({ error: 'planId required' });
+
+    const [user] = await sql`SELECT id FROM users WHERE clerk_id = ${req.userId}`;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const [updated] = await sql`
+      UPDATE meal_plans
+      SET user_id = ${user.id}, is_guest = FALSE
+      WHERE id = ${planId} AND is_guest = TRUE
+      RETURNING id
+    `;
+    if (!updated) return res.status(404).json({ error: 'Guest plan not found or already claimed' });
+
+    res.json({ success: true, planId: updated.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE /api/user/plans/:planId
 router.delete('/plans/:planId', requireAuth, async (req, res) => {
   try {

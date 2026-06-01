@@ -174,6 +174,8 @@ export default function Setup({ isGuest = false }) {
         prefs: fullPrefs, confirmed: [], excluded: [],
         liked: [], disliked: [], isGuest,
       }));
+      // Persist budget so the grocery list can compare against it
+      localStorage.setItem(`plan-budget-${planId}`, String(budget));
 
       navigate('/swipe');
     } catch (err) {

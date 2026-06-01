@@ -27,15 +27,37 @@ export default function Swipe() {
   const undoTimerRef = useRef(null);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem('swipeData');
+    // Fall back to localStorage backup if sessionStorage was cleared (e.g. tab close/restore)
+    const raw = sessionStorage.getItem('swipeData') || localStorage.getItem('swipeBackup');
     if (!raw) { navigate('/setup'); return; }
     const data = JSON.parse(raw);
+    sessionStorage.setItem('swipeData', raw);
     const mealsWithImages = attachImageUrls(data.meals || []);
     setSwipeData({ ...data, liked: data.liked || [], disliked: data.disliked || [] });
     setQueue(mealsWithImages);
     setConfirmed(data.confirmed || []);
     setCurrentDayIndex(data.confirmed?.length || 0);
   }, [navigate]);
+
+  // Warn before closing if plan isn't done
+  useEffect(() => {
+    function handleBeforeUnload(e) {
+      if (swipeData && confirmed.length < swipeData.days) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [swipeData, confirmed.length]);
+
+  // Keep localStorage backup in sync so progress survives a tab close/restore
+  useEffect(() => {
+    if (!swipeData?.planId) return;
+    const backup = JSON.stringify({ ...swipeData, confirmed });
+    localStorage.setItem('swipeBackup', backup);
+    sessionStorage.setItem('swipeData', backup);
+  }, [confirmed.length, swipeData?.planId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current); }, []);
 
@@ -98,6 +120,9 @@ export default function Swipe() {
         swipeData.isGuest
           ? await guestSave(swipeData.planId, newConfirmed)
           : await saveMeals(swipeData.planId, newConfirmed);
+        // Clear progress backup — plan is saved
+        localStorage.removeItem('swipeBackup');
+        sessionStorage.removeItem('swipeData');
         const dest = swipeData.isGuest ? `/guest/week/${swipeData.planId}` : `/week/${swipeData.planId}`;
         setTimeout(() => navigate(dest), 2500);
       } catch (err) {
@@ -114,7 +139,7 @@ export default function Swipe() {
     setLastDiscarded(meal);
     setShowUndo(true);
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
-    undoTimerRef.current = setTimeout(() => { setShowUndo(false); setLastDiscarded(null); }, 3000);
+    undoTimerRef.current = setTimeout(() => { setShowUndo(false); setLastDiscarded(null); }, 7000);
     setSwipeData(d => ({ ...d, excluded: [...(d.excluded || []), meal.name], disliked: [...(d.disliked || []), meal] }));
     setQueue(q => q.slice(1));
   }

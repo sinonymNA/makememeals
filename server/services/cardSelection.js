@@ -53,10 +53,37 @@ function scaleIngredients(ingredients, fromServings, toServings) {
   });
 }
 
+function parseFraction(str) {
+  if (str.includes('/')) {
+    const [n, d] = str.split('/');
+    return parseInt(n) / parseInt(d);
+  }
+  return parseFloat(str);
+}
+
+function formatMeasurement(n) {
+  if (n <= 0) return '0';
+  const whole = Math.floor(n);
+  const frac = n - whole;
+  const FRACS = [[0,''], [0.125,'⅛'], [0.25,'¼'], [0.333,'⅓'], [0.5,'½'], [0.667,'⅔'], [0.75,'¾'], [0.875,'⅞'], [1,'']];
+  let closestVal = 0, sym = '', minDiff = Math.abs(frac);
+  for (const [val, s] of FRACS) {
+    const diff = Math.abs(frac - val);
+    if (diff < minDiff) { minDiff = diff; closestVal = val; sym = s; }
+  }
+  if (closestVal >= 1) return String(whole + 1);
+  if (closestVal === 0) return whole === 0 ? '0' : String(whole);
+  return whole === 0 ? sym : `${whole}${sym}`;
+}
+
 function scaleSteps(steps, fromServings, toServings) {
-  // Steps are text — servings count is embedded in text rarely enough that we
-  // return them as-is and let the user interpret. No string rewriting.
-  return steps || [];
+  if (!steps) return [];
+  if (!fromServings || !toServings || fromServings === toServings) return steps;
+  const factor = toServings / fromServings;
+  const MEASURE = /\b(\d+(?:\/\d+)?(?:\.\d+)?)\s*(cups?|tbsps?|tsps?|tablespoons?|teaspoons?|oz|ounces?|lbs?|pounds?|gallons?|quarts?|pints?|grams?|kg|ml)\b/gi;
+  return steps.map(step =>
+    step.replace(MEASURE, (_, num, unit) => `${formatMeasurement(parseFraction(num) * factor)} ${unit}`)
+  );
 }
 
 // Convert a recipe_cards row into the meal shape the app expects

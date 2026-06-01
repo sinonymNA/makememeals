@@ -20,7 +20,7 @@ function priceCol(price) {
   return `$${Number(price).toFixed(2)}`;
 }
 
-export default function GroceryPaper({ items, estimatedTotal, onToggle }) {
+export default function GroceryPaper({ items, estimatedTotal, budget, onToggle }) {
   const grouped = CATEGORY_ORDER.reduce((acc, cat) => {
     const catItems = items.filter(i => i.category === cat);
     if (catItems.length) acc[cat] = catItems;
@@ -61,6 +61,27 @@ export default function GroceryPaper({ items, estimatedTotal, onToggle }) {
             ── GROCERY LIST ──
           </div>
         </div>
+
+        {/* Budget vs actual bar */}
+        {budget > 0 && (
+          <div style={{ marginBottom: '10px' }}>
+            <div className="flex justify-between text-[11px] font-semibold mb-1" style={{ color: 'var(--text-mid)' }}>
+              <span>Budget: ${budget.toFixed(0)}</span>
+              <span style={{ color: estimatedTotal > budget ? '#ff6b6b' : 'var(--accent)' }}>
+                {estimatedTotal > budget ? `$${(estimatedTotal - budget).toFixed(2)} over` : `$${(budget - estimatedTotal).toFixed(2)} under`}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${Math.min((estimatedTotal / budget) * 100, 100)}%`,
+                  background: estimatedTotal > budget ? '#ff6b6b' : 'var(--accent)',
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Categories */}
         {Object.entries(grouped).map(([category, catItems]) => {
