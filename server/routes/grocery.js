@@ -8,7 +8,7 @@ const router = Router();
 // POST /api/grocery/build
 router.post('/build', requireAuth, async (req, res) => {
   try {
-    const { planId } = req.body;
+    const { planId, store } = req.body;
 
     const meals = await sql`
       SELECT ingredients, estimated_cost FROM meals WHERE plan_id = ${planId}
@@ -25,7 +25,7 @@ router.post('/build', requireAuth, async (req, res) => {
       return Array.isArray(ing) ? ing : [];
     });
     const totalCost = meals.reduce((sum, m) => sum + Number(m.estimated_cost || 0), 0);
-    const { items, estimatedTotal } = buildGroceryList(allIngredients, totalCost);
+    const { items, estimatedTotal } = buildGroceryList(allIngredients, totalCost, store || 'any');
 
     // Upsert grocery list
     await sql`

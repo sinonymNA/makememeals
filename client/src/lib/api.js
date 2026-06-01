@@ -30,8 +30,8 @@ export const swapMeal = (mealId, newMeal) =>
   api.patch(`/meals/${mealId}/swap`, { newMeal }).then(r => r.data);
 
 // Grocery
-export const buildGroceryList = (planId) =>
-  api.post('/grocery/build', { planId }).then(r => r.data);
+export const buildGroceryList = (planId, store) =>
+  api.post('/grocery/build', { planId, store }).then(r => r.data);
 
 // User
 export const getMe = () => api.get('/user/me').then(r => r.data);

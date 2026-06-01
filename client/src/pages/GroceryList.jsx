@@ -88,7 +88,7 @@ function PantryModal({ items, pantryNames, onSave, onClose }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-[14px]" style={{ color: 'var(--text)' }}>
-                    {item.quantity} {item.unit} {item.name}
+                    {item.display_name || `${item.quantity} ${item.unit} ${item.name}`.trim()}
                   </span>
                 </div>
                 {item.estimated_price != null && (
@@ -123,6 +123,7 @@ export default function GroceryList() {
   const [estimatedTotal, setEstimatedTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const budget = Number(localStorage.getItem(`plan-budget-${planId}`) || 0);
+  const store = localStorage.getItem(`plan-store-${planId}`) || 'any';
   const [error, setError] = useState(null);
   const [pantryNames, setPantryNames] = useState(() => restorePantry(planId));
   const [showPantryModal, setShowPantryModal] = useState(false);
@@ -133,7 +134,7 @@ export default function GroceryList() {
     try {
       const token = await getToken();
       setAuthToken(token);
-      const data = await buildGroceryList(planId);
+      const data = await buildGroceryList(planId, store);
       const withChecked = restoreChecked(data.items || [], planId);
       setItems(withChecked);
       setEstimatedTotal(data.estimatedTotal || 0);

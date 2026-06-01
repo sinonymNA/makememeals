@@ -1,12 +1,6 @@
-const CATEGORY_ORDER = [
-  'Meat & Seafood',
-  'Produce',
-  'Dairy',
-  'Pantry',
-  'Bakery',
-  'Frozen',
-  'Other',
-];
+import { lookupProduct, toShoppingLabel } from './productMap.js';
+
+const CATEGORY_ORDER = ['Meat & Seafood', 'Produce', 'Dairy', 'Pantry', 'Bakery', 'Frozen', 'Other'];
 
 const UNIT_ALIASES = {
   cups: 'cup', tbsps: 'tbsp', tablespoon: 'tbsp', tablespoons: 'tbsp',
@@ -40,7 +34,7 @@ function mergeQuantity(existing, incoming) {
   return { quantity: `${existing.quantity} ${existing.unit} + ${incoming.quantity} ${incoming.unit}`, unit: '' };
 }
 
-export function buildGroceryList(ingredients, totalCost) {
+export function buildGroceryList(ingredients, totalCost, store = 'any') {
   const map = new Map();
 
   for (const ing of ingredients) {
@@ -51,7 +45,6 @@ export function buildGroceryList(ingredients, totalCost) {
     if (map.has(key)) {
       const existing = map.get(key);
       const merged = mergeQuantity(existing, ing);
-      // Sum prices if both have them
       const mergedPrice = (existing.estimated_price != null && price != null)
         ? Math.round((existing.estimated_price + price) * 100) / 100
         : (existing.estimated_price ?? price);
@@ -68,14 +61,28 @@ export function buildGroceryList(ingredients, totalCost) {
     }
   }
 
-  const items = Array.from(map.values()).sort((a, b) => {
+  // Convert cooking quantities to shopping labels
+  const items = Array.from(map.values()).map(item => {
+    const product = lookupProduct(item.name);
+    if (!product) return item;
+
+    const qty = parseFloat(item.quantity);
+    const result = isNaN(qty) ? null : toShoppingLabel(qty, item.unit, product, store);
+    if (!result) return item;
+
+    return {
+      ...item,
+      name: item.name,          // keep original for dedup key
+      display_name: result.label, // "1 bag Great Value Shredded Cheddar Cheese (8 oz)"
+      category: product.category || item.category,
+    };
+  }).sort((a, b) => {
     const ai = CATEGORY_ORDER.indexOf(a.category);
     const bi = CATEGORY_ORDER.indexOf(b.category);
     if (ai !== bi) return ai - bi;
     return a.name.localeCompare(b.name);
   });
 
-  // Use sum of item prices when available, fall back to meal cost estimate
   const itemPriceTotal = items.reduce((s, i) => s + (i.estimated_price || 0), 0);
   const estimatedTotal = itemPriceTotal > 0
     ? Math.round(itemPriceTotal * 100) / 100

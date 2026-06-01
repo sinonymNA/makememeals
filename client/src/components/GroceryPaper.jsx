@@ -165,7 +165,7 @@ export default function GroceryPaper({ items, estimatedTotal, budget, onToggle }
 
 function ReceiptItem({ item, onToggle }) {
   const hasPrice = item.estimated_price != null;
-  const label = [item.quantity, item.unit, item.name].filter(Boolean).join(' ');
+  const label = item.display_name || [item.quantity, item.unit, item.name].filter(Boolean).join(' ');
 
   return (
     <div
