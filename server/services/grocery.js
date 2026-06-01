@@ -1,4 +1,4 @@
-import { lookupProduct, toShoppingLabel } from './productMap.js';
+import { lookupProduct, toShoppingLabel, getStorePrice } from './productMap.js';
 
 const CATEGORY_ORDER = ['Meat & Seafood', 'Produce', 'Dairy', 'Pantry', 'Bakery', 'Frozen', 'Other'];
 
@@ -39,7 +39,12 @@ export function buildGroceryList(ingredients, totalCost, store = 'any') {
 
   for (const ing of ingredients) {
     if (!ing?.name) continue;
-    const key = normalize(ing.name);
+    // Skip nonsense zero-price "juice" variants (e.g. "pepperoncini juice")
+    if (/juice/i.test(ing.name) && (!ing.estimated_price || Number(ing.estimated_price) === 0)) continue;
+
+    const product = lookupProduct(ing.name);
+    // Dedup by product name when matched so variants ("rice", "cooked rice") collapse
+    const key = product ? product.name : normalize(ing.name);
     const price = ing.estimated_price ? Number(ing.estimated_price) : null;
 
     if (map.has(key)) {
@@ -48,7 +53,7 @@ export function buildGroceryList(ingredients, totalCost, store = 'any') {
       const mergedPrice = (existing.estimated_price != null && price != null)
         ? Math.round((existing.estimated_price + price) * 100) / 100
         : (existing.estimated_price ?? price);
-      map.set(key, { ...existing, ...merged, estimated_price: mergedPrice });
+      map.set(key, { ...existing, ...merged, estimated_price: mergedPrice, _product: existing._product || product });
     } else {
       map.set(key, {
         name: ing.name,
@@ -57,24 +62,30 @@ export function buildGroceryList(ingredients, totalCost, store = 'any') {
         category: ing.category || 'Other',
         estimated_price: price,
         checked: false,
+        _product: product,
       });
     }
   }
 
-  // Convert cooking quantities to shopping labels
-  const items = Array.from(map.values()).map(item => {
-    const product = lookupProduct(item.name);
-    if (!product) return item;
+  // Convert cooking quantities to shopping labels with real store shelf prices
+  const items = Array.from(map.values()).map(({ _product, ...item }) => {
+    if (!_product) return item;
 
     const qty = parseFloat(item.quantity);
-    const result = isNaN(qty) ? null : toShoppingLabel(qty, item.unit, product, store);
+    const result = isNaN(qty) ? null : toShoppingLabel(qty, item.unit, _product, store);
     if (!result) return item;
+
+    // Use real shelf price × packages instead of prorated ingredient cost
+    const storePrice = getStorePrice(_product, store);
+    const itemPrice = storePrice != null
+      ? Math.round(storePrice * result.packages * 100) / 100
+      : item.estimated_price;
 
     return {
       ...item,
-      name: item.name,          // keep original for dedup key
-      display_name: result.label, // "1 bag Great Value Shredded Cheddar Cheese (8 oz)"
-      category: product.category || item.category,
+      display_name: result.label,
+      category: _product.category || item.category,
+      estimated_price: itemPrice,
     };
   }).sort((a, b) => {
     const ai = CATEGORY_ORDER.indexOf(a.category);
