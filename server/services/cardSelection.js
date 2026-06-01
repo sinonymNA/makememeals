@@ -130,7 +130,7 @@ function shuffle(arr) {
 // exclude   — array of meal names already in the queue / recently seen
 export async function selectCardsForPlan({ sql, count, servings, prefs, exclude = [] }) {
   const allCards = await sql`
-    SELECT * FROM recipe_cards WHERE approved = TRUE
+    SELECT * FROM recipe_cards WHERE approved = TRUE AND image_url IS NOT NULL
   `;
 
   if (allCards.length === 0) return { meals: [], shortage: count };
