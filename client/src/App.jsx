@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { useAuth } from '@clerk/clerk-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { initTheme } from './lib/theme.js';
-import Landing from './pages/Landing.jsx';
+import Demo from './pages/Demo.jsx';
 import Setup from './pages/Setup.jsx';
 import Swipe from './pages/Swipe.jsx';
 import WeekView from './pages/WeekView.jsx';
@@ -44,7 +44,7 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageWrapper><Landing /></PageWrapper>} />
+        <Route path="/" element={<PageWrapper><Demo /></PageWrapper>} />
 
         {/* Authenticated routes */}
         <Route path="/dashboard"       element={<ProtectedRoute><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />

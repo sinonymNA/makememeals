@@ -55,6 +55,10 @@ export const deletePlan = (planId) =>
 export const claimGuestPlan = (planId) =>
   api.post('/user/claim-guest', { planId }).then(r => r.data);
 
+// Demo funnel (public landing — no auth)
+export const getDemoMeals = (servings = 4) =>
+  api.get('/guest/demo-meals', { params: { servings } }).then(r => r.data);
+
 // Guest (no auth)
 export const guestGenerate = (sessionKey, days, servings, preferences) =>
   api.post('/guest/generate', { sessionKey, days, servings, preferences }).then(r => r.data);

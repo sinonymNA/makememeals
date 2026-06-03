@@ -1,8 +1,22 @@
 import { Router } from 'express';
-import { selectCardsForPlan } from '../services/cardSelection.js';
+import { selectCardsForPlan, getDemoMeals } from '../services/cardSelection.js';
 import sql from '../db.js';
 
 const router = Router();
+
+// GET /api/guest/demo-meals
+// Public meal deck for the interactive landing demo. No auth, no plan created,
+// no guest session consumed — just the designed recipe cards to swipe through.
+router.get('/demo-meals', async (req, res) => {
+  try {
+    const servings = Number(req.query.servings) || 4;
+    const meals = await getDemoMeals({ sql, servings });
+    res.json({ meals });
+  } catch (err) {
+    console.error('Demo meals error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // POST /api/guest/generate
 // One free plan per session key (stored in localStorage, tracked in DB)

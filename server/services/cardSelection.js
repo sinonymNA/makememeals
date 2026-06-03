@@ -115,6 +115,15 @@ function cardToMeal(card, servings) {
   };
 }
 
+// Returns every approved card that has a designed image, mapped to meal shape.
+// Used by the public landing demo funnel — no plan creation, no session use.
+export async function getDemoMeals({ sql, servings = 4 }) {
+  const cards = await sql`
+    SELECT * FROM recipe_cards WHERE approved = TRUE AND image_url IS NOT NULL
+  `;
+  return shuffle(cards).map(card => cardToMeal(card, servings));
+}
+
 // Shuffle an array (Fisher-Yates)
 function shuffle(arr) {
   const a = [...arr];
