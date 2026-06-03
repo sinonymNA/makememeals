@@ -7,23 +7,32 @@ import { DEMO } from './palette.js';
 
 // Screen 3 — Savings reveal. The bill rolls DOWN in two staged beats:
 // coupons, then ingredient consolidation, landing on a lower final number.
+// The ORIGINAL price stays visible, crossed-out, so the contrast is obvious.
 export default function DemoSavings({ selected, savings, onContinue, sound }) {
   const [stage, setStage] = useState(1);
   const [bill, setBill] = useState(savings.baseTotal);
+  const [pulseBg, setPulseBg] = useState(false);
+
+  function triggerPulse() {
+    setPulseBg(true);
+    setTimeout(() => setPulseBg(false), 600);
+  }
 
   useEffect(() => {
     const timers = [];
     timers.push(setTimeout(() => {
       setStage(2);
-      setBill(savings.finalTotal + savings.consolidationTotal); // subtract coupons
+      setBill(savings.finalTotal + savings.consolidationTotal);
+      triggerPulse();
       savings.coupons.forEach((_, i) => timers.push(setTimeout(() => sound.playCoupon?.(), 250 + i * 220)));
     }, 1400));
     timers.push(setTimeout(() => {
       setStage(3);
-      setBill(savings.finalTotal); // subtract consolidation
+      setBill(savings.finalTotal);
+      triggerPulse();
       sound.playSave?.();
-    }, 3400));
-    timers.push(setTimeout(() => { setStage(4); sound.playWin?.(); }, 4700));
+    }, 3800));
+    timers.push(setTimeout(() => { setStage(4); sound.playWin?.(); }, 5200));
     return () => timers.forEach(clearTimeout);
   }, [savings, sound]);
 
@@ -53,33 +62,84 @@ export default function DemoSavings({ selected, savings, onContinue, sound }) {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           style={{ fontFamily: DEMO.sans, fontWeight: 800, fontSize: '17px', color: DEMO.ink, margin: 0 }}
         >
-          {stage < 4 ? 'Your meal plan is ready! 🎉' : 'Here’s your smart grocery total 👇'}
+          Your meal plan is ready! 🎉
         </motion.p>
 
-        {/* The big rolling number */}
-        <OdometerNumber
-          value={bill}
-          decimals={2}
-          duration={1.1}
-          style={{
-            fontFamily: DEMO.serif, fontWeight: 700,
-            fontSize: 'clamp(56px, 18vw, 80px)', lineHeight: 1.05,
-            color: stage >= 3 ? DEMO.coral : DEMO.ink,
-            margin: '10px 0 2px', transition: 'color 0.5s', display: 'block',
-          }}
-        />
-        <p style={{ fontFamily: DEMO.sans, fontSize: '15px', color: DEMO.inkMid, margin: 0 }}>
-          for your whole week · 5 dinners · 4 people
-        </p>
+        {/* Price comparison block — original crossed-out, current rolling */}
+        <motion.div
+          animate={{ background: pulseBg ? 'rgba(46,204,113,0.08)' : 'transparent' }}
+          transition={{ duration: 0.25 }}
+          style={{ borderRadius: '20px', padding: '12px 20px 10px', marginTop: '6px', width: '100%' }}
+        >
+          {/* Original price — always visible once stage >= 2 */}
+          <AnimatePresence>
+            {stage >= 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2px' }}
+              >
+                <span style={{
+                  fontFamily: DEMO.serif, fontWeight: 700,
+                  fontSize: 'clamp(22px, 6vw, 30px)', color: DEMO.inkLight,
+                  textDecoration: 'line-through',
+                  textDecorationThickness: '3px',
+                }}>
+                  ${savings.baseTotal.toFixed(2)}
+                </span>
+                <span style={{ fontFamily: DEMO.sans, fontSize: '13px', color: DEMO.inkLight, fontWeight: 700 }}>
+                  before savings
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Current bill — the big rolling number */}
+          <OdometerNumber
+            value={bill}
+            decimals={2}
+            duration={1.0}
+            style={{
+              fontFamily: DEMO.serif, fontWeight: 700,
+              fontSize: 'clamp(58px, 18vw, 82px)', lineHeight: 1.0,
+              color: stage >= 3 ? DEMO.coral : DEMO.ink,
+              transition: 'color 0.5s', display: 'block',
+            }}
+          />
+
+          {/* Savings badge — appears after first drop */}
+          <AnimatePresence>
+            {stage >= 2 && (
+              <motion.div
+                key={`badge-${stage}`}
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 20 }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  background: DEMO.green, color: '#fff',
+                  fontFamily: DEMO.sans, fontWeight: 900, fontSize: '15px',
+                  borderRadius: '999px', padding: '5px 14px', marginTop: '8px',
+                }}
+              >
+                You're saving ${(savings.baseTotal - bill).toFixed(2)} so far 🎉
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <p style={{ fontFamily: DEMO.sans, fontSize: '14px', color: DEMO.inkMid, margin: '8px 0 0' }}>
+            for your whole week · 5 dinners · 4 people
+          </p>
+        </motion.div>
 
         {/* Stage 2 — coupons */}
         <AnimatePresence>
           {stage >= 2 && (
             <motion.div
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: '26px', width: '100%' }}
+              style={{ marginTop: '18px', width: '100%' }}
             >
-              <Row icon={<Scissors size={16} color={DEMO.coral} />} text={`We found ${savings.coupons.length} coupons for your run`} amount={savings.couponTotal} />
+              <Row icon={<Scissors size={16} color={DEMO.coral} />} text={`${savings.coupons.length} coupons matched to your list`} amount={savings.couponTotal} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', justifyContent: 'center', marginTop: '10px' }}>
                 {savings.coupons.map((c, i) => (
                   <motion.span
@@ -102,9 +162,9 @@ export default function DemoSavings({ selected, savings, onContinue, sound }) {
           {stage >= 3 && (
             <motion.div
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: '18px', width: '100%' }}
+              style={{ marginTop: '16px', width: '100%' }}
             >
-              <Row icon={<Brain size={16} color={DEMO.green} />} text="We consolidated your ingredients" amount={savings.consolidationTotal} green />
+              <Row icon={<Brain size={16} color={DEMO.green} />} text="Ingredients consolidated" amount={savings.consolidationTotal} green />
               {overlap && (
                 <motion.div
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
@@ -121,22 +181,25 @@ export default function DemoSavings({ selected, savings, onContinue, sound }) {
           )}
         </AnimatePresence>
 
-        {/* Stage 4 — total saved + continue */}
+        {/* Stage 4 — final total saved + continue */}
         <AnimatePresence>
           {stage >= 4 && (
             <motion.div
               initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-              style={{ marginTop: '24px', width: '100%' }}
+              style={{ marginTop: '22px', width: '100%' }}
             >
-              <div style={{ fontFamily: DEMO.sans, fontWeight: 900, fontSize: '20px', color: DEMO.green }}>
-                You saved ${savings.totalSaved.toFixed(2)} 🎉
+              <div style={{
+                fontFamily: DEMO.sans, fontWeight: 900, fontSize: '22px', color: DEMO.green,
+                background: '#F0FAF2', borderRadius: '14px', padding: '12px',
+              }}>
+                Total saved: ${savings.totalSaved.toFixed(2)} 🎉
               </div>
               <motion.button
                 onClick={onContinue}
                 whileTap={{ scale: 0.97 }}
                 style={{
-                  marginTop: '18px', width: '100%',
+                  marginTop: '14px', width: '100%',
                   fontFamily: DEMO.sans, fontWeight: 800, fontSize: '17px', color: '#fff',
                   background: DEMO.coral, border: 'none', borderRadius: '999px',
                   padding: '16px', cursor: 'pointer', boxShadow: '0 10px 28px rgba(232,85,58,0.32)',
