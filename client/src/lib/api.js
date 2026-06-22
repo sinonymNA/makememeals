@@ -98,3 +98,23 @@ export const getCoupons = (store = 'all', search = '') =>
   api.get('/coupons', { params: { store, search } }).then(r => r.data);
 export const matchCoupons = (planId, store = 'all') =>
   api.get('/coupons/match', { params: { planId, store } }).then(r => r.data);
+
+// Shop
+export const getShopProducts = () =>
+  api.get('/shop/products').then(r => r.data);
+export const getShopProduct = (slug) =>
+  api.get(`/shop/products/${slug}`).then(r => r.data);
+export const validateDiscountCode = (code) =>
+  api.post('/shop/cart/validate-discount', { code }).then(r => r.data);
+export const getUserDiscount = () =>
+  api.get('/shop/user/discount').then(r => r.data);
+export const createPaymentIntent = (payload) =>
+  api.post('/shop/checkout/create-intent', payload).then(r => r.data);
+export const confirmOrder = (orderId) =>
+  api.post('/shop/checkout/confirm', { orderId }).then(r => r.data);
+export const getOrder = (orderId) =>
+  api.get(`/shop/orders/${orderId}`).then(r => r.data);
+export const getAdminOrders = () =>
+  api.get('/shop/admin/orders').then(r => r.data);
+export const updateAdminOrderStatus = (orderId, status) =>
+  api.patch(`/shop/admin/orders/${orderId}`, { status }).then(r => r.data);

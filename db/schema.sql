@@ -149,6 +149,57 @@ CREATE TABLE IF NOT EXISTS coupons (
 );
 CREATE INDEX IF NOT EXISTS idx_coupons_store ON coupons(store);
 
+-- Shop: discount codes, orders
+CREATE TABLE IF NOT EXISTS discount_codes (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code        TEXT UNIQUE NOT NULL,
+  percent_off INT NOT NULL,
+  active      BOOLEAN DEFAULT TRUE,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+INSERT INTO discount_codes (code, percent_off) VALUES
+  ('MMMFREE10', 10),
+  ('MMMFREE25', 25)
+ON CONFLICT (code) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS user_discount_codes (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID REFERENCES users(id) ON DELETE CASCADE,
+  code       TEXT NOT NULL,
+  tier       TEXT NOT NULL, -- 'free' | 'pro'
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                  UUID REFERENCES users(id) ON DELETE SET NULL,
+  status                   TEXT DEFAULT 'pending', -- pending | processing | shipped | delivered
+  email                    TEXT NOT NULL,
+  shipping_name            TEXT,
+  shipping_address         JSONB,
+  subtotal_cents           INT NOT NULL,
+  discount_code            TEXT,
+  discount_cents           INT DEFAULT 0,
+  shipping_cents           INT DEFAULT 0,
+  total_cents              INT NOT NULL,
+  stripe_payment_intent_id TEXT UNIQUE,
+  created_at               TIMESTAMPTZ DEFAULT NOW(),
+  updated_at               TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id         UUID REFERENCES orders(id) ON DELETE CASCADE,
+  product_slug     TEXT NOT NULL,
+  product_name     TEXT NOT NULL,
+  unit_price_cents INT NOT NULL,
+  quantity         INT NOT NULL,
+  line_total_cents INT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+
 -- Patch existing recipe_cards table with missing columns
 ALTER TABLE recipe_cards ADD COLUMN IF NOT EXISTS estimated_cost NUMERIC(6,2);
 ALTER TABLE recipe_cards ADD COLUMN IF NOT EXISTS servings       INT;

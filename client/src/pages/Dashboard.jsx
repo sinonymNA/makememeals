@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useUser, UserButton } from '@clerk/clerk-react';
 import { Plus, ChevronRight, ExternalLink, Trash2, ShoppingBag, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan, claimGuestPlan } from '../lib/api.js';
+import { setAuthToken, registerUser, getPlans, createCheckout, createPortal, getSubscriptionStatus, validatePromo, deletePlan, claimGuestPlan, getMe } from '../lib/api.js';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [promoLoading, setPromoLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
   const [swipeStart, setSwipeStart] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false);
   const touchRef = useRef({});
 
   const subscribed = searchParams.get('subscribed');
@@ -37,8 +38,9 @@ export default function Dashboard() {
       if (user?.primaryEmailAddress?.emailAddress) {
         await registerUser(user.primaryEmailAddress.emailAddress).catch(() => {});
       }
-      const [data, statusData] = await Promise.all([getPlans(), getSubscriptionStatus()]);
+      const [data, statusData, me] = await Promise.all([getPlans(), getSubscriptionStatus(), getMe().catch(() => null)]);
       setPlans(data);
+      setIsAdmin(!!me?.is_admin);
       // If ?subscribed=1 is in the URL, optimistically show as active even if
       // the webhook hasn't updated the DB yet — re-poll after 3s to confirm
       if (subscribed && statusData.subscription !== 'active') {
@@ -284,6 +286,33 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Shop quick link — visible to everyone */}
+      <div className="px-5 mb-6">
+        <button
+          className="w-full p-4 rounded-3xl flex items-center justify-between"
+          onClick={() => navigate('/shop')}
+          style={{ background: 'var(--card)', border: '1.5px solid var(--border)', cursor: 'pointer' }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🧰</div>
+            <div className="text-left">
+              <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>MMM Shop</div>
+              <div className="text-[12px]" style={{ color: 'var(--text-mid)' }}>Kitchen tools, free shipping</div>
+            </div>
+          </div>
+          <ChevronRight size={16} style={{ color: 'var(--text-light)' }} />
+        </button>
+        {isAdmin && (
+          <button
+            className="w-full mt-2 text-[12px] text-center"
+            onClick={() => navigate('/admin/orders')}
+            style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            Manage shop orders →
+          </button>
+        )}
+      </div>
 
       {/* Past plans */}
       <div className="page-pad pt-0">

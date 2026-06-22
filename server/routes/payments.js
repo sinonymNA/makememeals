@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
 import { requireAuth } from '../middleware/auth.js';
+import { assignProDiscount, revertToFreeDiscount } from '../services/discounts.js';
 import sql from '../db.js';
 
 const router = Router();
@@ -156,16 +157,22 @@ router.post('/webhook', async (req, res) => {
               stripe_customer_id     = ${customerId},
               stripe_subscription_id = ${subId}
           WHERE clerk_id = ${clerkId}
-          RETURNING id, subscription
+          RETURNING id, email, subscription
         `;
         console.log(`[Webhook] Activated — rows: ${rows.length}, status: ${rows[0]?.subscription}`);
+        if (rows[0]) {
+          await assignProDiscount(rows[0].id, rows[0].email).catch(err => console.error('Discount assign error:', err.message));
+        }
       }
     }
 
     if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object;
       console.log(`[Webhook] subscription.deleted — customer: ${sub.customer}`);
-      await sql`UPDATE users SET subscription = 'cancelled' WHERE stripe_customer_id = ${sub.customer}`;
+      const rows = await sql`UPDATE users SET subscription = 'cancelled' WHERE stripe_customer_id = ${sub.customer} RETURNING id`;
+      if (rows[0]) {
+        await revertToFreeDiscount(rows[0].id).catch(err => console.error('Discount revert error:', err.message));
+      }
     }
 
     if (event.type === 'customer.subscription.updated') {

@@ -17,6 +17,12 @@ import NotFound from './pages/NotFound.jsx';
 import RecipeCardCollection from './pages/RecipeCardCollection.jsx';
 import Pantry from './pages/Pantry.jsx';
 import Coupons from './pages/Coupons.jsx';
+import ShopHome from './pages/shop/ShopHome.jsx';
+import ShopProduct from './pages/shop/ShopProduct.jsx';
+import ShopCart from './pages/shop/ShopCart.jsx';
+import ShopCheckout from './pages/shop/ShopCheckout.jsx';
+import ShopOrder from './pages/shop/ShopOrder.jsx';
+import AdminOrders from './pages/AdminOrders.jsx';
 
 function ProtectedRoute({ children }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -56,6 +62,14 @@ function AnimatedRoutes() {
         <Route path="/recipe-cards"    element={<ProtectedRoute><PageWrapper><RecipeCardCollection /></PageWrapper></ProtectedRoute>} />
         <Route path="/pantry"          element={<ProtectedRoute><PageWrapper><Pantry /></PageWrapper></ProtectedRoute>} />
         <Route path="/coupons"         element={<ProtectedRoute><PageWrapper><Coupons /></PageWrapper></ProtectedRoute>} />
+        <Route path="/admin/orders"    element={<ProtectedRoute><PageWrapper><AdminOrders /></PageWrapper></ProtectedRoute>} />
+
+        {/* Shop (open to guests and signed-in users) */}
+        <Route path="/shop"             element={<PageWrapper><ShopHome /></PageWrapper>} />
+        <Route path="/shop/cart"        element={<PageWrapper><ShopCart /></PageWrapper>} />
+        <Route path="/shop/checkout"    element={<PageWrapper><ShopCheckout /></PageWrapper>} />
+        <Route path="/shop/order/:id"   element={<PageWrapper><ShopOrder /></PageWrapper>} />
+        <Route path="/shop/:slug"       element={<PageWrapper><ShopProduct /></PageWrapper>} />
 
         {/* Guest routes (no auth) */}
         <Route path="/guest-setup"            element={<PageWrapper><Setup isGuest /></PageWrapper>} />

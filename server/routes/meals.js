@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { selectCardsForPlan } from '../services/cardSelection.js';
+import { assignFreeDiscount } from '../services/discounts.js';
 import sql from '../db.js';
 
 const router = Router();
@@ -13,7 +14,7 @@ router.post('/generate', requireAuth, async (req, res) => {
     const { days, servings, preferences, previousMeals = [] } = req.body;
 
     const [user] = await sql`
-      SELECT id, subscription, free_plans_used FROM users WHERE clerk_id = ${req.userId}
+      SELECT id, email, subscription, free_plans_used FROM users WHERE clerk_id = ${req.userId}
     `;
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -61,6 +62,9 @@ router.post('/generate', requireAuth, async (req, res) => {
 
     if (!isActive) {
       await sql`UPDATE users SET free_plans_used = ${freePlansUsed + 1} WHERE id = ${user.id}`;
+      if (freePlansUsed === 0) {
+        await assignFreeDiscount(user.id, user.email).catch(err => console.error('Discount assign error:', err.message));
+      }
     }
 
     res.json({ planId: plan.id, meals });

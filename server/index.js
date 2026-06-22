@@ -17,6 +17,7 @@ import adminRouter from './routes/admin.js';
 import pantryRouter from './routes/pantry.js';
 import recipeCardsRouter from './routes/recipeCards.js';
 import couponsRouter from './routes/coupons.js';
+import shopRouter from './routes/shop.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,8 +29,9 @@ app.use(cors({
   credentials: true,
 }));
 
-// Webhook route needs raw body — must be before express.json()
+// Webhook routes need raw body — must be before express.json()
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/shop/webhooks/stripe', express.raw({ type: 'application/json' }));
 app.use(express.json());
 
 // Rate limit expensive AI generation endpoints
@@ -53,6 +55,7 @@ app.use('/api/admin', adminRouter);
 app.use('/api/pantry', pantryRouter);
 app.use('/api/recipe-cards', recipeCardsRouter);
 app.use('/api/coupons', couponsRouter);
+app.use('/api/shop', shopRouter);
 
 // Serve uploaded images
 app.use('/uploads', express.static(join(__dirname, '../uploads')));
