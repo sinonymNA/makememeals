@@ -7,7 +7,7 @@ export const PRODUCTS = [
     name: 'Rotary Cheese Grater',
     tagline: 'Fresh-grated cheese in 10 seconds, zero knuckle skin lost',
     price_cents: 2499,
-    emoji: 'https://placehold.co/600x450/FFE4D1/E8763C?text=Rotary+Cheese+Grater',
+    emoji: '/images/products/cheese-grater.png',
     bullets: [
       'Crank handle grates a block in seconds',
       'Dishwasher-safe stainless drum',
@@ -20,7 +20,7 @@ export const PRODUCTS = [
     name: 'Olive Oil Mister Sprayer',
     tagline: 'Lighter cooking with a fine, even mist instead of a glug',
     price_cents: 1999,
-    emoji: 'https://placehold.co/600x450/FFE4D1/E8763C?text=Olive+Oil+Mister',
+    emoji: '/images/products/oil-sprayer.png',
     bullets: [
       'Refillable glass bottle, BPA-free pump',
       'Fine mist for sautéing, salads, air fryer prep',
@@ -33,7 +33,7 @@ export const PRODUCTS = [
     name: '5-Blade Vegetable Chopper',
     tagline: 'Dice a whole onion without touching a knife',
     price_cents: 1999,
-    emoji: 'https://placehold.co/600x450/FFE4D1/E8763C?text=Vegetable+Chopper',
+    emoji: '/images/products/vegetable-chopper.png',
     bullets: [
       'Interchangeable blades for dice, slice, julienne',
       'Built-in catch container',
@@ -46,7 +46,7 @@ export const PRODUCTS = [
     name: 'Chicken Shredder Tool',
     tagline: 'Two claws, perfectly shredded chicken in seconds',
     price_cents: 1499,
-    emoji: 'https://placehold.co/600x450/FFE4D1/E8763C?text=Chicken+Shredder',
+    emoji: '/images/products/chicken-shredder.png',
     bullets: [
       'Heat-resistant claws double as serving tongs',
       'Works on chicken, pork, beef — shred straight from the pot',
