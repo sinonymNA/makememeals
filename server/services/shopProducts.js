@@ -59,7 +59,7 @@ export const PRODUCTS = [
     name: 'Salad Spinner',
     tagline: 'Bone-dry greens for crisp salads, no soggy paper towels',
     price_cents: 2299,
-    emoji: 'https://placehold.co/600x450/FFE4D1/E8763C?text=Salad+Spinner',
+    emoji: '/images/products/salad-spinner.png',
     bullets: [
       'Pump mechanism spins greens dry in one motion',
       'Bowl doubles as a serving bowl',
