@@ -64,10 +64,10 @@ export default function ShopHome() {
                 onClick={() => navigate(`/shop/${p.slug}`)}
               >
                 <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
+                  className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0"
                   style={{ background: 'var(--bg-warm)' }}
                 >
-                  {p.emoji}
+                  <img src={p.emoji} alt={p.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold text-[15px]" style={{ color: 'var(--text)' }}>{p.name}</div>

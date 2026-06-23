@@ -50,10 +50,10 @@ export default function ShopProduct() {
         ) : (
           <>
             <div
-              className="w-full rounded-3xl flex items-center justify-center mb-5"
-              style={{ height: '220px', background: 'var(--bg-warm)', fontSize: '88px' }}
+              className="w-full rounded-3xl overflow-hidden mb-5"
+              style={{ height: '220px', background: 'var(--bg-warm)' }}
             >
-              {product.emoji}
+              <img src={product.emoji} alt={product.name} className="w-full h-full object-cover" />
             </div>
             <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '22px', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
               {product.name}

@@ -7,7 +7,9 @@ export default function RecipeCard({ recipe }) {
 
   return (
     <div className="mmm-recipe-card">
-      <div className="mmm-recipe-image">{recipe.image}</div>
+      <div className="mmm-recipe-image">
+        <img src={recipe.image} alt={recipe.title} />
+      </div>
       <div className="mmm-recipe-body">
         <div className="mmm-recipe-top">
           <span className="mmm-recipe-title">{recipe.title}</span>
@@ -15,7 +17,7 @@ export default function RecipeCard({ recipe }) {
         </div>
         <p className="mmm-recipe-desc">{recipe.description}</p>
         <div className="mmm-tools-row">
-          {tools.map(t => <span key={t.id} className="mmm-tool-chip">{t.image} {t.name}</span>)}
+          {tools.map(t => <span key={t.id} className="mmm-tool-chip">{t.name}</span>)}
         </div>
         <div className="mmm-recipe-actions">
           <button className="mmm-btn mmm-btn-primary mmm-btn-sm" onClick={() => navigate('/guest-setup')}>{recipe.cta}</button>

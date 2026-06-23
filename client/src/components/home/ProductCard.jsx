@@ -13,7 +13,9 @@ export default function ProductCard({ product }) {
   return (
     <div className="mmm-product-card">
       <span className="mmm-approved">MMM Approved</span>
-      <div className="mmm-product-image">{product.image}</div>
+      <div className="mmm-product-image">
+        <img src={product.image} alt={product.name} />
+      </div>
       <div className="mmm-product-name">{product.name}</div>
       <div className="mmm-product-desc">{product.benefit}</div>
       <div className="mmm-rating">★★★★★ <span className="mmm-rating-num">{product.rating}</span></div>

@@ -586,11 +586,10 @@ h1, h2, h3, .display-font {
    so it never touches the app's existing orange-accent UI elsewhere).
    ══════════════════════════════════════════════════════════════════════ */
 .mmm-home {
-  --mmm-cream:      #FFF8EF;
+  --mmm-cream:       #FFF8EF;
   --mmm-tan:         #F3E7D6;
-  --mmm-green:       #1F4D3B;
-  --mmm-green-dark:  #163A2C;
   --mmm-orange:      #E8763C;
+  --mmm-orange-dark: #B5502A;
   --mmm-orange-soft: #FCE3D2;
   --mmm-white:       #FFFFFF;
   --mmm-text:        #211B14;
@@ -627,9 +626,9 @@ h1, h2, h3, .display-font {
   transition: filter 0.15s, transform 0.1s;
 }
 .mmm-btn:active { transform: scale(0.98); }
-.mmm-btn-primary { background: var(--mmm-green); color: var(--mmm-white); box-shadow: 0 8px 24px rgba(31,77,59,0.25); }
+.mmm-btn-primary { background: var(--mmm-orange-dark); color: var(--mmm-white); box-shadow: 0 8px 24px rgba(181,80,42,0.25); }
 .mmm-btn-primary:hover { filter: brightness(1.08); }
-.mmm-btn-secondary { background: var(--mmm-white); color: var(--mmm-green); border: 1.5px solid var(--mmm-green); }
+.mmm-btn-secondary { background: var(--mmm-white); color: var(--mmm-orange-dark); border: 1.5px solid var(--mmm-orange-dark); }
 .mmm-btn-secondary:hover { background: var(--mmm-tan); }
 .mmm-btn-orange { background: var(--mmm-orange); color: var(--mmm-white); box-shadow: 0 8px 24px rgba(232,118,60,0.3); }
 .mmm-btn-orange:hover { filter: brightness(1.06); }
@@ -646,12 +645,12 @@ h1, h2, h3, .display-font {
   max-width: 1080px; margin: 0 auto; padding: 0 18px;
   height: 60px; display: flex; align-items: center; justify-content: space-between;
 }
-.mmm-logo-text { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 19px; color: var(--mmm-green); }
+.mmm-logo-text { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 19px; color: var(--mmm-orange-dark); }
 .mmm-icon-btn {
   width: 40px; height: 40px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   background: transparent; border: none; cursor: pointer; position: relative;
-  color: var(--mmm-green);
+  color: var(--mmm-orange-dark);
 }
 .mmm-cart-badge {
   position: absolute; top: 2px; right: 0px;
@@ -677,10 +676,10 @@ h1, h2, h3, .display-font {
 .mmm-hero-visual {
   height: 180px; border-radius: 24px; margin-bottom: 24px;
   background: linear-gradient(135deg, var(--mmm-orange-soft) 0%, var(--mmm-tan) 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 64px; gap: 14px;
+  overflow: hidden;
 }
-.mmm-h1 { font-size: 32px; font-weight: 800; line-height: 1.15; color: var(--mmm-green-dark); margin: 0 0 12px; }
+.mmm-hero-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mmm-h1 { font-size: 32px; font-weight: 800; line-height: 1.15; color: var(--mmm-orange-dark); margin: 0 0 12px; }
 .mmm-subhead { font-size: 15px; color: var(--mmm-text-mid); line-height: 1.6; margin: 0 auto 24px; max-width: 360px; }
 .mmm-hero-ctas { display: flex; flex-direction: column; gap: 12px; max-width: 380px; margin: 0 auto; }
 .mmm-trust-badges {
@@ -688,22 +687,22 @@ h1, h2, h3, .display-font {
   margin-top: 20px;
 }
 .mmm-trust-badge {
-  font-size: 12px; font-weight: 700; color: var(--mmm-green);
+  font-size: 12px; font-weight: 700; color: var(--mmm-orange-dark);
   background: var(--mmm-tan); border-radius: 100px; padding: 7px 14px;
 }
 
 /* Section shell */
 .mmm-section { padding: 36px 0; }
-.mmm-section-title { font-size: 24px; font-weight: 800; color: var(--mmm-green-dark); margin: 0 0 6px; }
+.mmm-section-title { font-size: 24px; font-weight: 800; color: var(--mmm-orange-dark); margin: 0 0 6px; }
 .mmm-section-sub { font-size: 14px; color: var(--mmm-text-mid); margin: 0 0 22px; }
 
 /* Bundle card */
 .mmm-bundle-card {
   background: var(--mmm-white);
-  border: 2px solid var(--mmm-green);
+  border: 2px solid var(--mmm-orange-dark);
   border-radius: 28px;
   padding: 24px;
-  box-shadow: 0 12px 32px rgba(31,77,59,0.12);
+  box-shadow: 0 12px 32px rgba(181,80,42,0.12);
   position: relative;
 }
 .mmm-bundle-badge {
@@ -714,12 +713,13 @@ h1, h2, h3, .display-font {
 }
 .mmm-bundle-icons { display: flex; gap: 10px; margin: 6px 0 16px; flex-wrap: wrap; }
 .mmm-bundle-icon {
-  width: 52px; height: 52px; border-radius: 16px; font-size: 26px;
-  display: flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 16px;
+  overflow: hidden;
   background: var(--mmm-tan);
 }
+.mmm-bundle-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mmm-bundle-price-row { display: flex; align-items: baseline; gap: 10px; margin: 14px 0 4px; }
-.mmm-bundle-price { font-size: 30px; font-weight: 800; color: var(--mmm-green); }
+.mmm-bundle-price { font-size: 30px; font-weight: 800; color: var(--mmm-orange-dark); }
 .mmm-bundle-compare { font-size: 16px; color: var(--mmm-text-light); text-decoration: line-through; }
 .mmm-bundle-savings { font-size: 12px; font-weight: 800; color: var(--mmm-orange); margin-bottom: 16px; }
 .mmm-bundle-bullets { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
@@ -729,7 +729,7 @@ h1, h2, h3, .display-font {
 .mmm-approved {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 10px; font-weight: 800; letter-spacing: 0.03em;
-  color: var(--mmm-green); background: var(--mmm-tan);
+  color: var(--mmm-orange-dark); background: var(--mmm-tan);
   border-radius: 100px; padding: 3px 9px; text-transform: uppercase;
 }
 
@@ -749,14 +749,15 @@ h1, h2, h3, .display-font {
 .mmm-product-image {
   height: 110px; border-radius: 14px; margin-bottom: 12px;
   background: var(--mmm-orange-soft);
-  display: flex; align-items: center; justify-content: center; font-size: 44px;
+  overflow: hidden;
 }
+.mmm-product-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mmm-product-name { font-weight: 700; font-size: 14.5px; color: var(--mmm-text); margin-bottom: 4px; }
 .mmm-product-desc { font-size: 12px; color: var(--mmm-text-mid); line-height: 1.45; margin-bottom: 10px; flex: 1; }
 .mmm-rating { font-size: 11px; color: var(--mmm-orange); font-weight: 700; margin-bottom: 8px; }
 .mmm-rating-num { color: var(--mmm-text-mid); font-weight: 600; }
 .mmm-product-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 12px; }
-.mmm-product-price { font-weight: 800; font-size: 16px; color: var(--mmm-green); }
+.mmm-product-price { font-weight: 800; font-size: 16px; color: var(--mmm-orange-dark); }
 .mmm-product-compare { font-size: 12px; color: var(--mmm-text-light); text-decoration: line-through; }
 
 /* Recipe cards */
@@ -768,8 +769,9 @@ h1, h2, h3, .display-font {
 }
 .mmm-recipe-image {
   height: 140px; background: var(--mmm-tan);
-  display: flex; align-items: center; justify-content: center; font-size: 56px;
+  overflow: hidden;
 }
+.mmm-recipe-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mmm-recipe-body { padding: 16px; }
 .mmm-recipe-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
 .mmm-recipe-title { font-weight: 700; font-size: 16px; color: var(--mmm-text); margin: 0; }
@@ -777,7 +779,7 @@ h1, h2, h3, .display-font {
 .mmm-recipe-desc { font-size: 13px; color: var(--mmm-text-mid); margin: 0 0 12px; line-height: 1.5; }
 .mmm-tools-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 .mmm-tool-chip {
-  font-size: 11px; font-weight: 700; color: var(--mmm-green);
+  font-size: 11px; font-weight: 700; color: var(--mmm-orange-dark);
   background: var(--mmm-tan); border-radius: 100px; padding: 5px 11px;
 }
 .mmm-recipe-actions { display: flex; gap: 10px; align-items: center; }
@@ -788,13 +790,17 @@ h1, h2, h3, .display-font {
   background: var(--mmm-white); border-radius: 20px; padding: 18px;
   text-align: left; border: 1.5px solid var(--mmm-tan); cursor: pointer;
 }
-.mmm-problem-emoji { font-size: 30px; margin-bottom: 8px; }
+.mmm-problem-emoji {
+  width: 44px; height: 44px; border-radius: 12px; overflow: hidden; margin-bottom: 10px;
+  background: var(--mmm-tan);
+}
+.mmm-problem-emoji img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mmm-problem-title { font-weight: 700; font-size: 14px; color: var(--mmm-text); margin-bottom: 4px; }
 .mmm-problem-link { font-size: 12px; color: var(--mmm-orange); font-weight: 700; }
 
 /* Deal banner */
 .mmm-deal-banner {
-  background: var(--mmm-green); border-radius: 24px; padding: 28px 22px;
+  background: var(--mmm-orange-dark); border-radius: 24px; padding: 28px 22px;
   text-align: center; color: var(--mmm-white);
 }
 .mmm-deal-title { font-size: 22px; font-weight: 800; margin: 0 0 8px; font-family: 'Playfair Display', Georgia, serif; }
@@ -818,7 +824,7 @@ h1, h2, h3, .display-font {
 }
 
 /* Footer */
-.mmm-footer { background: var(--mmm-green-dark); color: rgba(255,255,255,0.85); padding: 36px 0 28px; }
+.mmm-footer { background: var(--mmm-orange-dark); color: rgba(255,255,255,0.85); padding: 36px 0 28px; }
 .mmm-footer-links { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
 .mmm-footer-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 600; }
 .mmm-footer-fine { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 18px; line-height: 1.5; }

@@ -83,10 +83,10 @@ export default function ShopCart() {
               {cart.map(item => (
                 <div key={item.slug} className="card p-3 flex items-center gap-3">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                    className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0"
                     style={{ background: 'var(--bg-warm)' }}
                   >
-                    {item.emoji}
+                    <img src={item.emoji} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-[14px]" style={{ color: 'var(--text)' }}>{item.name}</div>

@@ -1,6 +1,6 @@
 // Mock product catalog for the Make Me Meals storefront.
-// Swap `image` for a real photo URL/path whenever you have one — until then
-// it's rendered as a big emoji on a warm gradient card.
+// `image` is a placeholder URL — replace each one with a real product photo
+// URL when you have it (see PRODUCT_IMAGE_GUIDE.md / chat for the full list).
 export const PRODUCTS = [
   {
     id: 'vegetable-chopper',
@@ -10,7 +10,7 @@ export const PRODUCTS = [
     price: 19.99,
     compareAtPrice: 24.99,
     rating: 4.8,
-    image: '🥦',
+    image: 'https://placehold.co/600x450/FCE3D2/B5502A?text=Vegetable+Chopper',
     category: 'prep',
     tags: ['chopping', 'prep', 'vegetables'],
   },
@@ -22,7 +22,7 @@ export const PRODUCTS = [
     price: 14.99,
     compareAtPrice: 18.99,
     rating: 4.7,
-    image: '🫗',
+    image: 'https://placehold.co/600x450/FCE3D2/B5502A?text=Olive+Oil+Mister',
     category: 'cooking',
     tags: ['oil', 'sheet-pan', 'healthy'],
   },
@@ -34,7 +34,7 @@ export const PRODUCTS = [
     price: 17.99,
     compareAtPrice: 21.99,
     rating: 4.9,
-    image: '🍗',
+    image: 'https://placehold.co/600x450/FCE3D2/B5502A?text=Chicken+Shredder',
     category: 'protein',
     tags: ['chicken', 'protein', 'shredding'],
   },
@@ -46,7 +46,7 @@ export const PRODUCTS = [
     price: 24.99,
     compareAtPrice: 29.99,
     rating: 4.8,
-    image: '🧀',
+    image: 'https://placehold.co/600x450/FCE3D2/B5502A?text=Rotary+Cheese+Grater',
     category: 'pasta',
     tags: ['cheese', 'pasta', 'grating'],
   },

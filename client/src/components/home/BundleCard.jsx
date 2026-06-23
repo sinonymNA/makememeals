@@ -18,14 +18,16 @@ export default function BundleCard({ bundle }) {
     <div className="mmm-bundle-card">
       <span className="mmm-bundle-badge">MMM Approved</span>
       <div style={{ flex: 1 }}>
-        <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--mmm-green-dark)', margin: '8px 0 4px' }}>
+        <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--mmm-orange-dark)', margin: '8px 0 4px' }}>
           {bundle.name}
         </h3>
         <p style={{ fontSize: '14px', color: 'var(--mmm-text-mid)', margin: 0 }}>{bundle.description}</p>
 
         <div className="mmm-bundle-icons">
           {products.map(p => (
-            <div key={p.id} className="mmm-bundle-icon" title={p.name}>{p.image}</div>
+            <div key={p.id} className="mmm-bundle-icon" title={p.name}>
+              <img src={p.image} alt={p.name} />
+            </div>
           ))}
         </div>
 

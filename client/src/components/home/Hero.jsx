@@ -8,7 +8,7 @@ export default function Hero() {
   return (
     <section className="mmm-hero mmm-container">
       <div className="mmm-hero-visual">
-        <span>🍝</span><span>🥦</span><span>🍗</span>
+        <img src="https://placehold.co/1080x480/FCE3D2/B5502A?text=Hero+Photo" alt="A home-cooked weeknight dinner" />
       </div>
       <h1 className="mmm-h1">Cook easier dinners this week.</h1>
       <p className="mmm-subhead">

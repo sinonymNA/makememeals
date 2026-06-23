@@ -10,7 +10,9 @@ export default function ProblemSection() {
       <div className="mmm-problem-grid">
         {PROBLEM_CATEGORIES.map(p => (
           <button key={p.id} className="mmm-problem-card" onClick={() => navigate(`/shop/${p.productId}`)}>
-            <div className="mmm-problem-emoji">{p.emoji}</div>
+            <div className="mmm-problem-emoji">
+              <img src={p.icon} alt={p.title} />
+            </div>
             <div className="mmm-problem-title">{p.title}</div>
             <span className="mmm-problem-link">Fix it →</span>
           </button>
