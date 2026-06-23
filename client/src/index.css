@@ -580,3 +580,265 @@ h1, h2, h3, .display-font {
   .recipe-card-print { box-shadow: none; border: 1px solid #ccc; }
   .grocery-paper { box-shadow: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MMM Homepage — cooking-commerce design system (scoped under .mmm-home
+   so it never touches the app's existing orange-accent UI elsewhere).
+   ══════════════════════════════════════════════════════════════════════ */
+.mmm-home {
+  --mmm-cream:      #FFF8EF;
+  --mmm-tan:         #F3E7D6;
+  --mmm-green:       #1F4D3B;
+  --mmm-green-dark:  #163A2C;
+  --mmm-orange:      #E8763C;
+  --mmm-orange-soft: #FCE3D2;
+  --mmm-white:       #FFFFFF;
+  --mmm-text:        #211B14;
+  --mmm-text-mid:    #6B6052;
+  --mmm-text-light:  #9C9182;
+
+  background: var(--mmm-cream);
+  color: var(--mmm-text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+.mmm-home h1, .mmm-home h2, .mmm-home h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.mmm-container { max-width: 1080px; margin: 0 auto; padding: 0 18px; }
+
+/* Buttons — large, thumb-friendly */
+.mmm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px 24px;
+  min-height: 52px;
+  width: 100%;
+  transition: filter 0.15s, transform 0.1s;
+}
+.mmm-btn:active { transform: scale(0.98); }
+.mmm-btn-primary { background: var(--mmm-green); color: var(--mmm-white); box-shadow: 0 8px 24px rgba(31,77,59,0.25); }
+.mmm-btn-primary:hover { filter: brightness(1.08); }
+.mmm-btn-secondary { background: var(--mmm-white); color: var(--mmm-green); border: 1.5px solid var(--mmm-green); }
+.mmm-btn-secondary:hover { background: var(--mmm-tan); }
+.mmm-btn-orange { background: var(--mmm-orange); color: var(--mmm-white); box-shadow: 0 8px 24px rgba(232,118,60,0.3); }
+.mmm-btn-orange:hover { filter: brightness(1.06); }
+.mmm-btn-sm { width: auto; padding: 10px 18px; font-size: 13px; min-height: 40px; border-radius: 12px; }
+
+/* Header */
+.mmm-header {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(255,248,239,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--mmm-tan);
+}
+.mmm-header-inner {
+  max-width: 1080px; margin: 0 auto; padding: 0 18px;
+  height: 60px; display: flex; align-items: center; justify-content: space-between;
+}
+.mmm-logo-text { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 19px; color: var(--mmm-green); }
+.mmm-icon-btn {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; cursor: pointer; position: relative;
+  color: var(--mmm-green);
+}
+.mmm-cart-badge {
+  position: absolute; top: 2px; right: 0px;
+  background: var(--mmm-orange); color: white;
+  font-size: 10px; font-weight: 800;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.mmm-mobile-menu {
+  background: var(--mmm-white);
+  border-bottom: 1px solid var(--mmm-tan);
+  padding: 8px 18px 16px;
+  display: flex; flex-direction: column;
+}
+.mmm-mobile-menu a {
+  padding: 12px 4px; font-weight: 600; font-size: 15px; color: var(--mmm-text);
+  text-decoration: none; border-bottom: 1px solid var(--mmm-tan);
+}
+.mmm-mobile-menu a:last-child { border-bottom: none; }
+
+/* Hero */
+.mmm-hero { padding: 32px 0 28px; text-align: center; }
+.mmm-hero-visual {
+  height: 180px; border-radius: 24px; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--mmm-orange-soft) 0%, var(--mmm-tan) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 64px; gap: 14px;
+}
+.mmm-h1 { font-size: 32px; font-weight: 800; line-height: 1.15; color: var(--mmm-green-dark); margin: 0 0 12px; }
+.mmm-subhead { font-size: 15px; color: var(--mmm-text-mid); line-height: 1.6; margin: 0 auto 24px; max-width: 360px; }
+.mmm-hero-ctas { display: flex; flex-direction: column; gap: 12px; max-width: 380px; margin: 0 auto; }
+.mmm-trust-badges {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  margin-top: 20px;
+}
+.mmm-trust-badge {
+  font-size: 12px; font-weight: 700; color: var(--mmm-green);
+  background: var(--mmm-tan); border-radius: 100px; padding: 7px 14px;
+}
+
+/* Section shell */
+.mmm-section { padding: 36px 0; }
+.mmm-section-title { font-size: 24px; font-weight: 800; color: var(--mmm-green-dark); margin: 0 0 6px; }
+.mmm-section-sub { font-size: 14px; color: var(--mmm-text-mid); margin: 0 0 22px; }
+
+/* Bundle card */
+.mmm-bundle-card {
+  background: var(--mmm-white);
+  border: 2px solid var(--mmm-green);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(31,77,59,0.12);
+  position: relative;
+}
+.mmm-bundle-badge {
+  position: absolute; top: -12px; left: 24px;
+  background: var(--mmm-orange); color: white;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 100px;
+}
+.mmm-bundle-icons { display: flex; gap: 10px; margin: 6px 0 16px; flex-wrap: wrap; }
+.mmm-bundle-icon {
+  width: 52px; height: 52px; border-radius: 16px; font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--mmm-tan);
+}
+.mmm-bundle-price-row { display: flex; align-items: baseline; gap: 10px; margin: 14px 0 4px; }
+.mmm-bundle-price { font-size: 30px; font-weight: 800; color: var(--mmm-green); }
+.mmm-bundle-compare { font-size: 16px; color: var(--mmm-text-light); text-decoration: line-through; }
+.mmm-bundle-savings { font-size: 12px; font-weight: 800; color: var(--mmm-orange); margin-bottom: 16px; }
+.mmm-bundle-bullets { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.mmm-bundle-bullet { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; color: var(--mmm-text); }
+
+/* MMM Approved badge */
+.mmm-approved {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.03em;
+  color: var(--mmm-green); background: var(--mmm-tan);
+  border-radius: 100px; padding: 3px 9px; text-transform: uppercase;
+}
+
+/* Product carousel */
+.mmm-carousel {
+  display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none;
+  padding: 4px 0 8px;
+  margin: 0 -18px; padding-left: 18px; padding-right: 18px;
+}
+.mmm-carousel::-webkit-scrollbar { display: none; }
+.mmm-product-card {
+  flex-shrink: 0; width: 200px;
+  background: var(--mmm-white); border-radius: 20px;
+  padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column;
+}
+.mmm-product-image {
+  height: 110px; border-radius: 14px; margin-bottom: 12px;
+  background: var(--mmm-orange-soft);
+  display: flex; align-items: center; justify-content: center; font-size: 44px;
+}
+.mmm-product-name { font-weight: 700; font-size: 14.5px; color: var(--mmm-text); margin-bottom: 4px; }
+.mmm-product-desc { font-size: 12px; color: var(--mmm-text-mid); line-height: 1.45; margin-bottom: 10px; flex: 1; }
+.mmm-rating { font-size: 11px; color: var(--mmm-orange); font-weight: 700; margin-bottom: 8px; }
+.mmm-rating-num { color: var(--mmm-text-mid); font-weight: 600; }
+.mmm-product-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 12px; }
+.mmm-product-price { font-weight: 800; font-size: 16px; color: var(--mmm-green); }
+.mmm-product-compare { font-size: 12px; color: var(--mmm-text-light); text-decoration: line-through; }
+
+/* Recipe cards */
+.mmm-recipe-grid { display: flex; flex-direction: column; gap: 14px; }
+.mmm-recipe-card {
+  background: var(--mmm-white); border-radius: 20px; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column;
+}
+.mmm-recipe-image {
+  height: 140px; background: var(--mmm-tan);
+  display: flex; align-items: center; justify-content: center; font-size: 56px;
+}
+.mmm-recipe-body { padding: 16px; }
+.mmm-recipe-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.mmm-recipe-title { font-weight: 700; font-size: 16px; color: var(--mmm-text); margin: 0; }
+.mmm-recipe-time { font-size: 12px; color: var(--mmm-text-light); font-weight: 600; flex-shrink: 0; margin-left: 8px; }
+.mmm-recipe-desc { font-size: 13px; color: var(--mmm-text-mid); margin: 0 0 12px; line-height: 1.5; }
+.mmm-tools-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.mmm-tool-chip {
+  font-size: 11px; font-weight: 700; color: var(--mmm-green);
+  background: var(--mmm-tan); border-radius: 100px; padding: 5px 11px;
+}
+.mmm-recipe-actions { display: flex; gap: 10px; align-items: center; }
+
+/* Shop by problem */
+.mmm-problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mmm-problem-card {
+  background: var(--mmm-white); border-radius: 20px; padding: 18px;
+  text-align: left; border: 1.5px solid var(--mmm-tan); cursor: pointer;
+}
+.mmm-problem-emoji { font-size: 30px; margin-bottom: 8px; }
+.mmm-problem-title { font-weight: 700; font-size: 14px; color: var(--mmm-text); margin-bottom: 4px; }
+.mmm-problem-link { font-size: 12px; color: var(--mmm-orange); font-weight: 700; }
+
+/* Deal banner */
+.mmm-deal-banner {
+  background: var(--mmm-green); border-radius: 24px; padding: 28px 22px;
+  text-align: center; color: var(--mmm-white);
+}
+.mmm-deal-title { font-size: 22px; font-weight: 800; margin: 0 0 8px; font-family: 'Playfair Display', Georgia, serif; }
+.mmm-deal-sub { font-size: 14px; opacity: 0.85; margin: 0 0 20px; }
+.mmm-deal-fine { font-size: 11px; opacity: 0.65; margin-top: 12px; }
+
+/* Planner CTA (secondary, quiet) */
+.mmm-planner-card {
+  background: var(--mmm-white); border: 1.5px dashed var(--mmm-text-light);
+  border-radius: 20px; padding: 22px; text-align: center;
+}
+
+/* Email capture */
+.mmm-email-card {
+  background: var(--mmm-tan); border-radius: 24px; padding: 28px 22px; text-align: center;
+}
+.mmm-email-form { display: flex; flex-direction: column; gap: 10px; max-width: 380px; margin: 0 auto; }
+.mmm-email-input {
+  padding: 15px 18px; border-radius: 16px; border: 1.5px solid var(--mmm-text-light);
+  font-size: 15px; background: var(--mmm-white); color: var(--mmm-text); min-height: 52px;
+}
+
+/* Footer */
+.mmm-footer { background: var(--mmm-green-dark); color: rgba(255,255,255,0.85); padding: 36px 0 28px; }
+.mmm-footer-links { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+.mmm-footer-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 600; }
+.mmm-footer-fine { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 18px; line-height: 1.5; }
+
+/* ── Responsive: tablet+ ── */
+@media (min-width: 640px) {
+  .mmm-h1 { font-size: 42px; }
+  .mmm-subhead { max-width: 460px; font-size: 16px; }
+  .mmm-hero-ctas { flex-direction: row; max-width: 480px; }
+  .mmm-btn { width: auto; flex: 1; }
+  .mmm-product-card { width: 220px; }
+  .mmm-problem-grid { grid-template-columns: repeat(4, 1fr); }
+  .mmm-recipe-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .mmm-footer-links { flex-direction: row; gap: 24px; }
+}
+
+/* ── Responsive: desktop ── */
+@media (min-width: 980px) {
+  .mmm-h1 { font-size: 52px; }
+  .mmm-hero-visual { height: 240px; }
+  .mmm-bundle-card { display: flex; gap: 32px; align-items: center; }
+  .mmm-recipe-grid { grid-template-columns: repeat(4, 1fr); }
+}
