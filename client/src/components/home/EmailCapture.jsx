@@ -12,10 +12,10 @@ export default function EmailCapture() {
   }
 
   return (
-    <section className="mmm-section mmm-container">
+    <section id="email-signup" className="mmm-section mmm-container">
       <div className="mmm-email-card">
-        <h3 className="mmm-section-title" style={{ fontSize: '22px' }}>Get 5 easy dinners this week</h3>
-        <p className="mmm-section-sub">Quick recipes and kitchen tips, straight to your inbox.</p>
+        <h3 className="mmm-section-title" style={{ fontSize: '22px' }}>Get 5 easy dinners picked for you every week</h3>
+        <p className="mmm-section-sub">We'll send you 5 curated dinner recipes, plus the best grocery deals to help you shop smarter and cook easier.</p>
         <form className="mmm-email-form" onSubmit={handleSubmit}>
           <input
             type="email"
@@ -25,8 +25,9 @@ export default function EmailCapture() {
             value={email}
             onChange={e => setEmail(e.target.value)}
           />
-          <button type="submit" className="mmm-btn mmm-btn-primary">Send Me the Dinners</button>
+          <button type="submit" className="mmm-btn mmm-btn-primary">Send Me This Week's Dinners</button>
         </form>
+        <p className="mmm-email-fine">Free every week.</p>
       </div>
     </section>
   );

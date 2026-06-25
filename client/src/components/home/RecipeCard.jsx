@@ -15,12 +15,18 @@ export default function RecipeCard({ recipe }) {
           <span className="mmm-recipe-title">{recipe.title}</span>
           <span className="mmm-recipe-time">{recipe.time}</span>
         </div>
-        <p className="mmm-recipe-desc">{recipe.description}</p>
-        <div className="mmm-tools-row">
-          {tools.map(t => <span key={t.id} className="mmm-tool-chip">{t.name}</span>)}
+        <div className="mmm-recipe-meta">
+          <span>{recipe.servings} servings</span>
+          <span>·</span>
+          <span>{recipe.difficulty}</span>
+          {recipe.cost && <><span>·</span><span>{recipe.cost}</span></>}
         </div>
+        <p className="mmm-recipe-desc">{recipe.description}</p>
+        {tools.length > 0 && (
+          <p className="mmm-recipe-tools-note">Uses {tools.length} MMM tool{tools.length > 1 ? 's' : ''}</p>
+        )}
         <div className="mmm-recipe-actions">
-          <button className="mmm-btn mmm-btn-primary mmm-btn-sm" onClick={() => navigate('/guest-setup')}>{recipe.cta}</button>
+          <button className="mmm-btn mmm-btn-primary mmm-btn-sm" onClick={() => navigate(`/recipe/${recipe.id}`)}>{recipe.cta}</button>
           <button className="mmm-btn mmm-btn-secondary mmm-btn-sm" onClick={() => navigate(`/shop/${tools[0]?.id}`)}>Shop Tools</button>
         </div>
       </div>

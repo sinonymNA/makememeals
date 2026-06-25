@@ -48,7 +48,7 @@ export default function BundleCard({ bundle }) {
           <span className="mmm-bundle-compare">Normally ${bundle.compareAtPrice.toFixed(2)}</span>
         </div>
         <div className="mmm-bundle-savings">{bundle.savingsText}</div>
-        <button className="mmm-btn mmm-btn-orange" onClick={handleAddKit}>Add Kit to Cart</button>
+        <button className="mmm-btn mmm-btn-orange" onClick={handleAddKit}>Shop the Weeknight Dinner Kit</button>
       </div>
     </div>
   );

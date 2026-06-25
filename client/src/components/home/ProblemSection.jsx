@@ -6,7 +6,7 @@ export default function ProblemSection() {
 
   return (
     <section className="mmm-section mmm-container">
-      <h2 className="mmm-section-title">Shop by what annoys you</h2>
+      <h2 className="mmm-section-title">What slows you down at dinner?</h2>
       <div className="mmm-problem-grid">
         {PROBLEM_CATEGORIES.map(p => (
           <button key={p.id} className="mmm-problem-card" onClick={() => navigate(`/shop/${p.productId}`)}>

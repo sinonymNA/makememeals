@@ -9,10 +9,10 @@ export const BUNDLES = [
     compareAtPrice: 74.96,
     savingsText: 'Save 33%',
     bullets: [
-      'Chop vegetables faster',
-      'Shred chicken in seconds',
-      'Use less oil while cooking',
-      'Make pasta night feel restaurant-quality',
+      'Chop onions, peppers, and veggies in seconds',
+      'Shred chicken for tacos, bowls, wraps, and pasta',
+      'Use less oil without losing crispiness',
+      'Upgrade pasta night with fresh grated cheese',
     ],
   },
 ];

@@ -7,8 +7,6 @@ const NAV_LINKS = [
   { label: 'Recipes', to: '/#recipes' },
   { label: 'Shop', to: '/shop' },
   { label: 'Meal Planner', to: '/guest-setup' },
-  { label: 'Deals', to: '/#deal' },
-  { label: 'Contact', to: '/#contact' },
 ];
 
 export default function Header() {

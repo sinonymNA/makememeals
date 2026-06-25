@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { initTheme } from './lib/theme.js';
 import Demo from './pages/Demo.jsx';
 import Home from './pages/Home.jsx';
+import RecipeDetail from './pages/Recipe.jsx';
 import Setup from './pages/Setup.jsx';
 import Swipe from './pages/Swipe.jsx';
 import WeekView from './pages/WeekView.jsx';
@@ -52,6 +53,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+        <Route path="/recipe/:id" element={<PageWrapper><RecipeDetail /></PageWrapper>} />
         <Route path="/demo" element={<PageWrapper><Demo /></PageWrapper>} />
 
         {/* Authenticated routes */}

@@ -1,4 +1,4 @@
-// "Shop by what annoys you" — problem-first navigation into the catalog.
+// "What slows you down at dinner?" — problem-first navigation into the catalog.
 export const PROBLEM_CATEGORIES = [
   {
     id: 'hate-chopping',
@@ -8,7 +8,7 @@ export const PROBLEM_CATEGORIES = [
   },
   {
     id: 'faster-protein',
-    title: 'I want faster protein',
+    title: 'Chicken takes forever',
     icon: '/images/problems/faster-protein.png',
     productId: 'chicken-shredder',
   },
@@ -20,7 +20,7 @@ export const PROBLEM_CATEGORIES = [
   },
   {
     id: 'better-pasta-night',
-    title: 'I want better pasta night',
+    title: 'Pasta feels boring',
     icon: '/images/problems/better-pasta-night.png',
     productId: 'cheese-grater',
   },

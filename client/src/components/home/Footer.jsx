@@ -23,7 +23,7 @@ export default function Footer() {
   return (
     <footer id="contact" className="mmm-footer">
       <div className="mmm-container">
-        <div className="mmm-logo-text" style={{ color: 'var(--mmm-white)' }}>Make Me Meals</div>
+        <div className="mmm-footer-logo">Make Me Meals</div>
         <nav className="mmm-footer-links">
           {LINKS.map(l => (
             <a key={l.label} href={l.to} onClick={(e) => { e.preventDefault(); go(l.to); }}>{l.label}</a>
