@@ -44,8 +44,8 @@ export default function Header() {
         <button className="mmm-icon-btn" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
-        <button className="mmm-logo-text" style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => navigate('/')}>
-          Make Me Meals
+        <button className="mmm-logo-btn" onClick={() => navigate('/')} aria-label="Make Me Meals home">
+          <img src="/images/brand/logo.png" alt="Make Me Meals" className="mmm-logo-img" />
         </button>
         <button className="mmm-icon-btn" onClick={() => navigate('/shop/cart')} aria-label="Cart">
           <ShoppingBag size={20} />

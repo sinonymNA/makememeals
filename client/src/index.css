@@ -587,12 +587,12 @@ h1, h2, h3, .display-font {
    ══════════════════════════════════════════════════════════════════════ */
 .mmm-home {
   --mmm-cream:       #FFF8EF;
-  --mmm-tan:         #F3E7D6;
-  --mmm-orange:      #E8763C;
-  --mmm-orange-dark: #B5502A;
-  --mmm-orange-soft: #FCE3D2;
+  --mmm-tan:         #F5E6D8;
+  --mmm-orange:      #FF6B47;
+  --mmm-orange-dark: #DE4A22;
+  --mmm-orange-soft: #FFE2D3;
   --mmm-white:       #FFFFFF;
-  --mmm-text:        #211B14;
+  --mmm-text:        #2A1F16;
   --mmm-text-mid:    #6B6052;
   --mmm-text-light:  #9C9182;
 
@@ -645,7 +645,8 @@ h1, h2, h3, .display-font {
   max-width: 1080px; margin: 0 auto; padding: 0 18px;
   height: 60px; display: flex; align-items: center; justify-content: space-between;
 }
-.mmm-logo-text { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 19px; color: var(--mmm-orange-dark); }
+.mmm-logo-btn { background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
+.mmm-logo-img { height: 30px; width: auto; display: block; }
 .mmm-icon-btn {
   width: 40px; height: 40px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
